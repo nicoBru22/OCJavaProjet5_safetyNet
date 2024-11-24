@@ -63,7 +63,42 @@ public class PersonService {
 		}
 	}
 
-	public void setPerson() {
-		// Si cette méthode est à implémenter plus tard, il faudra en tenir compte ici
+	public void updatePerson(Person updatedPerson) throws IOException {
+	    // Lire le fichier complet avant de modifier une personne
+	    ObjectMapper objectMapper = new ObjectMapper();
+	    DataModel dataModel = objectMapper.readValue(Files.readString(Paths.get(cheminFichier)), DataModel.class);
+
+	    // Trouver la personne à modifier dans la liste
+	    for (Person person : dataModel.getPersons()) {
+	        if (person.getFirstName().equals(updatedPerson.getFirstName()) &&
+	            person.getLastName().equals(updatedPerson.getLastName())) {
+	            
+	            // Mettre à jour les informations de la personne
+	            if (updatedPerson.getAddress() !=null) {
+	            	person.setAddress(updatedPerson.getAddress());
+	            }
+	            if (updatedPerson.getCity() !=null) {
+	            	person.setCity(updatedPerson.getCity());
+	            }
+	            if (updatedPerson.getZip() !=null) {
+	            	person.setZip(updatedPerson.getZip());
+	            }
+	            if (updatedPerson.getEmail() != null) {
+	                person.setEmail(updatedPerson.getEmail());
+	            }
+	            if (updatedPerson.getPhone() !=null) {
+	            	person.setPhone(updatedPerson.getPhone());
+	            }
+
+	            // Sauvegarder les données mises à jour dans le fichier
+	            String updatedContenuFichier = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(dataModel);
+	            Files.write(Paths.get(cheminFichier), updatedContenuFichier.getBytes());
+
+	            return; // Sortir de la méthode après avoir trouvé et mis à jour la personne
+	        }
+	    }
+
+	    // Si la personne n'a pas été trouvée, afficher un message
+	    System.out.println("Person not found in the list.");
 	}
 }

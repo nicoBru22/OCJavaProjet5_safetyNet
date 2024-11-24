@@ -38,11 +38,10 @@ public class PersonController {
 		return personService.getAllPersons();	
 	}
 	
-	
-	
 	@PutMapping("/person")
-	public void setPerson() {
-		
+	public List<Person> updatePerson(@RequestBody Person updatedPerson) throws IOException {
+		personService.updatePerson(updatedPerson);
+		return personService.getAllPersons();
 	}
 
 }
