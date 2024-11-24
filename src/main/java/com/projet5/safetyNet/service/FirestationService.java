@@ -33,6 +33,7 @@ public class FirestationService {
 
 	public void addFirestation(Firestation newFirestation)
 			throws JsonMappingException, JsonProcessingException, IOException {
+
 		ObjectMapper objectMapper = new ObjectMapper();
 		DataModel dataModel = objectMapper.readValue(Files.readString(Paths.get(cheminFichier)), DataModel.class);
 
@@ -40,6 +41,24 @@ public class FirestationService {
 
 		String updatedContenuFichier = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(dataModel);
 		Files.write(Paths.get(cheminFichier), updatedContenuFichier.getBytes());
+
+	}
+
+	public void deleteFirestation(Firestation deletedFirestation)
+			throws JsonMappingException, JsonProcessingException, IOException {
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		DataModel dataModel = objectMapper.readValue(Files.readString(Paths.get(cheminFichier)), DataModel.class);
+
+		if (dataModel.getFireStations()
+				.removeIf(firestation -> firestation.getStation().equals(deletedFirestation.getStation())
+						&& firestation.getAddress().equals(deletedFirestation.getAddress()))) {
+
+			String updatedContenuFichier = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(dataModel);
+			Files.write(Paths.get(cheminFichier), updatedContenuFichier.getBytes());
+		} else {
+			System.out.println("Firestation is not found in the list.");
+		}
 
 	}
 

@@ -3,6 +3,7 @@ package com.projet5.safetyNet.controller;
 import java.io.IOException;
 import java.util.List;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,6 +32,13 @@ public class FirestationController {
 	public List<Firestation> addFirestation(@RequestBody Firestation newFirestation)
 			throws JsonMappingException, JsonProcessingException, IOException {
 		firestationService.addFirestation(newFirestation);
+		return firestationService.getAllFireStation();
+	}
+
+	@DeleteMapping("/firestation")
+	public List<Firestation> deleteFirestation(@RequestBody Firestation deletedFirestation)
+			throws JsonMappingException, JsonProcessingException, IOException {
+		firestationService.deleteFirestation(deletedFirestation);
 		return firestationService.getAllFireStation();
 	}
 }

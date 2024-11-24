@@ -42,4 +42,21 @@ public class MedicalrecordService {
 		Files.write(Paths.get(cheminFichier), updatedContenuFichier.getBytes());
 	}
 
+	public void deleteMedicarecord(Medicalrecord deteledMedicalRecord)
+			throws JsonMappingException, JsonProcessingException, IOException {
+		ObjectMapper objectMapper = new ObjectMapper();
+		DataModel dataModel = objectMapper.readValue(Files.readString(Paths.get(cheminFichier)), DataModel.class);
+
+		if (dataModel.getMedicalrecords()
+				.removeIf(medicalrecord -> medicalrecord.getFirstName().equals(deteledMedicalRecord.getFirstName())
+						&& medicalrecord.getLastName().equals(deteledMedicalRecord.getLastName())
+						&& medicalrecord.getBirthdate().equals(deteledMedicalRecord.getBirthdate()))) {
+
+			String updatedContenuFichier = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(dataModel);
+			Files.write(Paths.get(cheminFichier), updatedContenuFichier.getBytes());
+		} else {
+			System.out.println("Medicalrecord is not found.");
+		}
+	}
+
 }

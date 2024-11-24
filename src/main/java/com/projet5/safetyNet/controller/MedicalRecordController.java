@@ -3,6 +3,7 @@ package com.projet5.safetyNet.controller;
 import java.io.IOException;
 import java.util.List;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,6 +33,12 @@ public class MedicalRecordController {
 			throws JsonMappingException, JsonProcessingException, IOException {
 		medicalrecordService.addMedicalRecord(newMedicalrecord);
 		return medicalrecordService.getAllMedicalRecords();
+	}
 
+	@DeleteMapping("/medicalrecord")
+	public List<Medicalrecord> deleteMedicalrecord(@RequestBody Medicalrecord deletedMedicalrecord)
+			throws JsonMappingException, JsonProcessingException, IOException {
+		medicalrecordService.deleteMedicarecord(deletedMedicalrecord);
+		return medicalrecordService.getAllMedicalRecords();
 	}
 }

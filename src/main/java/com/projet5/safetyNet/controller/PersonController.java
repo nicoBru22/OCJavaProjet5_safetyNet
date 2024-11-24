@@ -1,5 +1,6 @@
 package com.projet5.safetyNet.controller;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -31,9 +32,17 @@ public class PersonController {
 		return personService.getAllPersons(); // Retourne la liste complète mise à jour
 	}
 
+	@DeleteMapping("/person")
+	public List<Person> deletePerson(@RequestBody Person deletedPerson) throws IOException {
+		personService.deletePerson(deletedPerson);
+		return personService.getAllPersons();	
+	}
+	
+	
+	
 	@PutMapping("/person")
 	public void setPerson() {
-
+		
 	}
 
 }
