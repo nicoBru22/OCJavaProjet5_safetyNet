@@ -13,34 +13,9 @@ public class DataModel {
     private List<Person> persons; 
     
     @JsonProperty("firestations")
-    private List<FireStation> fireStations;
+    private List<Firestation> fireStations;
     
     @JsonProperty("medicalrecords")
-    private List<MedicalRecord> medicalrecords;
-	
-    public List<Person> getPersons() {
-        return persons;
-    }
-
-    
-    public void setPersons(List<Person> persons) {
-        this.persons = persons;
-    }
-    
-    public List<FireStation> getFireStations() {
-        return fireStations;
-    }
-
-    public void setFireStation(List<FireStation> fireStations) {
-        this.fireStations = fireStations;
-    }
-    
-    public List<MedicalRecord> getMedicalrecords() {
-    	return medicalrecords;
-    }
-    
-    public void setMedicalRecord(List<MedicalRecord> medicalrecords) {
-    	this.medicalrecords = medicalrecords;
-    }
+    private List<Medicalrecord> medicalrecords;
 
 }

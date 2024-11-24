@@ -13,28 +13,38 @@ import java.util.List;
 
 @Service
 public class PersonService {
-    private final List<Person> persons;
 
-    public PersonService() throws IOException {
-        // Charger le fichier JSON
-        ObjectMapper objectMapper = new ObjectMapper();
-        String filePath = "src/main/resources/data.json";
-        String jsonContent = Files.readString(Paths.get(filePath));
+	private List<Person> persons;
+	String cheminFichier = "src/main/resources/data.json";
 
-        // Désérialiser le fichier JSON en DataModel
-        DataModel dataModel = objectMapper.readValue(jsonContent, DataModel.class);
-        this.persons = dataModel.getPersons();
-    }
+	public PersonService() throws IOException {
+		// Lire le fichier complet
+		String contenuFichier = Files.readString(Paths.get(cheminFichier));
+		ObjectMapper objectMapper = new ObjectMapper();
+		DataModel dataModel = objectMapper.readValue(contenuFichier, DataModel.class);
 
-    public List<Person> getAllPersons() {
-        return persons;
-    }
-    
-    public void createPerson() {
-    	
-    }
-    
-    public void setPerson() {
-    	
-    }
+		// Initialiser les listes
+		this.persons = dataModel.getPersons();
+	}
+
+	public List<Person> getAllPersons() {
+		return persons;
+	}
+
+	public void addPerson(Person newPerson) throws IOException {
+		// Lire le fichier complet avant d'ajouter une nouvelle personne
+		ObjectMapper objectMapper = new ObjectMapper();
+		DataModel dataModel = objectMapper.readValue(Files.readString(Paths.get(cheminFichier)), DataModel.class);
+
+		// Ajouter la nouvelle personne à la liste des personnes
+		dataModel.getPersons().add(newPerson);
+
+		// Mettre à jour le fichier avec toutes les données
+		String updatedContenuFichier = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(dataModel);
+		Files.write(Paths.get(cheminFichier), updatedContenuFichier.getBytes());
+	}
+
+	public void setPerson() {
+		// Si cette méthode est à implémenter plus tard, il faudra en tenir compte ici
+	}
 }

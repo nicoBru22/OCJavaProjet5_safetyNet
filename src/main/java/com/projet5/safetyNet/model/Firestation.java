@@ -5,11 +5,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class FireStation {
+public class Firestation {
 
 	@JsonProperty("address")
 	private String address;
 	
 	@JsonProperty("station")
-	private Long station;
+	private String station;
 }
