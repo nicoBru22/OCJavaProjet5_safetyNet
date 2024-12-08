@@ -183,14 +183,6 @@
     "zip" : "97451",
     "phone" : "841-874-7458",
     "email" : "gramps@email.com"
-  }, {
-    "firstName" : "brunet2",
-    "lastName" : "nico",
-    "address" : "315",
-    "city" : "StMalo",
-    "zip" : "35400",
-    "phone" : "0679343875",
-    "email" : "brunet@test.com"
   } ],
   "firestations" : [ {
     "address" : "1509 Culver St",

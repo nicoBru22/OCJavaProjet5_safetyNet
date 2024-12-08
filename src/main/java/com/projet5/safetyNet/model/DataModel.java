@@ -10,7 +10,7 @@ import lombok.Data;
 public class DataModel {
 	
 	@JsonProperty("persons")
-    private List<Person> persons; 
+    private List<Person> personsList; 
     
     @JsonProperty("firestations")
     private List<Firestation> fireStations;

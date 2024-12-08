@@ -5,8 +5,10 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Data;
+import lombok.AllArgsConstructor;
 
 @Data
+@AllArgsConstructor
 public class Medicalrecord {
 	
 	@JsonProperty("firstName")
