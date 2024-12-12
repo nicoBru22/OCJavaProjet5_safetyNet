@@ -10,44 +10,56 @@ import com.projet5.safetyNet.model.Medicalrecord;
 
 @Repository
 public class MedicalrecordRepository {
-	
+
 	public DataRepository dataRepository;
 	public List<Medicalrecord> medicalrecordList;
-	
+	public DataModel dataModel;
+
 	public MedicalrecordRepository(DataRepository dataRepository) {
 		this.dataRepository = dataRepository;
-		this.medicalrecordList = List.of();
+		this.dataModel = dataRepository.readFile();
+		this.medicalrecordList = dataModel.getMedicalrecords();
 	}
-	
-    // Méthode pour récupérer la liste des medicalrecord
-	private void loadMedicalrecordList() throws IOException {
-		DataModel dataModel = dataRepository.readFile();
+
+	// Méthode pour obtenir toutes les medicalrecord
+	public List<Medicalrecord> getAllMedicalrecord() throws IOException {
+		return medicalrecordList;
+	}
+
+	// Méthode pour créer un nouveau médicalrecord
+	public void addMedicalrecord(Medicalrecord newMedicalrecord) {
+		medicalrecordList.add(newMedicalrecord);
+		dataModel.setMedicalrecords(medicalrecordList);
+		dataRepository.writeFile(dataModel);
+	}
+
+	// Méthode pour supprimer un nouveau médicalrecord
+	public void deleteMedicalrecord(Medicalrecord deletedMedicalrecord) {
+		medicalrecordList.removeIf(
+				medicalrecord -> medicalrecord.getFirstName().equalsIgnoreCase(deletedMedicalrecord.getFirstName())
+						&& medicalrecord.getLastName().equalsIgnoreCase(deletedMedicalrecord.getLastName()));
+		dataModel.setMedicalrecords(medicalrecordList);
+		dataRepository.writeFile(dataModel);
+	}
+
+	// Méthode pour modifier un nouveau médicalrecord
+	public void updateMedicalrecord(Medicalrecord updatedMedicalrecord) throws Exception {
+		boolean updated = medicalrecordList.stream()
+			.filter(medicalrecord -> medicalrecord.getFirstName().equals(updatedMedicalrecord.getFirstName()) 
+					&& medicalrecord.getLastName().equals(updatedMedicalrecord.getLastName()))
+			.findFirst()
+			.map(medicalrecord -> {
+				medicalrecordList.set(medicalrecordList.indexOf(medicalrecord), updatedMedicalrecord);
+				return true;
+			})
+			.orElse(false);
 		
-		if (dataModel != null && dataModel.getMedicalrecords() != null) {
-			this.medicalrecordList = dataModel.getMedicalrecords();
+		if (updated) {
+			dataModel.setMedicalrecords(medicalrecordList);
+			dataRepository.writeFile(dataModel);
 		} else {
-			this.medicalrecordList = List.of();
+			throw new Exception("la personne n'a pas été trouvée");
 		}
 	}
-		
-    // Méthode pour obtenir toutes les medicalrecord
-    public List<Medicalrecord> getAllMedicalrecord() throws IOException {
-        if (medicalrecordList.isEmpty()) {
-        	try {
-                loadMedicalrecordList();
-        	} catch (IOException e) {
-        		throw new RuntimeException("Erreur lors du chargement des medicalrecord", e);
-        	}
-        }
-        return medicalrecordList;
-    }
-	
-    //Méthode pour recharger la liste de médicalrecord
-    public void reloadMedicalrecord() throws IOException {
-        try {
-        	loadMedicalrecordList();
-        } catch (IOException e) {
-        	throw new RuntimeException("Erreur lors du rechargement des medicalrecord", e);
-        }
-    }
+
 }
