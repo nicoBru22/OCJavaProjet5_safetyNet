@@ -231,6 +231,9 @@
   }, {
     "address" : "951 LoneTree Rd",
     "station" : "2"
+  }, {
+    "address" : "adresse test",
+    "station" : "5"
   } ],
   "medicalrecords" : [ {
     "firstName" : "John",
