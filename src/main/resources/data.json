@@ -183,14 +183,6 @@
     "zip" : "97451",
     "phone" : "841-874-7458",
     "email" : "gramps@email.com"
-  }, {
-    "firstName" : "Nicolas",
-    "lastName" : "Brunet",
-    "address" : "fautrel",
-    "city" : "champsGeraux",
-    "zip" : "22630",
-    "phone" : "123456789",
-    "email" : "bn@gmail.com"
   } ],
   "firestations" : [ {
     "address" : "1509 Culver St",
