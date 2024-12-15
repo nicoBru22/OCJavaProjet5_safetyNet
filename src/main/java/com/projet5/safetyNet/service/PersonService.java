@@ -140,7 +140,7 @@ public class PersonService {
 
 	        if (personFound) {
 	            logger.info("Personne trouvée. Mise à jour en cours...");
-	            personRepository.putPerson(updatedPerson);
+	            personRepository.addPerson(updatedPerson);
 	            logger.info("Personne mise à jour avec succès : {}", updatedPerson);
 	        } else {
 	            logger.error("Cette personne n'existe pas : {}", updatedPerson);

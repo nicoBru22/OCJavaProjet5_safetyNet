@@ -97,59 +97,76 @@ public class PersonRepository {
 	/**
 	 * Méthode pour ajouter une nouvelle personne à la liste.
 	 * <p>
-	 * Cette méthode ajoute la nouvelle personne à la liste actuelle des personnes. 
-	 * Après l'ajout, la liste est mise à jour dans le modèle de données et le fichier 
-	 * est réécrit pour refléter ce changement.
+	 * Cette méthode ajoute la nouvelle personne à la liste actuelle des personnes.
+	 * Après l'ajout, la liste est mise à jour dans le modèle de données et le
+	 * fichier est réécrit pour refléter ce changement.
 	 * </p>
 	 * 
-	 * @param newPerson Objet {@link Person} représentant la nouvelle personne à ajouter à la liste.
-	 * @throws Exception Si une erreur survient lors de l'ajout de la personne ou de l'écriture dans le fichier de données.
+	 * @param newPerson Objet {@link Person} représentant la nouvelle personne à
+	 *                  ajouter à la liste.
+	 * @throws Exception Si une erreur survient lors de l'ajout de la personne ou de
+	 *                   l'écriture dans le fichier de données.
 	 */
 	public void addPerson(Person newPerson) throws Exception {
-	    logger.info("Entrée dans la méthode addPerson() de la class PersonRepository.");
-	    try {
-	        logger.info("Ajout de la nouvelle personne.");
-	        personsList.add(newPerson);
-	        logger.info("La personne a été ajoutée. Mise à jour de la liste.");
-	        dataModel.setPersonsList(personsList);
+		logger.info("Entrée dans la méthode addPerson() de la class PersonRepository.");
+		try {
+			logger.info("Ajout de la nouvelle personne.");
+			personsList.add(newPerson);
+			logger.info("La personne a été ajoutée. Mise à jour de la liste.");
+			dataModel.setPersonsList(personsList);
 
-	        logger.info("Mise à jour effectuée. Ecriture du document.");
-	        dataRepository.writeFile(dataModel);
-	    } catch (Exception e) {
-	        logger.error("Erreur lors de l'ajout de la personne.", e);
-	        throw new Exception("Erreur lors de l'ajout de la personne.", e);
-	    }
+			logger.info("Mise à jour effectuée. Ecriture du document.");
+			dataRepository.writeFile(dataModel);
+		} catch (Exception e) {
+			logger.error("Erreur lors de l'ajout de la personne.", e);
+			throw new Exception("Erreur lors de l'ajout de la personne.", e);
+		}
 	}
-	
-	
-	
-	
-	
-	
-	
 
 	/**
 	 * Méthode pour mettre à jour les informations d'une personne existante.
-	 * 
+	 *
+	 * Cette méthode met à jour une personne existante en base de données après
+	 * avoir comparé les firstName et lastName. Après la mise à jour, la liste est
+	 * mise à jour dans le modèle de données et le fichier est réécrit pour refléter
+	 * ce changement.
+	 *
 	 * @param updatedPerson La personne contenant les informations mises à jour.
+	 * @throws Exception Si la personne n'existe pas ou si une erreur survient lors
+	 *                   de l'écriture.
 	 */
-	public void putPerson(Person updatedPerson) {
-		// Parcourir la liste pour trouver la personne correspondante
-		for (int i = 0; i < personsList.size(); i++) {
-			Person person = personsList.get(i);
-			// Comparer les noms et prénoms pour identifier la personne à mettre à jour
-			if (person.getFirstName().equalsIgnoreCase(updatedPerson.getFirstName())
-					&& person.getLastName().equalsIgnoreCase(updatedPerson.getLastName())) {
-				// Remplacer l'ancienne personne par la nouvelle version mise à jour
-				personsList.set(i, updatedPerson);
-				break;
-			}
+	public void updatePerson(Person updatedPerson) throws Exception {
+		logger.info("Entrée dans la méthode updatePerson de la class PersonRepository.");
+
+		if (updatedPerson == null || updatedPerson.getFirstName() == null || updatedPerson.getLastName() == null) {
+			throw new IllegalArgumentException("Les informations de la personne à mettre à jour sont invalides.");
 		}
 
-		// Mettre à jour la liste des personnes dans dataModel
-		dataModel.setPersonsList(personsList);
+		boolean isUpdated = false;
+		try {
+			for (int i = 0; i < personsList.size(); i++) {
+				Person person = personsList.get(i);
+				if (person.getFirstName().equalsIgnoreCase(updatedPerson.getFirstName())
+						&& person.getLastName().equalsIgnoreCase(updatedPerson.getLastName())) {
+					logger.info("Mise à jour de la personne à l'index " + i + " : " + updatedPerson);
+					personsList.set(i, updatedPerson);
+					isUpdated = true;
+					break;
+				}
+			}
 
-		// Écrire les modifications dans le fichier JSON
-		dataRepository.writeFile(dataModel);
+			if (!isUpdated) {
+				logger.warn("Aucune personne trouvée avec les informations fournies : " + updatedPerson);
+				throw new Exception("La personne à mettre à jour n'existe pas.");
+			}
+			logger.info("Mise à jour de la liste et écriture du fichier.");
+			dataModel.setPersonsList(personsList);
+			dataRepository.writeFile(dataModel);
+
+		} catch (Exception e) {
+			logger.error("Erreur lors de la mise à jour de la personne.", e);
+			throw new Exception("Erreur lors de la mise à jour de la personne.", e);
+		}
 	}
+
 }
