@@ -4,6 +4,7 @@ import com.projet5.safetyNet.model.Person;
 import com.projet5.safetyNet.repository.PersonRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -119,36 +120,89 @@ public class PersonService {
 
 	/**
 	 * Méthode pour mettre à jour les informations d'une personne existante.
-	 * Recherche une correspondance par prénom et nom, puis met à jour les informations.
+	 * Recherche une correspondance par prénom et nom, puis met à jour les
+	 * informations.
 	 * 
 	 * @param updatedPerson Personne avec les nouvelles informations.
-	 * @throws IllegalArgumentException Si les champs obligatoires sont manquants ou si la personne n'existe pas.
+	 * @throws IllegalArgumentException Si les champs obligatoires sont manquants ou
+	 *                                  si la personne n'existe pas.
 	 */
 	public void updatePerson(Person updatedPerson) {
-	    logger.info("Entrée dans la méthode updatePerson() de la classe PersonService.");
+		logger.info("Entrée dans la méthode updatePerson() de la classe PersonService.");
 
-	    if (updatedPerson.getFirstName() == null || updatedPerson.getFirstName().isEmpty()
-	            || updatedPerson.getLastName() == null || updatedPerson.getLastName().isEmpty()) {
-	        logger.error("Les champs firstName ou lastName sont null ou vides.");
-	        throw new IllegalArgumentException("Les champs 'firstName' et 'lastName' sont obligatoires pour une mise à jour.");
+		if (updatedPerson.getFirstName() == null || updatedPerson.getFirstName().isEmpty()
+				|| updatedPerson.getLastName() == null || updatedPerson.getLastName().isEmpty()) {
+			logger.error("Les champs firstName ou lastName sont null ou vides.");
+			throw new IllegalArgumentException(
+					"Les champs 'firstName' et 'lastName' sont obligatoires pour une mise à jour.");
+		}
+
+		try {
+			boolean personFound = personRepository.getAllPerson().stream()
+					.anyMatch(person -> person.getFirstName().equalsIgnoreCase(updatedPerson.getFirstName())
+							&& person.getLastName().equalsIgnoreCase(updatedPerson.getLastName()));
+
+			if (personFound) {
+				logger.info("Personne trouvée. Mise à jour en cours...");
+				personRepository.addPerson(updatedPerson);
+				logger.info("Personne mise à jour avec succès : {}", updatedPerson);
+			} else {
+				logger.error("Cette personne n'existe pas : {}", updatedPerson);
+				throw new IllegalArgumentException("Cette personne n'existe pas.");
+			}
+		} catch (Exception e) {
+			logger.error("Erreur lors de la mise à jour de la personne.", e);
+			throw new RuntimeException("Erreur lors de la mise à jour de la personne : " + e.getMessage(), e);
+		}
+	}
+
+	/**
+	 * Récupère la liste des adresses email des personnes selon leur ville.
+	 * 
+	 * <p>
+	 * Cette méthode permet de récupérer la liste des adresses email des personnes
+	 * qui résident dans la ville spécifiée en paramètre. Elle interroge la base de
+	 * données pour récupérer toutes les personnes, puis filtre celles qui vivent dans
+	 * la ville donnée. Elle retourne une liste contenant les adresses email des
+	 * personnes habitant dans la ville spécifiée.
+	 * </p>
+	 * 
+	 * @param city le nom de la ville dans laquelle rechercher les adresses email
+	 *             des personnes.
+	 * @return une liste contenant les adresses email des personnes vivant dans la
+	 *         ville spécifiée, ou une liste vide si aucune personne n'est trouvée
+	 *         pour cette ville.
+	 * @throws Exception si une erreur survient lors de la récupération des données
+	 *                   (par exemple, si la ville est invalide, ou une erreur technique
+	 *                   survient dans la récupération des données depuis le repository).
+	 */
+	public List<String> getCommunityEmail(String city) throws Exception {
+	    logger.info("Début de la récupération des adresses email pour la ville : {}", city);
+	    
+	    if (city == null || city.isEmpty()) {
+	        logger.error("Le paramètre 'city' est vide ou nul.");
+	        throw new Exception("Le champ 'city' ne peut pas être null ou vide.");
 	    }
-
+	    
 	    try {
-	        boolean personFound = personRepository.getAllPerson().stream()
-	                .anyMatch(person -> person.getFirstName().equalsIgnoreCase(updatedPerson.getFirstName())
-	                        && person.getLastName().equalsIgnoreCase(updatedPerson.getLastName()));
-
-	        if (personFound) {
-	            logger.info("Personne trouvée. Mise à jour en cours...");
-	            personRepository.addPerson(updatedPerson);
-	            logger.info("Personne mise à jour avec succès : {}", updatedPerson);
+	        List<Person> personList = personRepository.getAllPerson();
+	        logger.info("Récupération des personnes terminée, traitement des données...");
+	        List<String> communityEmail = personList.stream()
+	                .filter(person -> person.getCity().equalsIgnoreCase(city))
+	                .map(person -> person.getEmail())
+	                .collect(Collectors.toList());
+	        if (communityEmail.isEmpty()) {
+	            logger.warn("Aucune personne trouvée pour la ville : {}", city);
 	        } else {
-	            logger.error("Cette personne n'existe pas : {}", updatedPerson);
-	            throw new IllegalArgumentException("Cette personne n'existe pas.");
+	            logger.info("Nombre d'adresses email récupérées pour la ville {} : {}", city, communityEmail.size());
 	        }
+
+	        return communityEmail;
+	        
 	    } catch (Exception e) {
-	        logger.error("Erreur lors de la mise à jour de la personne.", e);
-	        throw new RuntimeException("Erreur lors de la mise à jour de la personne : " + e.getMessage(), e);
+	        logger.error("Une erreur s'est produite lors de la récupération des adresses email pour la ville : {}", city, e);
+	        throw new Exception("Une erreur s'est produite dans la récupération des données.", e);
 	    }
 	}
+
 }

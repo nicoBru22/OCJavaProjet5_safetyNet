@@ -12,7 +12,7 @@ import com.projet5.safetyNet.service.PersonService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/persons")
+@RequestMapping
 public class PersonController {
 
 	private static Logger logger = LogManager.getLogger(PersonController.class);
@@ -27,7 +27,7 @@ public class PersonController {
 	 * 
 	 * @return Liste des personnes ou un message d'erreur en cas de problème.
 	 */
-	@GetMapping
+	@GetMapping("/persons")
 	public ResponseEntity<?> getAllPersons() {
 		logger.info("Entrée dans la méthode getAllPersons() de la classe PersonController.");
 		try {
@@ -49,7 +49,7 @@ public class PersonController {
 	 * @return Message de confirmation ou un message d'erreur.
 	 * @throws Exception
 	 */
-	@PostMapping
+	@PostMapping("/persons")
 	public ResponseEntity<?> addPerson(@RequestBody Person person) throws Exception {
 		logger.info("Entrée dans la méthode addPerson() de la classe PersonController.");
 		try {
@@ -94,7 +94,7 @@ public class PersonController {
 	 * @return Message de confirmation ou un message d'erreur.
 	 * @throws Exception
 	 */
-	@DeleteMapping
+	@DeleteMapping("/persons")
 	public ResponseEntity<?> deletePerson(@RequestBody Person person) {
 		logger.info("Entrée dans la méthode deletePerson() de la classe PersonController.");
 		try {
@@ -106,6 +106,40 @@ public class PersonController {
 			logger.error("Erreur lors de la suppression de la personne : " + person, e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body("Erreur lors de la suppression de la personne." + e.getMessage());
+		}
+	}
+
+	/**
+	 * Récupère la liste des adresses email des personnes selon leur ville.
+	 * 
+	 * <p>
+	 * Cette méthode permet de récupérer la liste des adresses email des personnes
+	 * qui résident dans la ville spécifiée en paramètre. Elle appelle le service
+	 * pour récupérer les données correspondantes et retourne une liste contenant
+	 * les adresses email des personnes habitant dans la ville donnée.
+	 * </p>
+	 * 
+	 * @param city le nom de la ville dans laquelle rechercher les adresses email
+	 *             des personnes.
+	 * @return une liste contenant les adresses email des personnes vivant dans la
+	 *         ville spécifiée.
+	 * @throws Exception si une erreur survient lors de la récupération des données
+	 *                   (par exemple, si la ville n'est pas trouvée ou si une
+	 *                   erreur technique survient).
+	 */
+	@GetMapping("/communityEmail")
+	public List<String> getCommunityEmail(@RequestParam String city) throws Exception {
+		logger.info(
+				"Entrée dans la méthode getCommunityEmail() de la classe PersonController, recherche pour la ville : {}",
+				city);
+		try {
+			List<String> communityEmail = personService.getCommunityEmail(city);
+			return communityEmail;
+		} catch (Exception e) {
+			logger.error("Une erreur s'est produite lors de la récupération des adresses email pour la ville : {}",
+					city, e);
+			throw new Exception(
+					"Une erreur s'est produite lors de la récupération des adresses email pour la ville : " + city, e);
 		}
 	}
 }

@@ -124,7 +124,7 @@ public class FirestationController {
 	@GetMapping("/firestation")
 	public List<String> personFromFirestation(@RequestParam String station) throws Exception {
 		logger.info("Recherche des personnes associées à la caserne : {}", station);
-		List<String> persons = firestationService.personFromFirestation(station);
+		List<String> persons = firestationService.personFromStationNumber(station);
 		logger.debug("Liste des personnes associées à la caserne {} : {}", station, persons);
 		return persons;
 	}

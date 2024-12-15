@@ -180,7 +180,7 @@ public class FirestationService {
 	 * @throws Exception Si une erreur se produit lors de la récupération des
 	 *                   données ou du filtrage.
 	 */
-	public List<String> personFromFirestation(String station) throws Exception {
+	public List<String> personFromStationNumber(String station) throws Exception {
 		logger.info("Début de la récupération des personnes pour la station : {}", station);
 		if (station == null || station.isEmpty()) {
 			logger.error("Le numéro de station est vide ou nul.");
@@ -245,7 +245,7 @@ public class FirestationService {
 	 */
 	public List<String> phoneAlert(String station) throws Exception {
 		logger.info("Début de la récupération des personnes associées à la station : {}", station);
-		List<String> personToAlert = personFromFirestation(station);
+		List<String> personToAlert = personFromStationNumber(station);
 		if (personToAlert == null || personToAlert.isEmpty()) {
 			logger.warn("Aucune personne trouvée pour la station : {}", station);
 			return new ArrayList<>();
