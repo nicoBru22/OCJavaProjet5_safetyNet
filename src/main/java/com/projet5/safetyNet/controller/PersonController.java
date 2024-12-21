@@ -10,6 +10,7 @@ import com.projet5.safetyNet.model.Person;
 import com.projet5.safetyNet.service.PersonService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping
@@ -141,5 +142,43 @@ public class PersonController {
 			throw new Exception(
 					"Une erreur s'est produite lors de la récupération des adresses email pour la ville : " + city, e);
 		}
+	}
+
+	/**
+	 * 
+	 * @param address
+	 * @return une liste contenant les enfants vivant à l'adresse donnée.
+	 * @throws Exception si une erreur survient lors de la récupération des données
+	 *                   (par exemple, si la ville n'est pas trouvée ou si une
+	 *                   erreur technique survient).
+	 */
+	@GetMapping("/childAlert")
+	public List<String> getChildListFromAddress(@RequestParam String address) throws Exception {
+		List<String> childList = personService.getChildListFromAddress(address);
+		return childList;
+	}
+
+	/**
+	 * 
+	 * @param lastName le nom des personne dont on veut les informations.
+	 * @return une liste d'information sur les personnes dont le nom est passé en paramètre. 
+	 * @throws Exception si une erreur survient lors de la récupération des données
+	 *                   (par exemple, si la ville n'est pas trouvée ou si une
+	 *                   erreur technique survient).
+	 */
+	@GetMapping("/personInfolastName")
+	public Map<String, Object> getPersonInfoLastName(@RequestParam String lastName) throws Exception {
+		logger.info(
+				"Entrée dans la méthode getPersonInfoLastName() de la classe PersonController, recherche par nom de famille : {}",
+				lastName);
+		try {
+			Map<String, Object> personInfo = personService.personInfo(lastName);
+			return personInfo;
+		} catch (Exception e) {
+			throw new Exception(
+					"Une erreur est survenue dans la récupération de la liste d'information des personnes selon le nom.",
+					e);
+		}
+
 	}
 }

@@ -1,7 +1,12 @@
 package com.projet5.safetyNet.service;
 
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
@@ -9,8 +14,10 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import com.projet5.safetyNet.model.Firestation;
+import com.projet5.safetyNet.model.Medicalrecord;
 import com.projet5.safetyNet.model.Person;
 import com.projet5.safetyNet.repository.FirestationRepository;
+import com.projet5.safetyNet.repository.MedicalrecordRepository;
 import com.projet5.safetyNet.repository.PersonRepository;
 
 /**
@@ -34,19 +41,23 @@ import com.projet5.safetyNet.repository.PersonRepository;
 @Service
 public class FirestationService {
 
+	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 	private static final Logger logger = LogManager.getLogger(FirestationService.class);
 	private final FirestationRepository firestationRepository;
 	private final PersonRepository personRepository;
+	private MedicalrecordRepository medicalrecordRepository;
 
 	/**
 	 * Constructeur du service pour initialiser les repositories nécessaires.
 	 *
 	 * @param firestationRepository Le repository pour les casernes de pompiers.
 	 * @param personRepository      Le repository pour les personnes.
+	 * @param medicalrecordRepository 
 	 */
-	public FirestationService(FirestationRepository firestationRepository, PersonRepository personRepository) {
+	public FirestationService(FirestationRepository firestationRepository, PersonRepository personRepository, MedicalrecordRepository medicalrecordRepository) {
 		this.firestationRepository = firestationRepository;
 		this.personRepository = personRepository;
+		this.medicalrecordRepository = medicalrecordRepository;
 	}
 
 	/**
@@ -180,9 +191,9 @@ public class FirestationService {
 	 * @throws Exception Si une erreur se produit lors de la récupération des
 	 *                   données ou du filtrage.
 	 */
-	public List<String> personFromStationNumber(String station) throws Exception {
-		logger.info("Début de la récupération des personnes pour la station : {}", station);
-		if (station == null || station.isEmpty()) {
+	public List<String> personFromStationNumber(String stationNumber) throws Exception {
+		logger.info("Début de la récupération des personnes pour la station : {}", stationNumber);
+		if (stationNumber == null || stationNumber.isEmpty()) {
 			logger.error("Le numéro de station est vide ou nul.");
 			throw new IllegalArgumentException("Le numéro de station ne peut pas être vide.");
 		}
@@ -192,37 +203,80 @@ public class FirestationService {
 
 			List<Firestation> firestationList = firestationRepository.getAllFirestations();
 			List<Person> personList = personRepository.getAllPerson();
-
-			List<Firestation> filteredStations = firestationList.stream()
-					.filter(firestation -> firestation.getStation().equals(station)).collect(Collectors.toList());
-
-			if (filteredStations.isEmpty()) {
-				logger.error("Aucune firestation trouvée pour le numéro de station : {}", station);
+			List<Medicalrecord> medicalrecordList = medicalrecordRepository.getAllMedicalrecord();
+			
+			//Récupération de l'adresse des stations à ce numéro stationNumber
+			List<String> filteredStationsAddress = firestationList.stream()
+				    .filter(firestation -> firestation.getStation().equals(stationNumber))
+				    .map(Firestation::getAddress)
+				    .collect(Collectors.toList()); 
+			if (filteredStationsAddress.isEmpty()) {
+				logger.error("Aucune firestation trouvée pour le numéro de station : {}", stationNumber);
 				throw new Exception("Il n'existe pas de firestation avec ce numéro.");
 			}
-
-			List<String> filteredStationsAddress = filteredStations.stream().map(Firestation::getAddress)
-					.collect(Collectors.toList());
 
 			List<Person> personFromFirestation = personList.stream()
 					.filter(person -> filteredStationsAddress.contains(person.getAddress()))
 					.collect(Collectors.toList());
 
 			if (personFromFirestation.isEmpty()) {
-				logger.warn("Aucune personne trouvée pour la station : {}", station);
+				logger.warn("Aucune personne trouvée pour la station : {}", stationNumber);
 			}
+
+
+
+
+
+			AtomicInteger numChildren = new AtomicInteger(0);
+			AtomicInteger numAdults = new AtomicInteger(0);
 
 			for (Person person : personFromFirestation) {
-				String personInfo = person.getFirstName() + " " + person.getLastName() + ", " + person.getPhone() + ", "
-						+ person.getAddress() + ", Station: " + station;
-				personFromFirestationList.add(personInfo);
-			}
+			    medicalrecordList.stream()
+			        .filter(record -> record.getFirstName().equals(person.getFirstName()) 
+			                       && record.getLastName().equalsIgnoreCase(person.getLastName()))
+			        .findFirst()
+			        .ifPresent(record -> {
+			            String personInfo;
+			            try {
+			                // Calculer l'âge de la personne
+			                int age = ageOfPerson(record.getBirthdate());
 
-			logger.info("Récupération terminée pour la station : {}", station);
+			                // Déterminer la catégorie d'âge
+			                String ageCategory = (age < 18) ? "Enfant" : "Adulte";
+
+			                // Incrémenter les compteurs en fonction de l'âge
+			                if (age < 18) {
+			                    numChildren.incrementAndGet();  // Incrémenter le compteur d'enfants
+			                } else {
+			                    numAdults.incrementAndGet();  // Incrémenter le compteur d'adultes
+			                }
+
+			                // Construire la chaîne avec les informations personnelles
+			                personInfo = person.getFirstName() + " " + person.getLastName() + ", " 
+			                           + person.getPhone() + ", " 
+			                           + person.getAddress() + ", Station: " + stationNumber
+			                           + ", " + ageCategory + ", Age: " + age + " ans";
+			            } catch (Exception e) {
+			                personInfo = person.getFirstName() + " " + person.getLastName() + ", "
+			                           + "Age information unavailable, Station: " + stationNumber;
+			                System.err.println("Erreur lors du calcul de l'âge pour " + person.getFirstName() + " " + person.getLastName() + ": " + e.getMessage());
+			            }
+
+			            // Ajouter l'info de la personne sans le décompte
+			            personFromFirestationList.add(personInfo);
+			        });
+			}
+			
+
+			String summary = "Nombre total d'adultes : " + numAdults.get() + ", Nombre total d'enfants : " + numChildren.get();
+			personFromFirestationList.add(summary);  // Ajouter le résumé à la fin
+
+
+			logger.info("Récupération terminée pour la station : {}", stationNumber);
 			return personFromFirestationList;
 
 		} catch (Exception e) {
-			logger.error("Erreur lors de la récupération des personnes liées à la station : {}", station, e);
+			logger.error("Erreur lors de la récupération des personnes liées à la station : {}", stationNumber, e);
 			throw new Exception("Erreur lors de la récupération des personnes liées à la station de pompiers.", e);
 		}
 	}
@@ -261,6 +315,16 @@ public class FirestationService {
 					"Erreur lors de la récupération des numéros de téléphone associés à la station de pompiers.", e);
 		}
 
+	}
+	
+	public int ageOfPerson(String birthdate) throws Exception {
+		try {
+			LocalDate birthDate = LocalDate.parse(birthdate, DATE_FORMATTER);
+			int age = Period.between(birthDate, LocalDate.now()).getYears();
+			return age;
+		} catch (DateTimeParseException e) {
+			throw new Exception("Impossible de calculer l'âge de la perosnne.");
+		}
 	}
 
 }

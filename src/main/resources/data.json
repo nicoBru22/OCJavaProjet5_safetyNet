@@ -242,7 +242,7 @@
   }, {
     "firstName" : "Tenley",
     "lastName" : "Boyd",
-    "birthdate" : "02/18/2012",
+    "birthdate" : "18/02/2012",
     "medications" : [ ],
     "allergies" : [ "peanut" ]
   }, {
@@ -266,7 +266,7 @@
   }, {
     "firstName" : "Tessa",
     "lastName" : "Carman",
-    "birthdate" : "02/18/2012",
+    "birthdate" : "18/02/2012",
     "medications" : [ ],
     "allergies" : [ ]
   }, {
@@ -314,7 +314,7 @@
   }, {
     "firstName" : "Reginold",
     "lastName" : "Walker",
-    "birthdate" : "08/30/1979",
+    "birthdate" : "30/08/1979",
     "medications" : [ "thradox:700mg" ],
     "allergies" : [ "illisoxian" ]
   }, {
@@ -332,7 +332,7 @@
   }, {
     "firstName" : "Allison",
     "lastName" : "Boyd",
-    "birthdate" : "03/15/1965",
+    "birthdate" : "15/03/1965",
     "medications" : [ "aznol:200mg" ],
     "allergies" : [ "nillacilan" ]
   }, {
