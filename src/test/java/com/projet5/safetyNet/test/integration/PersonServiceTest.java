@@ -1,14 +1,21 @@
 package com.projet5.safetyNet.test.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import com.projet5.safetyNet.model.Medicalrecord;
 import com.projet5.safetyNet.model.Person;
+import com.projet5.safetyNet.service.MedicalrecordService;
 import com.projet5.safetyNet.service.PersonService;
 
 @SpringBootTest
@@ -16,6 +23,9 @@ public class PersonServiceTest {
 
 	@Autowired
 	PersonService personService;
+
+	@Autowired
+	MedicalrecordService medicalrecordService;
 
 	@Test
 	void testGetAllPerson() {
@@ -61,30 +71,135 @@ public class PersonServiceTest {
 
 	@Test
 	void testUpdatePerson() throws Exception {
-		// Personne originale
 		Person person = new Person("John", "Doe", "addressTest", "villeTest", "22630", "0123456789", "emailTest");
 		Person updatedPerson = new Person("John", "Doe", "addressUpdated", "villeUpdated", "35000", "0123456789",
 				"emailTest");
 
-		// Ajouter la personne
 		personService.addPerson(person);
 		List<Person> personsBeforeUpdate = personService.getAllPersons();
 		assertThat(personsBeforeUpdate).anyMatch(p -> p.getFirstName().equals("John") && p.getLastName().equals("Doe")
 				&& p.getAddress().equals("addressTest"));
 
-		// Mise à jour de la personne
 		personService.updatePerson(updatedPerson);
 
-		// Vérifier que l'ancienne version de la personne n'existe plus
 		List<Person> personsAfterUpdate = personService.getAllPersons();
 		assertThat(personsAfterUpdate).noneMatch(p -> p.getFirstName().equals("John") && p.getLastName().equals("Doe")
 				&& p.getAddress().equals("addressTest"));
 
-		// Vérifier que la nouvelle version est bien présente
 		assertThat(personsAfterUpdate).anyMatch(p -> p.getFirstName().equals("John") && p.getLastName().equals("Doe")
 				&& p.getAddress().equals("addressUpdated"));
-		
+
 		personService.deletePerson("John", "Doe", "0123456789");
+	}
+
+	@Test
+	void testGetCommunityEmail() throws Exception {
+		String cityTested = "Malo";
+		Person person = new Person("John", "Doe", "addressTest", "Malo", "12345", "0123456789", "emailTest");
+
+		personService.addPerson(person);
+
+		List<String> listOfEmail = personService.getCommunityEmail(cityTested);
+		assertNotNull(listOfEmail);
+		assertThat(listOfEmail).contains("emailTest");
+
+		personService.deletePerson("John", "Doe", "0123456789");
+	}
+
+	@Test
+	void testGetChildListFromAddress() throws Exception {
+		String address = "addressTest";
+
+		Person newChild = new Person("John", "Doe", address, "Malo", "12345", "0123456789", "emailTest");
+		List<String> medications = Arrays.asList("Paracetamol 500mg", "Aspirin 100mg");
+		List<String> allergies = Arrays.asList("pollen", "cacahuete");
+		Medicalrecord newMedicalrecordChild = new Medicalrecord("John", "Doe", "24/09/2010", medications, allergies);
+
+		personService.addPerson(newChild);
+		medicalrecordService.addMedicalrecord(newMedicalrecordChild);
+
+		List<String> listOfChildTested = personService.getChildListFromAddress(address);
+
+		assertThat(listOfChildTested).isNotNull();
+
+		assertThat(listOfChildTested).contains("John Doe, 14 ans");
+
+		personService.deletePerson("John", "Doe", "0123456789");
+		medicalrecordService.deleteMedicalrecord(newMedicalrecordChild);
+	}
+
+	@Test
+	void testPersonInfo() throws Exception {
+		// Définir le nom de famille testé
+		String lastNameTested = "Doe";
+
+		// Créer une personne et son dossier médical
+		Person newChild = new Person("John", "Doe", "address", "Malo", "12345", "0123456789", "emailTest");
+		List<String> medications = Arrays.asList("Paracetamol 500mg", "Aspirin 100mg");
+		List<String> allergies = Arrays.asList("pollen", "cacahuete");
+		Medicalrecord newMedicalrecord = new Medicalrecord("John", "Doe", "24/09/2010", medications, allergies);
+
+		// Ajouter la personne et le dossier médical
+		personService.addPerson(newChild);
+		medicalrecordService.addMedicalrecord(newMedicalrecord);
+
+		// Appeler la méthode pour obtenir les informations
+		Map<String, Object> personInfoTested = personService.personInfo(lastNameTested);
+
+		// Vérification que la map retournée n'est pas nulle
+		assertThat(personInfoTested).isNotNull();
+
+		// Vérification que la map contient le bon nombre d'éléments
+		assertThat(personInfoTested).containsKey("count");
+		assertThat(personInfoTested).containsKey("personInfo");
+
+		// Vérifier le nombre de personnes retournées
+		int count = (int) personInfoTested.get("count");
+		assertThat(count).isEqualTo(1); // On s'attend à une seule personne avec le nom "Doe"
+
+		// Vérifier les informations de la personne
+		Object personInfoObj = personInfoTested.get("personInfo");
+
+		// Vérifier que personInfo est bien une liste
+		assertThat(personInfoObj).isInstanceOf(List.class);
+
+		// Caster avec sécurité
+		@SuppressWarnings("unchecked")
+		List<Map<String, Object>> personInfoList = (List<Map<String, Object>>) personInfoObj;
+
+		assertThat(personInfoList).isNotEmpty();
+
+		Map<String, Object> personInfo = personInfoList.get(0);
+
+		// Vérification des informations contenues dans le premier élément de la liste
+		assertThat(personInfo).containsEntry("firstName", "John");
+		assertThat(personInfo).containsEntry("lastName", "Doe");
+		assertThat(personInfo).containsEntry("birthdate", "24/09/2010");
+		assertThat(personInfo).containsEntry("address", "address");
+		assertThat(personInfo).containsEntry("phone", "0123456789");
+		assertThat(personInfo).containsEntry("medications", medications);
+		assertThat(personInfo).containsEntry("allergies", allergies);
+
+		// Nettoyer les données après le test
+		personService.deletePerson("John", "Doe", "0123456789");
+		medicalrecordService.deleteMedicalrecord(newMedicalrecord);
+	}
+
+	@Test
+	void testIsChild() {
+		String birthdate = "24/09/2010";
+
+		boolean testIsChild = personService.isChild(birthdate);
+
+		assertTrue(testIsChild);
+	}
+
+	@Test
+	void testIsNotChild() {
+		String birthdate = "24/09/1991";
+		boolean testIsChild = personService.isChild(birthdate);
+
+		assertFalse(testIsChild);
 	}
 
 }
