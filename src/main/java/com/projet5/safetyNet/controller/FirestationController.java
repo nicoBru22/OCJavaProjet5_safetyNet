@@ -84,9 +84,10 @@ public class FirestationController {
 	 * </p>
 	 *
 	 * @param deletedFirestation la caserne à supprimer
+	 * @throws Exception 
 	 */
 	@DeleteMapping("/firestation")
-	public void deleteFirestation(@RequestBody Firestation deletedFirestation) {
+	public void deleteFirestation(@RequestBody Firestation deletedFirestation) throws Exception {
 		logger.info("Suppression de la caserne : {}", deletedFirestation);
 		firestationService.deleteFirestation(deletedFirestation);
 		logger.debug("Caserne supprimée avec succès.");

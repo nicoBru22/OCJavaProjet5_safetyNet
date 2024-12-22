@@ -50,11 +50,12 @@ public class FirestationService {
 	/**
 	 * Constructeur du service pour initialiser les repositories nécessaires.
 	 *
-	 * @param firestationRepository Le repository pour les casernes de pompiers.
-	 * @param personRepository      Le repository pour les personnes.
-	 * @param medicalrecordRepository 
+	 * @param firestationRepository   Le repository pour les casernes de pompiers.
+	 * @param personRepository        Le repository pour les personnes.
+	 * @param medicalrecordRepository
 	 */
-	public FirestationService(FirestationRepository firestationRepository, PersonRepository personRepository, MedicalrecordRepository medicalrecordRepository) {
+	public FirestationService(FirestationRepository firestationRepository, PersonRepository personRepository,
+			MedicalrecordRepository medicalrecordRepository) {
 		this.firestationRepository = firestationRepository;
 		this.personRepository = personRepository;
 		this.medicalrecordRepository = medicalrecordRepository;
@@ -115,12 +116,13 @@ public class FirestationService {
 	 * Supprime une caserne de pompiers existante.
 	 * 
 	 * @param deletedFirestation L'objet {@link Firestation} à supprimer.
+	 * @throws Exception 
 	 * @throws IllegalArgumentException Si les champs adresse ou station sont
 	 *                                  invalides.
 	 * @throws RuntimeException         Si une erreur se produit lors de la
 	 *                                  suppression.
 	 */
-	public void deleteFirestation(Firestation deletedFirestation) {
+	public void deleteFirestation(Firestation deletedFirestation) throws Exception {
 		try {
 			logger.info("Début de la suppression d'une firestation : {}", deletedFirestation);
 			if (deletedFirestation == null || deletedFirestation.getAddress() == null
@@ -133,7 +135,7 @@ public class FirestationService {
 			logger.info("Firestation supprimée avec succès : {}", deletedFirestation);
 		} catch (IllegalArgumentException e) {
 			logger.error("Données invalides pour la suppression de la firestation : {}", e.getMessage());
-			throw e;
+			throw new Exception("Données invalides pour la suppression de la firestation : {}", e);
 		} catch (Exception e) {
 			logger.error("Erreur lors de la suppression de la firestation : {}", e.getMessage(), e);
 			throw new RuntimeException("Erreur lors de la suppression de la firestation", e);
@@ -204,12 +206,11 @@ public class FirestationService {
 			List<Firestation> firestationList = firestationRepository.getAllFirestations();
 			List<Person> personList = personRepository.getAllPerson();
 			List<Medicalrecord> medicalrecordList = medicalrecordRepository.getAllMedicalrecord();
-			
-			//Récupération de l'adresse des stations à ce numéro stationNumber
+
+			// Récupération de l'adresse des stations à ce numéro stationNumber
 			List<String> filteredStationsAddress = firestationList.stream()
-				    .filter(firestation -> firestation.getStation().equals(stationNumber))
-				    .map(Firestation::getAddress)
-				    .collect(Collectors.toList()); 
+					.filter(firestation -> firestation.getStation().equals(stationNumber)).map(Firestation::getAddress)
+					.collect(Collectors.toList());
 			if (filteredStationsAddress.isEmpty()) {
 				logger.error("Aucune firestation trouvée pour le numéro de station : {}", stationNumber);
 				throw new Exception("Il n'existe pas de firestation avec ce numéro.");
@@ -223,54 +224,48 @@ public class FirestationService {
 				logger.warn("Aucune personne trouvée pour la station : {}", stationNumber);
 			}
 
-
-
-
-
 			AtomicInteger numChildren = new AtomicInteger(0);
 			AtomicInteger numAdults = new AtomicInteger(0);
 
 			for (Person person : personFromFirestation) {
-			    medicalrecordList.stream()
-			        .filter(record -> record.getFirstName().equals(person.getFirstName()) 
-			                       && record.getLastName().equalsIgnoreCase(person.getLastName()))
-			        .findFirst()
-			        .ifPresent(record -> {
-			            String personInfo;
-			            try {
-			                // Calculer l'âge de la personne
-			                int age = ageOfPerson(record.getBirthdate());
+				medicalrecordList.stream()
+						.filter(record -> record.getFirstName().equals(person.getFirstName())
+								&& record.getLastName().equalsIgnoreCase(person.getLastName()))
+						.findFirst().ifPresent(record -> {
+							String personInfo;
+							try {
+								// Calculer l'âge de la personne
+								int age = ageOfPerson(record.getBirthdate());
 
-			                // Déterminer la catégorie d'âge
-			                String ageCategory = (age < 18) ? "Enfant" : "Adulte";
+								// Déterminer la catégorie d'âge
+								String ageCategory = (age < 18) ? "Enfant" : "Adulte";
 
-			                // Incrémenter les compteurs en fonction de l'âge
-			                if (age < 18) {
-			                    numChildren.incrementAndGet();  // Incrémenter le compteur d'enfants
-			                } else {
-			                    numAdults.incrementAndGet();  // Incrémenter le compteur d'adultes
-			                }
+								// Incrémenter les compteurs en fonction de l'âge
+								if (age < 18) {
+									numChildren.incrementAndGet(); // Incrémenter le compteur d'enfants
+								} else {
+									numAdults.incrementAndGet(); // Incrémenter le compteur d'adultes
+								}
 
-			                // Construire la chaîne avec les informations personnelles
-			                personInfo = person.getFirstName() + " " + person.getLastName() + ", " 
-			                           + person.getPhone() + ", " 
-			                           + person.getAddress() + ", Station: " + stationNumber
-			                           + ", " + ageCategory + ", Age: " + age + " ans";
-			            } catch (Exception e) {
-			                personInfo = person.getFirstName() + " " + person.getLastName() + ", "
-			                           + "Age information unavailable, Station: " + stationNumber;
-			                System.err.println("Erreur lors du calcul de l'âge pour " + person.getFirstName() + " " + person.getLastName() + ": " + e.getMessage());
-			            }
+								// Construire la chaîne avec les informations personnelles
+								personInfo = person.getFirstName() + " " + person.getLastName() + ", "
+										+ person.getPhone() + ", " + person.getAddress() + ", Station: " + stationNumber
+										+ ", " + ageCategory + ", Age: " + age + " ans";
+							} catch (Exception e) {
+								personInfo = person.getFirstName() + " " + person.getLastName() + ", "
+										+ "Age information unavailable, Station: " + stationNumber;
+								System.err.println("Erreur lors du calcul de l'âge pour " + person.getFirstName() + " "
+										+ person.getLastName() + ": " + e.getMessage());
+							}
 
-			            // Ajouter l'info de la personne sans le décompte
-			            personFromFirestationList.add(personInfo);
-			        });
+							// Ajouter l'info de la personne sans le décompte
+							personFromFirestationList.add(personInfo);
+						});
 			}
-			
 
-			String summary = "Nombre total d'adultes : " + numAdults.get() + ", Nombre total d'enfants : " + numChildren.get();
-			personFromFirestationList.add(summary);  // Ajouter le résumé à la fin
-
+			String summary = "Nombre total d'adultes : " + numAdults.get() + ", Nombre total d'enfants : "
+					+ numChildren.get();
+			personFromFirestationList.add(summary); // Ajouter le résumé à la fin
 
 			logger.info("Récupération terminée pour la station : {}", stationNumber);
 			return personFromFirestationList;
@@ -316,7 +311,7 @@ public class FirestationService {
 		}
 
 	}
-	
+
 	public int ageOfPerson(String birthdate) throws Exception {
 		try {
 			LocalDate birthDate = LocalDate.parse(birthdate, DATE_FORMATTER);
