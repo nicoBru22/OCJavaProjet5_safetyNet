@@ -72,7 +72,7 @@ public class PersonController {
 	 * @param person est un objet `Person` reçu en JSON dans le corps de la requête.
 	 * @return Message de confirmation ou un message d'erreur.
 	 */
-	@PutMapping
+	@PutMapping("/persons")
 	public ResponseEntity<?> updatePerson(@RequestBody Person person) {
 		logger.info("Entrée dans la méthode updatePerson() de la classe PersonController.");
 		try {
