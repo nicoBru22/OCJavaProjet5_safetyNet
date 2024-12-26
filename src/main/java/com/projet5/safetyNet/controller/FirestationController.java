@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.projet5.safetyNet.model.Firestation;
@@ -54,11 +56,16 @@ public class FirestationController {
 	 * @return la liste des casernes de pompiers
 	 */
 	@GetMapping("/firestations")
-	public List<Firestation> getAllFireStation() {
-		logger.info("Récupération de toutes les casernes de pompiers.");
-		List<Firestation> firestations = firestationService.getAllFireStations();
-		logger.debug("Liste des casernes récupérée : {}", firestations);
-		return firestations;
+	public ResponseEntity<List<Firestation>> getAllFireStation() {
+		try {
+			logger.info("Récupération de toutes les casernes de pompiers.");
+			List<Firestation> firestations = firestationService.getAllFireStations();
+			logger.debug("Liste des casernes récupérée : {}", firestations);
+			return ResponseEntity.ok(firestations);
+		} catch (Exception e) {
+			logger.error("Erreur lors de la récupération des casernes : {}", e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
 	}
 
 	/**
@@ -70,10 +77,16 @@ public class FirestationController {
 	 * @param newFirestation la caserne à ajouter
 	 */
 	@PostMapping("/firestation")
-	public void addFirestation(@RequestBody Firestation newFirestation) {
-		logger.info("Ajout d'une nouvelle caserne : {}", newFirestation);
-		firestationService.addFirestation(newFirestation);
-		logger.debug("Caserne ajoutée avec succès.");
+	public ResponseEntity<String> addFirestation(@RequestBody Firestation newFirestation) {
+		try {
+			logger.info("Ajout d'une nouvelle caserne : {}", newFirestation);
+			firestationService.addFirestation(newFirestation);
+			logger.debug("Caserne ajoutée avec succès.");
+			return ResponseEntity.status(HttpStatus.CREATED).body("La caserne a été ajoutée avec succès !");
+		} catch (Exception e) {
+			logger.error("Erreur lors de l'ajout de la caserne : {}", e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
 	}
 
 	/**
@@ -84,13 +97,20 @@ public class FirestationController {
 	 * </p>
 	 *
 	 * @param deletedFirestation la caserne à supprimer
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@DeleteMapping("/firestation")
-	public void deleteFirestation(@RequestBody Firestation deletedFirestation) throws Exception {
-		logger.info("Suppression de la caserne : {}", deletedFirestation);
-		firestationService.deleteFirestation(deletedFirestation);
-		logger.debug("Caserne supprimée avec succès.");
+	public ResponseEntity<String> deleteFirestation(@RequestBody Firestation deletedFirestation) {
+		try {
+			logger.info("Suppression de la caserne : {}", deletedFirestation);
+			firestationService.deleteFirestation(deletedFirestation);
+			logger.debug("Caserne supprimée avec succès.");
+			return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Caserne supprimée avec succès.");
+		} catch (Exception e) {
+			logger.error("Erreur lors de la suppression de la caserne : {}", e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("Erreur lors de la suppression de la caserne.");
+		}
 	}
 
 	/**
@@ -103,10 +123,17 @@ public class FirestationController {
 	 * @param updatedFirestation la caserne avec les nouvelles informations
 	 */
 	@PutMapping("/firestation")
-	public void updateFirestation(@RequestBody Firestation updatedFirestation) {
-		logger.info("Mise à jour de la caserne : {}", updatedFirestation);
-		firestationService.updateFirestation(updatedFirestation);
-		logger.debug("Caserne mise à jour avec succès.");
+	public ResponseEntity<String> updateFirestation(@RequestBody Firestation updatedFirestation) {
+		try {
+			logger.info("Mise à jour de la caserne : {}", updatedFirestation);
+			firestationService.updateFirestation(updatedFirestation);
+			logger.debug("Caserne mise à jour avec succès.");
+			return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Caserne modifiée avec succès.");
+		} catch (Exception e) {
+			logger.error("Erreur lors de la suppression de la caserne : {}", e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("Erreur lors de la suppression de la caserne.");
+		}
 	}
 
 	/**
@@ -123,12 +150,27 @@ public class FirestationController {
 	 *                   données
 	 */
 	@GetMapping("/firestation")
-	public List<String> personFromFirestation(@RequestParam String stationNumber) throws Exception {
-		logger.info("Recherche des personnes associées à la caserne : {}", stationNumber);
-		List<String> persons = firestationService.personFromStationNumber(stationNumber);
-		logger.debug("Liste des personnes associées à la caserne {} : {}", stationNumber, persons);
-		return persons;
+	public ResponseEntity<?> personFromFirestation(@RequestParam String stationNumber) {
+	    try {
+	        logger.info("Recherche des personnes associées à la caserne : {}", stationNumber);
+	        
+	        List<String> persons = firestationService.personFromStationNumber(stationNumber);
+	        
+	        if (persons.isEmpty()) {
+	            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+	                    .body("Aucune personne associée à cette caserne.");
+	        }
+
+	        logger.debug("Liste des personnes associées à la caserne {} : {}", stationNumber, persons);
+	        return ResponseEntity.ok(persons);
+	        
+	    } catch (Exception e) {
+	        logger.error("Erreur lors de la récupération de la liste des personnes associées à la caserne : {}", e.getMessage());
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                .body("Erreur lors de la récupération de la liste des personnes associées à la caserne.");
+	    }
 	}
+
 
 	/**
 	 * Récupère les numéros de téléphone des personnes couverte par la caserne
@@ -145,10 +187,24 @@ public class FirestationController {
 	 *                   données
 	 */
 	@GetMapping("/phoneAlert")
-	public List<String> personToAlert(@RequestParam String station) throws Exception {
-		logger.info("Recherche les numéros de téléphone associées à la caserne : {}", station);
-		List<String> phoneListAlert = firestationService.phoneAlert(station);
-		logger.debug("Liste des numéros de téléphone associées à la caserne {} : {}", station, phoneListAlert);
-		return phoneListAlert;
+	public ResponseEntity<?> personToAlert(@RequestParam String station) {
+		try {
+			logger.info("Recherche des numéros de téléphone associés à la caserne : {}", station);
+
+			List<String> phoneListAlert = firestationService.phoneAlert(station);
+
+			if (phoneListAlert.isEmpty()) {
+				return ResponseEntity.noContent().build();
+			}
+			logger.debug("Liste des numéros de téléphone associés à la caserne {} : {}", station, phoneListAlert);
+			return ResponseEntity.ok(phoneListAlert);
+
+		} catch (Exception e) {
+			logger.error("Erreur lors de la récupération des numéros de téléphone pour la caserne : {}",
+					e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("Erreur lors de la récupération des numéros de téléphone.");
+		}
 	}
+
 }

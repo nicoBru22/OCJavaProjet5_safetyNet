@@ -63,11 +63,9 @@ public class testPersonController {
 		String personJson = new ObjectMapper().writeValueAsString(person1);
 
 		MvcResult result = mockMvc
-				.perform(MockMvcRequestBuilders.post("/persons").contentType(MediaType.APPLICATION_JSON) // Indiquer que
-																											// c'est du
-																											// JSON
-						.content(personJson)) // Passer le JSON sérialisé dans le corps
-				.andExpect(status().isOk()) // Vérifier que la réponse a un statut OK (200)
+				.perform(MockMvcRequestBuilders.post("/persons").contentType(MediaType.APPLICATION_JSON)
+						.content(personJson))
+				.andExpect(status().isOk())
 				.andReturn();
 
 		System.out.println(result.getResponse().getContentAsString());
@@ -157,11 +155,8 @@ public class testPersonController {
 
 		when(personService.getChildListFromAddress(address)).thenReturn(expectedChild);
 
-		MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/childAlert")
-				.param("address", address)
-				.contentType(MediaType.APPLICATION_JSON))
-				.andExpect(status().isOk())
-				.andReturn();
+		MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/childAlert").param("address", address)
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk()).andReturn();
 
 		String actualResponse = result.getResponse().getContentAsString();
 		ObjectMapper objectMapper = new ObjectMapper();
@@ -173,32 +168,23 @@ public class testPersonController {
 
 	@Test
 	void testControllerGetPersonInfoLastName() throws Exception {
-	    // Données de test
-	    String lastNameTest = "lastNameTest";
-	    Map<String, Object> mapTest = Map.of(
-	        "lastName", lastNameTest,
-	        "firstNames", List.of("Nico", "Sarah", "Meghane", "Oceane", "Celenie"),
-	        "emails", List.of("nico@test.com", "sarah@test.com", "meghane@test.com")
-	    );
+		String lastNameTest = "lastNameTest";
+		Map<String, Object> mapTest = Map.of("lastName", lastNameTest, "firstNames",
+				List.of("Nico", "Sarah", "Meghane", "Oceane", "Celenie"), "emails",
+				List.of("nico@test.com", "sarah@test.com", "meghane@test.com"));
 
-	    // Simulation du comportement du service
-	    when(personService.personInfo(lastNameTest)).thenReturn(mapTest);
+		when(personService.personInfo(lastNameTest)).thenReturn(mapTest);
 
-	    // Exécution de la requête MockMvc
-	    MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/personInfolastName")
-	            .param("lastName", lastNameTest) // Correction du paramètre
-	            .contentType(MediaType.APPLICATION_JSON))
-	            .andExpect(status().isOk()) // Vérifie que le statut HTTP est 200 OK
-	            .andReturn();
+		MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/personInfolastName")
+				.param("lastName", lastNameTest).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andReturn();
 
-	    // Désérialisation de la réponse JSON
-	    String actualResponse = result.getResponse().getContentAsString();
-	    ObjectMapper objectMapper = new ObjectMapper();
-	    Map<String, Object> actualMap = objectMapper.readValue(actualResponse, new TypeReference<>() {});
+		String actualResponse = result.getResponse().getContentAsString();
+		ObjectMapper objectMapper = new ObjectMapper();
+		Map<String, Object> actualMap = objectMapper.readValue(actualResponse, new TypeReference<>() {
+		});
 
-	    // Assertion : comparaison des données attendues et réelles
-	    assertEquals(mapTest, actualMap);
+		assertEquals(mapTest, actualMap);
 	}
-
 
 }
