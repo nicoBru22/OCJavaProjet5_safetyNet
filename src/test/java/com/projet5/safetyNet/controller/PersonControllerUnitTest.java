@@ -1,4 +1,4 @@
-package com.projet5.safetyNet.test.Unitaire.controller;
+package com.projet5.safetyNet.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.doNothing;
@@ -24,13 +24,12 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.projet5.safetyNet.controller.PersonController;
 import com.projet5.safetyNet.model.Person;
 import com.projet5.safetyNet.service.PersonService;
 
 @WebMvcTest(PersonController.class)
 @AutoConfigureMockMvc
-public class testPersonController {
+public class PersonControllerUnitTest {
 
 	@Autowired
 	private MockMvc mockMvc;

@@ -1,4 +1,4 @@
-package com.projet5.safetyNet.test.Unitaire.model;
+package com.projet5.safetyNet.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -7,9 +7,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.projet5.safetyNet.model.Medicalrecord;
-
-public class testModelMedicalrecord {
+public class ModelMedicalrecordUnitTest {
 	@Test
 	void testConstructorAndGetterMedicalrecord() {
 		List<String> medications = Arrays.asList("Paracetamol 500mg", "Aspirin 100mg");

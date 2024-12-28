@@ -1,4 +1,4 @@
-package com.projet5.safetyNet.test.Unitaire.controller;
+package com.projet5.safetyNet.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -22,7 +22,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.projet5.safetyNet.model.Firestation;
-import com.projet5.safetyNet.controller.FirestationController;
 import com.projet5.safetyNet.service.FirestationService;
 
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -30,7 +29,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 
 @WebMvcTest(FirestationController.class)
 @AutoConfigureMockMvc
-public class testFirestationController {
+public class FirestationControllerUnitTest {
 
 	@Autowired
 	private MockMvc mockMvc;

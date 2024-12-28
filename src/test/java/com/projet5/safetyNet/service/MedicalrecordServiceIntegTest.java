@@ -1,4 +1,4 @@
-package com.projet5.safetyNet.test.integration;
+package com.projet5.safetyNet.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -10,10 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.projet5.safetyNet.model.Medicalrecord;
-import com.projet5.safetyNet.service.MedicalrecordService;
 
 @SpringBootTest
-public class MedicalrecordServiceTest {
+public class MedicalrecordServiceIntegTest {
 
 	@Autowired
 	MedicalrecordService medicalrecordService;

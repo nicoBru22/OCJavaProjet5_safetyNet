@@ -1,13 +1,11 @@
-package com.projet5.safetyNet.test.Unitaire.model;
+package com.projet5.safetyNet.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-import com.projet5.safetyNet.model.Firestation;
 
-
-public class testModelFirestation {
+public class ModelFirestationUnitTest {
 	@Test
 	void testConstructorAndGetterFirestation() {
 		Firestation firestation = new Firestation("AddressTest", "5");

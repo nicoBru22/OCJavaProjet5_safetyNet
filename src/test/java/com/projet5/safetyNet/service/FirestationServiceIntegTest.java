@@ -1,4 +1,4 @@
-package com.projet5.safetyNet.test.integration;
+package com.projet5.safetyNet.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -11,10 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.projet5.safetyNet.model.Firestation;
-import com.projet5.safetyNet.service.FirestationService;
 
 @SpringBootTest
-public class FirestationServiceTest {
+public class FirestationServiceIntegTest {
 
 	@Autowired
 	FirestationService firestationService;

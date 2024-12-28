@@ -1,4 +1,4 @@
-package com.projet5.safetyNet.test.integration;
+package com.projet5.safetyNet.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -15,11 +15,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import com.projet5.safetyNet.model.Medicalrecord;
 import com.projet5.safetyNet.model.Person;
-import com.projet5.safetyNet.service.MedicalrecordService;
-import com.projet5.safetyNet.service.PersonService;
 
 @SpringBootTest
-public class PersonServiceTest {
+public class PersonServiceIntegTest {
 
 	@Autowired
 	PersonService personService;

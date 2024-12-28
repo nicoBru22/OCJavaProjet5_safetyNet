@@ -1,4 +1,4 @@
-package com.projet5.safetyNet.test.Unitaire.model;
+package com.projet5.safetyNet.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -8,13 +8,9 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.projet5.safetyNet.model.DataModel;
-import com.projet5.safetyNet.model.Firestation;
-import com.projet5.safetyNet.model.Medicalrecord;
-import com.projet5.safetyNet.model.Person;
 
 @SpringBootTest
-public class testModelDataModel {
+public class ModelDataModelUnitTest {
 	@Test
 	void testConstructorAndGetterDataModel() {
 		DataModel dataModel = new DataModel();
