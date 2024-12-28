@@ -14,7 +14,7 @@ import java.util.Map;
 
 /**
  * Contrôleur REST pour la gestion des personnes. *
- * <p>
+ * 
  * Ce contrôleur fournit des points d'entrée pour :
  * <ul>
  * <li>Récupérer toutes les personnes.</li>
@@ -32,9 +32,23 @@ import java.util.Map;
 @RestController
 public class PersonController {
 
-	private static Logger logger = LogManager.getLogger(PersonController.class);
+	/**
+	 * Logger pour enregistrer les informations et les erreurs relatives à
+	 * {@link PersonController}.
+	 */
+	private static final Logger logger = LogManager.getLogger(PersonController.class);
+
+	/**
+	 * Service pour effectuer les opérations liées aux personnes.
+	 */
 	private final PersonService personService;
 
+	/**
+	 * Constructeur de la classe {@link PersonController}.
+	 * 
+	 * @param personService le service utilisé pour gérer les opérations sur les
+	 *                      personnes
+	 */
 	public PersonController(PersonService personService) {
 		this.personService = personService;
 	}
@@ -45,12 +59,10 @@ public class PersonController {
 	 * <p>
 	 * Cette méthode récupère la liste de toutes les personnes existantes dans le
 	 * systeme à partir de l'endpoint /person.
-	 * <p>
+	 * </p>
 	 * 
 	 * @return ResponseEntity contenant la liste des personnes en cas de succès ou
 	 *         un message d'erreur en cas d'échec.
-	 * @throws Exception si une erreur se produit lors de la récupération des
-	 *                   données
 	 */
 	@GetMapping("/persons")
 	public ResponseEntity<?> getAllPersons() {
@@ -74,7 +86,7 @@ public class PersonController {
 	 * <p>
 	 * Cette méthode permet d'ajouter une nouvelle personne dans le systeme à partir
 	 * de l'endpoint /person.
-	 * <p>
+	 * </p>
 	 * 
 	 * @param person est un objet `Person` reçu en JSON dans le corps de la requête.
 	 * @return ResponseEntity contenant un message de réussite en cas de succès ou
@@ -104,14 +116,12 @@ public class PersonController {
 	 * Cette méthode permet de mettre à jour les données d'une personne existante à
 	 * partir des données passées dans le corps de la requête à partir de l'endpoint
 	 * /persons.
-	 * <p>
+	 * </p>
 	 * 
 	 * 
 	 * @param person est un objet `Person` reçu en JSON dans le corps de la requête.
 	 * @return ResponseEntity contenant un message de réussite en cas de succès ou
 	 *         un message d'erreur en cas d'echec.
-	 * @throws Exception si une erreur se produit lors de la mise à jour de la
-	 *                   personne.
 	 */
 	@PutMapping("/persons")
 	public ResponseEntity<?> updatePerson(@RequestBody Person person) {
@@ -136,13 +146,11 @@ public class PersonController {
 	 * <p>
 	 * Cette méthode permet de supprimer une personne à partir des informations
 	 * contenu dans la requête et dans le systeme à l'endpoint /persons.
-	 * <p>
+	 * </p>
 	 * 
 	 * @param person est un objet `Person` reçu en JSON dans le corps de la requête.
 	 * @return ResponseEntity contenant un message de réussite en cas de succès ou
 	 *         un message d'erreur en cas d'echec.
-	 * @throws Exception si une erreur se produit lors de la suppression de la
-	 *                   personne.
 	 */
 	@DeleteMapping("/persons")
 	public ResponseEntity<?> deletePerson(@RequestBody Person person) {
@@ -203,7 +211,7 @@ public class PersonController {
 	 * <p>
 	 * Cette méthode permet de récupérer une liste d'enfants habitant à l'adresse
 	 * passée en paramètre à partir de l'endpoint /childAlert.
-	 * <p>
+	 * </p>
 	 * 
 	 * @param address l'adresse où vivent un ou des enfants.
 	 * @return ResponseEntity contenant une liste d'enfant vivant à l'adresse donnée
@@ -234,11 +242,12 @@ public class PersonController {
 	 * Cette méthode permet de récupérer les informations médicales concernant les
 	 * personnes dont le nom est donnée en paramètre à partir de l'endpoint
 	 * /personInfoLastName.
-	 * <p>
+	 * </p>
 	 * 
 	 * @param lastName le nom des personne dont on veut les informations.
-	 * @return ResponseEntity conteannt une liste d'information sur les personnes dont le nom est passé en
-	 *         paramètre en cas de succès ou un message d'erreur en cas d'echec.
+	 * @return ResponseEntity conteannt une liste d'information sur les personnes
+	 *         dont le nom est passé en paramètre en cas de succès ou un message
+	 *         d'erreur en cas d'echec.
 	 * @throws Exception si une erreur survient lors de la récupération des données.
 	 */
 	@GetMapping("/personInfolastName")

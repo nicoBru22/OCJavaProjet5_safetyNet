@@ -118,10 +118,10 @@ public class FirestationRepository {
 	 * 
 	 * @param deletedFirestation Objet {@link Firestation} contenant la caserne à
 	 *                           supprimer.
-	 * @throws IllegalArgumentException si une erreur survient lors de la
+	 * @throws RuntimeException si une erreur survient lors de la
 	 *                                  suppression des données.
 	 */
-	public void deleteFirestation(Firestation deletedFirestation) throws Exception {
+	public void deleteFirestation(Firestation deletedFirestation) throws RuntimeException {
 		try {
 			firestationList.removeIf(firestation -> firestation.getAddress().equals(deletedFirestation.getAddress())
 					&& firestation.getStation().equals(deletedFirestation.getStation()));
@@ -129,9 +129,9 @@ public class FirestationRepository {
 			dataRepository.writeFile(dataModel);
 			logger.info("Caserne supprimée avec succès ");
 			logger.debug("Caserne supprimée : {}", deletedFirestation);
-		} catch (Exception e) {
+		} catch (RuntimeException e) {
 			logger.error("Erreur lors de la suppression des données.", e);
-			throw new IllegalArgumentException("Erreur lors de la suppression des données.", e);
+			throw new RuntimeException("Erreur lors de la suppression des données.", e);
 		}
 
 	}
@@ -148,7 +148,7 @@ public class FirestationRepository {
 	 * 
 	 * @param updatedFirestation Objet {@link Firestation} contenant la caserne mise
 	 *                           à jour.
-	 * @throws Exception
+	 * @throws Exception si une erreur intervient lors de la mise à jour de la caserne.
 	 * @throws IllegalArgumentException si la caserne à mettre à jour n'est pas
 	 *                                  trouvée.
 	 */

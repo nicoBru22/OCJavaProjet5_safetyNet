@@ -26,10 +26,25 @@ import com.projet5.safetyNet.model.Person;
 @Repository
 public class PersonRepository {
 
-	private static Logger logger = LogManager.getLogger(PersonRepository.class);
-	public DataRepository dataRepository;
-	public List<Person> personsList;
-	public DataModel dataModel;
+    /**
+     * Logger pour enregistrer les informations et les erreurs liées à {@link PersonRepository}.
+     */
+    private static final Logger logger = LogManager.getLogger(PersonRepository.class);
+
+    /**
+     * Référence au repository global des données pour effectuer les lectures et écritures.
+     */
+    public DataRepository dataRepository;
+
+    /**
+     * Liste des personnes contenues dans les données.
+     */
+    public List<Person> personsList;
+
+    /**
+     * Modèle de données principal contenant les collections manipulées par ce repository.
+     */
+    public DataModel dataModel;
 
 	/**
 	 * Constructeur de la classe {@link PersonRepository}.

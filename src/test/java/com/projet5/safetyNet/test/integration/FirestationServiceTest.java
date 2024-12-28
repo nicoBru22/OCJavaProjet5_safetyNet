@@ -1,8 +1,9 @@
 package com.projet5.safetyNet.test.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -89,7 +90,15 @@ public class FirestationServiceTest {
 
 	}
 
+	@Test
+	void testPhoneAlert() throws Exception {
+		String stationNumberTest = "2";
+		List<String> expectedPhoneList = Arrays.asList("841-874-6513", "841-874-7878", "841-874-7512", "841-874-7512",
+				"841-874-7458", "Nombre total d'enfants : 1");
+		List<String> result = firestationService.phoneAlert(stationNumberTest);
 
+		assertThat(result).isEqualTo(expectedPhoneList);
+	}
 
 	@Test
 	void testAgeOfPerson() throws Exception {
@@ -104,35 +113,28 @@ public class FirestationServiceTest {
 	}
 
 	@Test
-	void testFirestationEmpty() {
+	void testAddFirestationEmpty() {
 		Firestation newFirestationEmpty1 = new Firestation("", "");
 		Firestation newFirestationEmpty2 = new Firestation("", "1");
 		Firestation newFirestationEmpty3 = new Firestation("addressTest", "");
-		try {
-			firestationService.addFirestation(newFirestationEmpty1);
-		} catch (Exception e) {
-			assertEquals("Les champs adresse et numéro de station sont obligatoires.", e.getMessage());
-		}
-		try {
-			firestationService.addFirestation(newFirestationEmpty2);
-		} catch (Exception e) {
-			assertEquals("Les champs adresse et numéro de station sont obligatoires.", e.getMessage());
-		}
-		try {
-			firestationService.addFirestation(newFirestationEmpty3);
-		} catch (Exception e) {
-			assertEquals("Les champs adresse et numéro de station sont obligatoires.", e.getMessage());
-		}
+		Firestation firestationExisting = new Firestation("908 73rd St", "1");
+
+		assertThatThrownBy(() -> firestationService.addFirestation(newFirestationEmpty1)).isInstanceOf(Exception.class)
+				.hasMessage("Erreur inattendue lors de l'ajout de la caserne.");
+		assertThatThrownBy(() -> firestationService.addFirestation(newFirestationEmpty2)).isInstanceOf(Exception.class)
+				.hasMessage("Erreur inattendue lors de l'ajout de la caserne.");
+		assertThatThrownBy(() -> firestationService.addFirestation(newFirestationEmpty3)).isInstanceOf(Exception.class)
+				.hasMessage("Erreur inattendue lors de l'ajout de la caserne.");
+
+		assertThatThrownBy(() -> firestationService.addFirestation(firestationExisting)).isInstanceOf(Exception.class)
+				.hasMessage("La caserne existe déjà.");
 	}
 
 	@Test
 	void testAgeOfPersonNull() {
 		String birthdateTested = "24/13/1991";
-		try {
-			firestationService.ageOfPerson(birthdateTested);
-		} catch (Exception e) {
-			assertEquals("Impossible de calculer l'âge de la personne.", e.getMessage());
-		}
+		assertThatThrownBy(() -> firestationService.ageOfPerson(birthdateTested)).isInstanceOf(Exception.class)
+				.hasMessage("Impossible de calculer l'âge de la personne.");
 	}
 
 	@Test
@@ -142,79 +144,62 @@ public class FirestationServiceTest {
 		Firestation firestationDeletedTested3 = new Firestation("", "5");
 		Firestation firestationDeletedTested4 = new Firestation("", "");
 
-		try {
-			firestationService.deleteFirestation(firestationDeletedTested1);
-		} catch (Exception e) {
-			assertEquals("Erreur inattendue lors de la suppression de la caserne.", e.getMessage());
-		}
-		try {
-			firestationService.deleteFirestation(firestationDeletedTested2);
-		} catch (Exception e) {
-			assertEquals("Données invalides pour la suppression : Les champs adresse et station sont obligatoires.", e.getMessage());
-		}
-		try {
-			firestationService.deleteFirestation(firestationDeletedTested3);
-		} catch (Exception e) {
-			assertEquals("Données invalides pour la suppression : Les champs adresse et station sont obligatoires.", e.getMessage());
-		}
-		try {
-			firestationService.deleteFirestation(firestationDeletedTested4);
-		} catch (Exception e) {
-			assertEquals("Données invalides pour la suppression : Les champs adresse et station sont obligatoires.", e.getMessage());
-		}
+		assertThatThrownBy(() -> firestationService.deleteFirestation(firestationDeletedTested1))
+				.isInstanceOf(Exception.class).hasMessage("Erreur inattendue lors de la suppression de la caserne.");
+		assertThatThrownBy(() -> firestationService.deleteFirestation(firestationDeletedTested2))
+				.isInstanceOf(Exception.class)
+				.hasMessage("Données invalides pour la suppression : Les champs adresse et station sont obligatoires.");
+		assertThatThrownBy(() -> firestationService.deleteFirestation(firestationDeletedTested3))
+				.isInstanceOf(Exception.class)
+				.hasMessage("Données invalides pour la suppression : Les champs adresse et station sont obligatoires.");
+
+		assertThatThrownBy(() -> firestationService.deleteFirestation(firestationDeletedTested4))
+				.isInstanceOf(Exception.class)
+				.hasMessage("Données invalides pour la suppression : Les champs adresse et station sont obligatoires.");
 
 	}
-	
+
 	@Test
 	void testUpdateFirestationError() {
 		Firestation firestationUpdatedTested1 = new Firestation("addressTest", "5");
 		Firestation firestationUpdatedTested2 = new Firestation("addressTest", "");
 		Firestation firestationUpdatedTested3 = new Firestation("", "5");
 		Firestation firestationUpdatedTested4 = new Firestation("", "");
-		
-		try {
-			firestationService.updateFirestation(firestationUpdatedTested4);
-		} catch (Exception e) {
-			assertEquals("Le champ adresse est obligatoire.", e.getMessage());
-		}
-		try {
-			firestationService.updateFirestation(firestationUpdatedTested3);
-		} catch (Exception e) {
-			assertEquals("Le champ adresse est obligatoire.", e.getMessage());
-		}
-		try {
-			firestationService.updateFirestation(firestationUpdatedTested2);
-		} catch (Exception e) {
-			assertEquals("Erreur lors de la mise à jour de la firestation", e.getMessage());
-		}
-		try {
-			firestationService.updateFirestation(firestationUpdatedTested1);
-		} catch (Exception e) {
-			assertEquals("Erreur lors de la mise à jour de la firestation", e.getMessage());
-		}
+
+		assertThatThrownBy(() -> firestationService.updateFirestation(firestationUpdatedTested4))
+				.isInstanceOf(Exception.class).hasMessage("Données invalide pour la mise à jour de la station.");
+		assertThatThrownBy(() -> firestationService.updateFirestation(firestationUpdatedTested3))
+				.isInstanceOf(Exception.class).hasMessage("Données invalide pour la mise à jour de la station.");
+		assertThatThrownBy(() -> firestationService.updateFirestation(firestationUpdatedTested2))
+				.isInstanceOf(Exception.class).hasMessage("Erreur lors de la mise à jour de la firestation");
+		assertThatThrownBy(() -> firestationService.updateFirestation(firestationUpdatedTested1))
+				.isInstanceOf(Exception.class).hasMessage("Erreur lors de la mise à jour de la firestation");
 	}
-	
+
 	@Test
 	void testPersonFromStationNumberError() {
 		String stationNumberTestedEmpty = "";
 		String stationNumberTestedNull = null;
 		String stationNumberTested = "6";
-		
-		try {
-			firestationService.personFromStationNumber(stationNumberTestedEmpty);
-		} catch (Exception e) {
-			assertEquals("Le numéro de station ne peut pas être vide.", e.getMessage());
-		}
-		try {
-			firestationService.personFromStationNumber(stationNumberTestedNull);
-		} catch (Exception e) {
-			assertEquals("Le numéro de station ne peut pas être vide.", e.getMessage());
-		}
-		try {
-			firestationService.personFromStationNumber(stationNumberTested);
-		} catch (Exception e) {
-			assertEquals("Erreur lors de la récupération des personnes liées à la station de pompiers.", e.getMessage());
-		}
+
+		assertThatThrownBy(() -> firestationService.personFromStationNumber(stationNumberTestedEmpty))
+				.isInstanceOf(Exception.class).hasMessage("Le numéro de station ne peut pas être vide.");
+
+		assertThatThrownBy(() -> firestationService.personFromStationNumber(stationNumberTestedNull))
+				.isInstanceOf(Exception.class).hasMessage("Le numéro de station ne peut pas être vide.");
+
+		assertThatThrownBy(() -> firestationService.personFromStationNumber(stationNumberTested))
+				.isInstanceOf(Exception.class)
+				.hasMessage("Erreur lors de la récupération des personnes liées à la station de pompiers.");
+	}
+
+	@Test
+	void testPhoneAlertError() {
+		String stationNumberTest = "6";
+
+		assertThatThrownBy(() -> firestationService.phoneAlert(stationNumberTest)).isInstanceOf(Exception.class)
+				.hasMessage(
+						"Erreur lors de la récupération des numéros de téléphone associés à la station de pompiers.");
 	}
 
 }

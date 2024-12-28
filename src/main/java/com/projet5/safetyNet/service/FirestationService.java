@@ -46,36 +46,42 @@ import com.projet5.safetyNet.repository.PersonRepository;
 public class FirestationService {
 
 	/**
-	 * Le format de date utilisé dans l'application pour afficher ou parser les dates sous le format "dd/MM/yyyy".
-	 * Il est utilisé pour convertir les dates en chaînes de caractères et inversement.
+	 * Le format de date utilisé dans l'application pour afficher ou parser les
+	 * dates sous le format "dd/MM/yyyy". Il est utilisé pour convertir les dates en
+	 * chaînes de caractères et inversement.
 	 */
 	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
 	/**
-	 * Le logger pour enregistrer les messages de log associés à la classe {@link FirestationService}.
-	 * Il permet de suivre le comportement de l'application en produisant des logs d'informations, d'avertissements ou d'erreurs.
+	 * Le logger pour enregistrer les messages de log associés à la classe
+	 * {@link FirestationService}. Il permet de suivre le comportement de
+	 * l'application en produisant des logs d'informations, d'avertissements ou
+	 * d'erreurs.
 	 */
 	private static final Logger logger = LogManager.getLogger(FirestationService.class);
 
 	/**
-	 * Le repository pour les casernes de pompiers. Il permet d'effectuer des opérations CRUD (Create, Read, Update, Delete)
-	 * sur les entités représentant les casernes de pompiers.
+	 * Le repository pour les casernes de pompiers. Il permet d'effectuer des
+	 * opérations CRUD (Create, Read, Update, Delete) sur les entités représentant
+	 * les casernes de pompiers.
 	 */
 	private final FirestationRepository firestationRepository;
 
 	/**
-	 * Le repository pour les personnes. Il permet d'effectuer des opérations CRUD sur les entités représentant les personnes.
+	 * Le repository pour les personnes. Il permet d'effectuer des opérations CRUD
+	 * sur les entités représentant les personnes.
 	 */
 	private final PersonRepository personRepository;
 
 	/**
-	 * Le repository pour les dossiers médicaux. Il permet d'effectuer des opérations CRUD sur les entités représentant les dossiers médicaux.
+	 * Le repository pour les dossiers médicaux. Il permet d'effectuer des
+	 * opérations CRUD sur les entités représentant les dossiers médicaux.
 	 */
 	private MedicalrecordRepository medicalrecordRepository;
 
 	/**
-	 * Constructeur du service pour initialiser les repositories nécessaires à la gestion des casernes de pompiers,
-	 * des personnes et des dossiers médicaux.
+	 * Constructeur du service pour initialiser les repositories nécessaires à la
+	 * gestion des casernes de pompiers, des personnes et des dossiers médicaux.
 	 *
 	 * @param firestationRepository   Le repository pour les casernes de pompiers.
 	 * @param personRepository        Le repository pour les personnes.
@@ -87,7 +93,6 @@ public class FirestationService {
 		this.personRepository = personRepository;
 		this.medicalrecordRepository = medicalrecordRepository;
 	}
-
 
 	/**
 	 * Récupère la liste complète des casernes de pompiers.
@@ -141,7 +146,7 @@ public class FirestationService {
 	 *                                  l'ajout.
 	 * @throws Exception                Si la caserne existe déjà dans le système.
 	 */
-	public void addFirestation(Firestation newFirestation) {
+	public void addFirestation(Firestation newFirestation) throws Exception {
 		try {
 			logger.info("Début de l'ajout d'une nouvelle caserne : {}", newFirestation);
 
@@ -164,12 +169,7 @@ public class FirestationService {
 
 			firestationRepository.addFirestation(newFirestation);
 			logger.info("Caserne ajoutée avec succès : {}", newFirestation);
-
-		} catch (IllegalArgumentException e) {
-			logger.error("Erreur de validation des données : {}", e.getMessage());
-			throw e;
-
-		} catch (Exception e) {
+		} catch (RuntimeException e) {
 			logger.error("Erreur lors de l'ajout de la caserne : {}", e.getMessage(), e);
 			throw new RuntimeException("Erreur inattendue lors de l'ajout de la caserne.", e);
 		}
@@ -235,11 +235,12 @@ public class FirestationService {
 	 * Met à jour une caserne de pompiers existante.
 	 * 
 	 * <p>
-	 * Cette méthode permet de mettre à jour une caserne existante à partir des
-	 * données passées en paramètre. Elle vérifie si les données en paramètre sont
-	 * nulles ou vides avant de vérifier si la caserne existe dans le systeme.
-	 * Ensuite elle fait appel à la méthode
-	 * {@link firestationRepository.updateFirestation}
+	 * Cette méthode met à jour une caserne existante à partir des données fournies
+	 * en paramètre. Elle vérifie d'abord si les données passées sont nulles ou
+	 * vides, puis s'assure que la caserne existe déjà dans le système. Enfin, elle
+	 * utilise la méthode
+	 * {@link com.projet5.safetyNet.repository.FirestationRepository#updateFirestation}
+	 * pour effectuer la mise à jour.
 	 * </p>
 	 * 
 	 * @param updatedFirestation L'objet {@link Firestation} à mettre à jour.
@@ -248,7 +249,7 @@ public class FirestationService {
 	 * @throws RuntimeException         Si une erreur se produit lors de la mise à
 	 *                                  jour.
 	 */
-	public void updateFirestation(Firestation updatedFirestation) {
+	public void updateFirestation(Firestation updatedFirestation) throws Exception {
 		try {
 			logger.info("Début de la mise à jour d'une firestation : {}", updatedFirestation);
 			if (updatedFirestation.getAddress() == null || updatedFirestation.getAddress().isEmpty()) {
@@ -269,7 +270,7 @@ public class FirestationService {
 			logger.info("Firestation mise à jour avec succès : {}", updatedFirestation);
 		} catch (IllegalArgumentException e) {
 			logger.error("Données invalides pour la mise à jour de la firestation : {}", e.getMessage());
-			throw e;
+			throw new IllegalArgumentException("Données invalide pour la mise à jour de la station.", e);
 		} catch (Exception e) {
 			logger.error("Erreur lors de la mise à jour de la firestation : {}", e.getMessage(), e);
 			throw new RuntimeException("Erreur lors de la mise à jour de la firestation", e);
@@ -396,12 +397,9 @@ public class FirestationService {
 	 */
 	public List<String> phoneAlert(String station) throws Exception {
 		logger.info("Début de la récupération des personnes associées à la station : {}", station);
-		List<String> personToAlert = personFromStationNumber(station);
-		if (personToAlert == null || personToAlert.isEmpty()) {
-			logger.warn("Aucune personne trouvée pour la station : {}", station);
-			return new ArrayList<>();
-		}
+
 		try {
+			List<String> personToAlert = personFromStationNumber(station);
 			List<String> phoneListAlert = personToAlert.stream().map(personInfo -> personInfo.split(",")[1].trim())
 					.collect(Collectors.toList());
 			logger.debug("La liste des numéros de téléphone pour la station : {}  est : {}", station, phoneListAlert);

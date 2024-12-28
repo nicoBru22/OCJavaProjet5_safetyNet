@@ -3,11 +3,9 @@ package com.projet5.safetyNet.test.Unitaire.model;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import com.projet5.safetyNet.model.Person;
 
-@SpringBootTest
 public class testModelPerson {
 
 	@Test

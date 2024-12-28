@@ -83,7 +83,6 @@ public class MedicalrecordServiceTest {
 		List<Medicalrecord> medicalrecordListAfterDelete = medicalrecordService.getAllMedicalrecord();
 		assertThat(medicalrecordListAfterDelete).noneMatch(m -> m.getFirstName().equals("John")
 				&& m.getLastName().equals("Doe") && m.getBirthdate().equals("24/09/1991"));
-
 	}
 
 }

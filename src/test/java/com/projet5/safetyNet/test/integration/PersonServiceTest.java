@@ -130,40 +130,30 @@ public class PersonServiceTest {
 
 	@Test
 	void testPersonInfo() throws Exception {
-		// Définir le nom de famille testé
 		String lastNameTested = "Doe";
 
-		// Créer une personne et son dossier médical
 		Person newChild = new Person("John", "Doe", "address", "Malo", "12345", "0123456789", "emailTest");
 		List<String> medications = Arrays.asList("Paracetamol 500mg", "Aspirin 100mg");
 		List<String> allergies = Arrays.asList("pollen", "cacahuete");
 		Medicalrecord newMedicalrecord = new Medicalrecord("John", "Doe", "24/09/2010", medications, allergies);
 
-		// Ajouter la personne et le dossier médical
 		personService.addPerson(newChild);
 		medicalrecordService.addMedicalrecord(newMedicalrecord);
 
-		// Appeler la méthode pour obtenir les informations
 		Map<String, Object> personInfoTested = personService.personInfo(lastNameTested);
 
-		// Vérification que la map retournée n'est pas nulle
 		assertThat(personInfoTested).isNotNull();
 
-		// Vérification que la map contient le bon nombre d'éléments
 		assertThat(personInfoTested).containsKey("count");
 		assertThat(personInfoTested).containsKey("personInfo");
 
-		// Vérifier le nombre de personnes retournées
 		int count = (int) personInfoTested.get("count");
-		assertThat(count).isEqualTo(1); // On s'attend à une seule personne avec le nom "Doe"
+		assertThat(count).isEqualTo(1);
 
-		// Vérifier les informations de la personne
 		Object personInfoObj = personInfoTested.get("personInfo");
 
-		// Vérifier que personInfo est bien une liste
 		assertThat(personInfoObj).isInstanceOf(List.class);
 
-		// Caster avec sécurité
 		@SuppressWarnings("unchecked")
 		List<Map<String, Object>> personInfoList = (List<Map<String, Object>>) personInfoObj;
 
@@ -171,7 +161,6 @@ public class PersonServiceTest {
 
 		Map<String, Object> personInfo = personInfoList.get(0);
 
-		// Vérification des informations contenues dans le premier élément de la liste
 		assertThat(personInfo).containsEntry("firstName", "John");
 		assertThat(personInfo).containsEntry("lastName", "Doe");
 		assertThat(personInfo).containsEntry("birthdate", "24/09/2010");
@@ -180,7 +169,6 @@ public class PersonServiceTest {
 		assertThat(personInfo).containsEntry("medications", medications);
 		assertThat(personInfo).containsEntry("allergies", allergies);
 
-		// Nettoyer les données après le test
 		personService.deletePerson("John", "Doe", "0123456789");
 		medicalrecordService.deleteMedicalrecord(newMedicalrecord);
 	}
