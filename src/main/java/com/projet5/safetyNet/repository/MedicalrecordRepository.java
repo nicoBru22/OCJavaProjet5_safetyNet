@@ -30,9 +30,26 @@ public class MedicalrecordRepository {
 
 	private Logger logger = LogManager.getLogger(MedicalrecordRepository.class);
 
+	/**
+	 * Représente le référentiel des données permettant d'accéder et de manipuler les informations liées aux dossiers médicaux.
+	 * Ce champ est utilisé pour interagir avec la source de données et effectuer des opérations CRUD (Create, Read, Update, Delete)
+	 * sur les dossiers médicaux.
+	 */
 	public DataRepository dataRepository;
+
+	/**
+	 * Liste des dossiers médicaux associés. Cette liste contient des objets de type {@link Medicalrecord} et est utilisée
+	 * pour stocker et gérer les informations relatives aux dossiers médicaux des personnes.
+	 */
 	public List<Medicalrecord> medicalrecordList;
+
+	/**
+	 * Modèle de données représentant la structure globale de l'application, incluant des informations de configuration
+	 * et d'autres éléments associés au traitement des dossiers médicaux. Ce champ permet d'organiser les données et
+	 * de faciliter l'accès à différentes parties de l'application.
+	 */
 	public DataModel dataModel;
+
 
 	/**
 	 * Constructeur de la classe {@link MedicalrecordRepository}.

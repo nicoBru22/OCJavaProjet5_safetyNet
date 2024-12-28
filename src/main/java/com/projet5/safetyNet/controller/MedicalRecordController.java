@@ -1,6 +1,5 @@
 package com.projet5.safetyNet.controller;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -18,7 +17,7 @@ import com.projet5.safetyNet.service.MedicalrecordService;
 
 /**
  * Contrôleur REST pour la gestion des dossiers médicaux. *
- * <p>
+ * 
  * Ce contrôleur fournit des points d'entrée pour :
  * <ul>
  * <li>Récupérer tout les dossiers médicaux.</li>
@@ -50,13 +49,13 @@ public class MedicalRecordController {
 	 * <p>
 	 * Récupérer la liste de tous les dossiers médicaux à partir du endpoint
 	 * /medicalrecords.
-	 * <p>
+	 * </p>
 	 *
 	 * @return ResponseEntity contenant une liste des dossiers médicaux en cas de
 	 *         succès ou un message d'erreur en cas d'échec.
 	 */
 	@GetMapping("/medicalrecords")
-	public ResponseEntity<?> getMedicalRecords() throws IOException {
+	public ResponseEntity<?> getMedicalRecords() {
 		logger.info("Requête GET pour récupérer tous les dossiers médicaux.");
 		try {
 			List<Medicalrecord> medicalrecordList = medicalrecordService.getAllMedicalrecord();
@@ -83,7 +82,7 @@ public class MedicalRecordController {
 	 *         un message d'erreur en cas d'echec.
 	 */
 	@PostMapping("/medicalrecords")
-	public ResponseEntity<?> addMedicalrecord(@RequestBody Medicalrecord newMedicalrecord) throws Exception {
+	public ResponseEntity<?> addMedicalrecord(@RequestBody Medicalrecord newMedicalrecord) {
 		logger.info("Requête POST pour ajouter un nouveau dossier médical : {}", newMedicalrecord);
 		try {
 			medicalrecordService.addMedicalrecord(newMedicalrecord);
@@ -103,14 +102,14 @@ public class MedicalRecordController {
 	 * <p>
 	 * Cette méthode permet de supprimer un dossier médical du systeme à partir de
 	 * ses données existante à l'endpoint /medicalrecords.
-	 * <p>
+	 * </p>
 	 *
 	 * @param deletedMedicalrecord le dossier médical à supprimer.
 	 * @return ResponseEntity contenant un message de réussite en cas de succès ou
 	 *         un message d'erreur en cas d'echec.
 	 */
 	@DeleteMapping("/medicalrecords")
-	public ResponseEntity<?> deleteMedicalrecord(@RequestBody Medicalrecord deletedMedicalrecord) throws Exception {
+	public ResponseEntity<?> deleteMedicalrecord(@RequestBody Medicalrecord deletedMedicalrecord) {
 		logger.info("Requête DELETE pour supprimer un dossier médical : {}", deletedMedicalrecord);
 		try {
 			medicalrecordService.deleteMedicalrecord(deletedMedicalrecord);
@@ -128,9 +127,9 @@ public class MedicalRecordController {
 	 * Met à jour un dossier médical.
 	 * 
 	 * <p>
-	 * Cette méthode met à jour un dossier médical existant à
-	 * partir de l'endpoint /medicalrecord.
-	 * <p>
+	 * Cette méthode met à jour un dossier médical existant à partir de l'endpoint
+	 * /medicalrecord.
+	 * </p>
 	 * 
 	 * @param updatedMedicalrecord le dossier médical contenant les nouvelles
 	 *                             informations.
@@ -138,7 +137,7 @@ public class MedicalRecordController {
 	 *         un message d'erreur en cas d'echec.
 	 */
 	@PutMapping("/medicalrecords")
-	public ResponseEntity<?> updateMedicalrecord(@RequestBody Medicalrecord updatedMedicalrecord) throws Exception {
+	public ResponseEntity<?> updateMedicalrecord(@RequestBody Medicalrecord updatedMedicalrecord) {
 		logger.info("Requête PUT pour mettre à jour un dossier médical : {}", updatedMedicalrecord);
 		try {
 			medicalrecordService.updateMedicalrecord(updatedMedicalrecord);

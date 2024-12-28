@@ -111,17 +111,17 @@ public class FirestationServiceTest {
 		try {
 			firestationService.addFirestation(newFirestationEmpty1);
 		} catch (Exception e) {
-			assertEquals("Les champs adresse et station sont obligatoires.", e.getMessage());
+			assertEquals("Les champs adresse et numéro de station sont obligatoires.", e.getMessage());
 		}
 		try {
 			firestationService.addFirestation(newFirestationEmpty2);
 		} catch (Exception e) {
-			assertEquals("Les champs adresse et station sont obligatoires.", e.getMessage());
+			assertEquals("Les champs adresse et numéro de station sont obligatoires.", e.getMessage());
 		}
 		try {
 			firestationService.addFirestation(newFirestationEmpty3);
 		} catch (Exception e) {
-			assertEquals("Les champs adresse et station sont obligatoires.", e.getMessage());
+			assertEquals("Les champs adresse et numéro de station sont obligatoires.", e.getMessage());
 		}
 	}
 
@@ -131,7 +131,7 @@ public class FirestationServiceTest {
 		try {
 			firestationService.ageOfPerson(birthdateTested);
 		} catch (Exception e) {
-			assertEquals("Impossible de calculer l'âge de la perosnne.", e.getMessage());
+			assertEquals("Impossible de calculer l'âge de la personne.", e.getMessage());
 		}
 	}
 
@@ -145,22 +145,22 @@ public class FirestationServiceTest {
 		try {
 			firestationService.deleteFirestation(firestationDeletedTested1);
 		} catch (Exception e) {
-			assertEquals("Données invalides pour la suppression de la firestation : {}", e.getMessage());
+			assertEquals("Erreur inattendue lors de la suppression de la caserne.", e.getMessage());
 		}
 		try {
 			firestationService.deleteFirestation(firestationDeletedTested2);
 		} catch (Exception e) {
-			assertEquals("Données invalides pour la suppression de la firestation : {}", e.getMessage());
+			assertEquals("Données invalides pour la suppression : Les champs adresse et station sont obligatoires.", e.getMessage());
 		}
 		try {
 			firestationService.deleteFirestation(firestationDeletedTested3);
 		} catch (Exception e) {
-			assertEquals("Données invalides pour la suppression de la firestation : {}", e.getMessage());
+			assertEquals("Données invalides pour la suppression : Les champs adresse et station sont obligatoires.", e.getMessage());
 		}
 		try {
 			firestationService.deleteFirestation(firestationDeletedTested4);
 		} catch (Exception e) {
-			assertEquals("Données invalides pour la suppression de la firestation : {}", e.getMessage());
+			assertEquals("Données invalides pour la suppression : Les champs adresse et station sont obligatoires.", e.getMessage());
 		}
 
 	}
