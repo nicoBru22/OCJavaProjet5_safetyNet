@@ -54,8 +54,6 @@ public class MedicalRecordController {
 	 *
 	 * @return ResponseEntity contenant une liste des dossiers médicaux en cas de
 	 *         succès ou un message d'erreur en cas d'échec.
-	 * @throws Exception si une erreur se produit lors de la récupération des
-	 *                   données
 	 */
 	@GetMapping("/medicalrecords")
 	public ResponseEntity<?> getMedicalRecords() throws IOException {
@@ -83,8 +81,6 @@ public class MedicalRecordController {
 	 * @param newMedicalrecord le dossier médical à ajouter.
 	 * @return ResponseEntity contenant un message de réussite en cas de succès ou
 	 *         un message d'erreur en cas d'echec.
-	 * @throws Exception si une erreur se produit lors de l'ajout du dossier
-	 *                   médical.
 	 */
 	@PostMapping("/medicalrecords")
 	public ResponseEntity<?> addMedicalrecord(@RequestBody Medicalrecord newMedicalrecord) throws Exception {
@@ -112,8 +108,6 @@ public class MedicalRecordController {
 	 * @param deletedMedicalrecord le dossier médical à supprimer.
 	 * @return ResponseEntity contenant un message de réussite en cas de succès ou
 	 *         un message d'erreur en cas d'echec.
-	 * @throws Exception si une erreur se produit lors de la suppression du dossier
-	 *                   médical.
 	 */
 	@DeleteMapping("/medicalrecords")
 	public ResponseEntity<?> deleteMedicalrecord(@RequestBody Medicalrecord deletedMedicalrecord) throws Exception {
@@ -142,8 +136,6 @@ public class MedicalRecordController {
 	 *                             informations.
 	 * @return ResponseEntity contenant un message de réussite en cas de succès ou
 	 *         un message d'erreur en cas d'echec.
-	 * @throws Exception si une erreur se produit lors de la mise à jour du dossier
-	 *                   médical.
 	 */
 	@PutMapping("/medicalrecords")
 	public ResponseEntity<?> updateMedicalrecord(@RequestBody Medicalrecord updatedMedicalrecord) throws Exception {

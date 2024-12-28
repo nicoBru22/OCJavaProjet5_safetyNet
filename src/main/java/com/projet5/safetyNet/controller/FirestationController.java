@@ -13,7 +13,7 @@ import com.projet5.safetyNet.service.FirestationService;
 
 /**
  * Contrôleur REST pour la gestion des casernes de pompiers.
- * <p>
+ * 
  * Ce contrôleur fournit des points d'entrée pour :
  * <ul>
  * <li>Récupérer toutes les casernes de pompiers.</li>
@@ -25,7 +25,6 @@ import com.projet5.safetyNet.service.FirestationService;
  * </ul>
  * Il fait appel au {@link FirestationService} pour effectuer les opérations
  * métier.
- * </p>
  */
 @RestController
 public class FirestationController {
@@ -48,13 +47,10 @@ public class FirestationController {
 
 	/**
 	 * Récupère la liste complète des casernes de pompiers.
-	 * <p>
+	 * 
 	 * Cette méthode retourne une liste de toutes les casernes de pompiers
 	 * existantes dans le système à partir du endpoint /firestation.
-	 * </p>
 	 * 
-	 * @throws Exception si une erreur se produit lors de la récupération des
-	 *                   données
 	 * @return ResponseEntity contenant la liste des casernes de pompiers en cas de
 	 *         succès ou un message d'erreur en cas de problème.
 	 */
@@ -81,8 +77,6 @@ public class FirestationController {
 	 * </p>
 	 * 
 	 * @param newFirestation la caserne à ajouter
-	 * @throws Exception si une erreur se produit lors de la récupération des
-	 *                   données
 	 * @return ResponseEntity contenant un message de succès en cas de réussite ou
 	 *         un message d'erreur en cas d'échec.
 	 * 
@@ -109,8 +103,6 @@ public class FirestationController {
 	 * </p>
 	 *
 	 * @param deletedFirestation la caserne à supprimer
-	 * @throws Exception si une erreur se produit lors de la récupération des
-	 *                   données
 	 * @return ResponseEntity contenant un message de succès en cas de réussite ou
 	 *         un message d'erreur en cas d'échec.
 	 */
@@ -137,8 +129,6 @@ public class FirestationController {
 	 * </p>
 	 *
 	 * @param updatedFirestation la caserne avec les nouvelles informations
-	 * @throws Exception si une erreur se produit lors de la récupération des
-	 *                   données
 	 * @return ResponseEntity contenant un message de succès en cas de réussite ou
 	 *         un message d'erreur en cas d'échec.
 	 */
@@ -166,9 +156,7 @@ public class FirestationController {
 	 * /firestation.
 	 * </p>
 	 *
-	 * @param station le numéro de la caserne.
-	 * @throws Exception si une erreur se produit lors de la récupération des
-	 *                   données.
+	 * @param stationNumber le numéro de la caserne.
 	 * @return ResponseEntity contenant une liste de personnes associées à la
 	 *         caserne en cas de succès ou un message d'erreur en cas d'echec.
 	 */
@@ -208,8 +196,6 @@ public class FirestationController {
 	 * @return ResponseEntity contenant une liste de numéro de téléphone des
 	 *         personnes associées à la caserne en cas de succès ou un message
 	 *         d'erreur en cas d'echec.
-	 * @throws Exception si une erreur se produit lors de la récupération des
-	 *                   données.
 	 */
 	@GetMapping("/phoneAlert")
 	public ResponseEntity<?> personToAlert(@RequestParam String station) {

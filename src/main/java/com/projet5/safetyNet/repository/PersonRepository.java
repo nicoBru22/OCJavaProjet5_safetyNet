@@ -9,6 +9,20 @@ import org.springframework.stereotype.Repository;
 import com.projet5.safetyNet.model.DataModel;
 import com.projet5.safetyNet.model.Person;
 
+/**
+ * Class Repository pour gérer les opérations liées aux personnes (person).
+ * 
+ * Cette classe permet d'effectuer des opérations CRUD (Create, Read, Update,
+ * Delete) sur la liste des personnes stockées dans le fichier de données. Elle
+ * interagit avec le DataRepository pour lire et écrire les données dans le
+ * fichier JSON. Cette class permet de :
+ * <ul>
+ * <li>Ajouter une nouvelle personne.</li>
+ * <li>Supprimer les données d'une personne existante.</li>
+ * <li>Mettre à jour les informations d'une personne.</li>
+ * <li>Récupérer les informations de toutes les personnes.</li>
+ * </ul>
+ */
 @Repository
 public class PersonRepository {
 
@@ -42,22 +56,31 @@ public class PersonRepository {
 	}
 
 	/**
-	 * Méthode pour récupérer toutes les personnes enregistrées.
+	 * Récupère la liste de toutes les personnes.
+	 * <p>
+	 * Cette méthode permet de récupérer toutes les personnes enregistrées. Cette
+	 * liste a été initialisée dans le constructeur.
+	 * </p>
 	 * 
-	 * @return Une liste de toutes les personnes présentes dans le fichier JSON.
-	 * @throws Exception
+	 * @return personList Une liste de toutes les personnes présentes dans le
+	 *         fichier JSON.
+	 * @throws Exception si une erreur intervient lors de la récupération des
+	 *                   données.
 	 */
 	public List<Person> getAllPerson() throws Exception {
 		logger.info("Entrée dans la méthode getAllPersons() de la class PersonRepository.");
 		try {
+			logger.info("Récupération de la liste contenant toutes les perosnnes.");
+			logger.debug("Le contenu de la liste : {}", personsList);
 			return personsList;
 		} catch (Exception e) {
+			logger.error("Erreur lors de la récupération de la liste des personnes.", e);
 			throw new Exception("Erreur lors de la récupération de la liste de personne.", e);
 		}
 	}
 
 	/**
-	 * Méthode pour supprimer une personne spécifique de la liste en mémoire.
+	 * Supprime une personne du systeme.
 	 * <p>
 	 * Cette méthode recherche et supprime la personne correspondant aux critères
 	 * (prénom, nom et numéro de téléphone) dans la liste des personnes en mémoire.
@@ -74,9 +97,9 @@ public class PersonRepository {
 	 */
 	public void deletePerson(String firstName, String lastName, String phone) throws Exception {
 		logger.info("Entrée dans la méthode deletePerson() de la class PersonRepository.");
-		// Suppression de la personne correspondant aux critères
 		try {
 			logger.info("Vérification et suppression de la personne correspondant aux critères.");
+			logger.debug("La personne prenom: {}, nom: {}, phone: {}", firstName, lastName, phone);
 			boolean isRemoved = personsList.removeIf(person -> person.getFirstName().equalsIgnoreCase(firstName)
 					&& person.getLastName().equalsIgnoreCase(lastName) && person.getPhone().equalsIgnoreCase(phone));
 			if (isRemoved) {
@@ -85,7 +108,7 @@ public class PersonRepository {
 				logger.info("Mise à jour effectuée. Ecriture du document.");
 				dataRepository.writeFile(dataModel);
 			} else {
-				logger.error("La personne n'a pas pu être supprimée.");
+				logger.error("{} {} n'a pas pu être supprimée.", firstName, lastName);
 				throw new Exception("La personne n'a pas pu être supprimée");
 			}
 		} catch (Exception e) {
@@ -95,7 +118,7 @@ public class PersonRepository {
 	}
 
 	/**
-	 * Méthode pour ajouter une nouvelle personne à la liste.
+	 * Ajoute une nouvelle personne à la liste.
 	 * <p>
 	 * Cette méthode ajoute la nouvelle personne à la liste actuelle des personnes.
 	 * Après l'ajout, la liste est mise à jour dans le modèle de données et le
@@ -112,10 +135,9 @@ public class PersonRepository {
 		try {
 			logger.info("Ajout de la nouvelle personne.");
 			personsList.add(newPerson);
+			logger.debug("La nouvelle personne à ajoutée est : {}", newPerson);
 			logger.info("La personne a été ajoutée. Mise à jour de la liste.");
 			dataModel.setPersonsList(personsList);
-
-			logger.info("Mise à jour effectuée. Ecriture du document.");
 			dataRepository.writeFile(dataModel);
 		} catch (Exception e) {
 			logger.error("Erreur lors de l'ajout de la personne.", e);
@@ -124,20 +146,23 @@ public class PersonRepository {
 	}
 
 	/**
-	 * Méthode pour mettre à jour les informations d'une personne existante.
+	 * Met à jour les informations d'une personne existante.
 	 *
-	 * Cette méthode met à jour une personne existante en base de données après
-	 * avoir comparé les firstName et lastName. Après la mise à jour, la liste est
-	 * mise à jour dans le modèle de données et le fichier est réécrit pour refléter
-	 * ce changement.
-	 *
-	 * @param updatedPerson La personne contenant les informations mises à jour.
+	 * <p>
+	 * Cette méthode met à jour une personne existante dans le systeme après avoir
+	 * comparé les firstName et lastName. Après la mise à jour, la liste est mise à
+	 * jour dans le modèle de données et le fichier est réécrit pour refléter ce
+	 * changement.
+	 * </p>
+	 * 
+	 * @param updatedPerson Objet {@link Person} représentant les informations mises
+	 *                      à jour.
 	 * @throws Exception Si la personne n'existe pas ou si une erreur survient lors
 	 *                   de l'écriture.
 	 */
 	public void updatePerson(Person updatedPerson) throws Exception {
 		logger.info("Entrée dans la méthode updatePerson de la class PersonRepository.");
-
+		logger.debug("Les données à mettre à jour sont : {}", updatedPerson);
 		if (updatedPerson == null || updatedPerson.getFirstName() == null || updatedPerson.getLastName() == null) {
 			throw new IllegalArgumentException("Les informations de la personne à mettre à jour sont invalides.");
 		}
@@ -156,12 +181,12 @@ public class PersonRepository {
 			}
 
 			if (!isUpdated) {
-				logger.warn("Aucune personne trouvée avec les informations fournies : " + updatedPerson);
+				logger.error("Aucune personne trouvée avec les informations fournies : {} ", updatedPerson);
 				throw new Exception("La personne à mettre à jour n'existe pas.");
 			}
-			logger.info("Mise à jour de la liste et écriture du fichier.");
 			dataModel.setPersonsList(personsList);
 			dataRepository.writeFile(dataModel);
+			logger.info("Les données ont été mise à jour avec succès.");
 
 		} catch (Exception e) {
 			logger.error("Erreur lors de la mise à jour de la personne.", e);

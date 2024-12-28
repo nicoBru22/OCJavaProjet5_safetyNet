@@ -187,7 +187,7 @@ public class FirestationService {
 	 * chaînes de caractères (prénom, nom, adresse).
 	 * </p>
 	 * 
-	 * @param station Le numéro de la station de pompiers.
+	 * @param stationNumber Le numéro de la station de pompiers.
 	 * @return Une liste de chaînes de caractères contenant les informations des
 	 *         personnes liées à la station.
 	 * @throws Exception Si une erreur se produit lors de la récupération des
