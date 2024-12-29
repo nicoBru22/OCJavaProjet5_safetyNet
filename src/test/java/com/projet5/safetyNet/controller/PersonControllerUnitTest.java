@@ -1,7 +1,9 @@
 package com.projet5.safetyNet.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -185,5 +187,134 @@ public class PersonControllerUnitTest {
 
 		assertEquals(mapTest, actualMap);
 	}
+	
+    @Test
+    void testGetPersonsError() throws Exception {
+        doThrow(new RuntimeException("Erreur simulée")).when(personService).getAllPersons();    
+        
+    	MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/persons"))
+    			.andExpect(status().isInternalServerError())
+    			.andReturn();
+    	
+    	String actualResponse = result.getResponse().getContentAsString();
+    	String expectedResponse = "Erreur lors de la récupération des personnes.";
+    	
+    	assertTrue(actualResponse.contains(expectedResponse));
+    }
+    
+    @Test
+    void testAddPersonError() throws Exception {
+		Person person1 = new Person("Nicolas", "Brunet", "addressTest", "cityTest", "zipTest", "123456789",
+				"email@test.fr");
+		String person1Json = new ObjectMapper().writeValueAsString(person1);
+		
+        doThrow(new RuntimeException("Erreur simulée")).when(personService).addPerson(person1);    
+        
+    	MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/persons")
+    			.contentType(MediaType.APPLICATION_JSON)
+    			.content(person1Json))
+    			.andExpect(status().isInternalServerError())
+    			.andReturn();
+    	
+    	String actualResponse = result.getResponse().getContentAsString();
+    	String expectedResponse = "Erreur lors de l'ajout d'une nouvelle personne";
+    	
+    	assertTrue(actualResponse.contains(expectedResponse));
+    }
+    
+    @Test
+    void testDeletePersonError() throws Exception {
+		Person deletedPerson1 = new Person("Nicolas", "Brunet", "addressTest", "cityTest", "zipTest", "123456789",
+				"email@test.fr");
+		String deletedPerson1Json = new ObjectMapper().writeValueAsString(deletedPerson1);
+		
+        doThrow(new RuntimeException("Erreur simulée")).when(personService).deletePerson(deletedPerson1.getFirstName(), deletedPerson1.getLastName(), deletedPerson1.getPhone());    
+        
+    	MvcResult result = mockMvc.perform(MockMvcRequestBuilders.delete("/persons")
+    			.contentType(MediaType.APPLICATION_JSON)
+    			.content(deletedPerson1Json))
+    			.andExpect(status().isInternalServerError())
+    			.andReturn();
+    	
+    	String actualResponse = result.getResponse().getContentAsString();
+    	String expectedResponse = "Erreur lors de la suppression de la personne.";
+    	
+    	assertTrue(actualResponse.contains(expectedResponse));
+    }
+    
+    @Test
+    void testUpdateersonError() throws Exception {
+		Person updatedPerson1 = new Person("Nicolas", "Brunet", "addressTest", "cityTest", "zipTest", "123456789",
+				"email@test.fr");
+		String updatedPerson1Json = new ObjectMapper().writeValueAsString(updatedPerson1);
+		
+        doThrow(new RuntimeException("Erreur simulée")).when(personService).updatePerson(updatedPerson1);    
+        
+    	MvcResult result = mockMvc.perform(MockMvcRequestBuilders.put("/persons")
+    			.contentType(MediaType.APPLICATION_JSON)
+    			.content(updatedPerson1Json))
+    			.andExpect(status().isInternalServerError())
+    			.andReturn();
+    	
+    	String actualResponse = result.getResponse().getContentAsString();
+    	String expectedResponse = "Erreur lors de la mise à jour de la personne.";
+    	
+    	assertTrue(actualResponse.contains(expectedResponse));
+    }
+    
+    @Test
+    void testGetCommunityEmailError() throws Exception {
+    	String city = "SaintMalo";
+    	
+    	doThrow(new Exception("Erreur simulée")).when(personService).getCommunityEmail(city);
+    	
+    	MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/communityEmail")
+    			.param("city", city))
+    			.andExpect(status().isInternalServerError())
+    			.andReturn();
+    	
+    	String actualResponse = result.getResponse().getContentAsString();
+    	String expectedResponse = "Une erreur s'est produite lors de la récupération des adresses mails.";
+    	
+    	assertTrue(actualResponse.contains(expectedResponse));
+    	
+    }
+    
+    @Test
+    void testGetChildAlertError() throws Exception {
+    	String address = "SaintMalo";
+    	
+    	doThrow(new Exception("Erreur simulée")).when(personService).getChildListFromAddress(address);
+    	
+    	MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/childAlert")
+    			.param("address", address))
+    			.andExpect(status().isInternalServerError())
+    			.andReturn();
+    	
+    	String actualResponse = result.getResponse().getContentAsString();
+    	String expectedResponse = "Erreur lors de la récupération de la liste d'enfant.";
+    	
+    	assertTrue(actualResponse.contains(expectedResponse));
+    	
+    }
+    
+    @Test
+    void testPersonInfoError() throws Exception {
+    	String lastName = "Brunet";
+    	
+    	doThrow(new Exception("Erreur simulée.")).when(personService).personInfo(lastName);
+    	
+    	MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/personInfolastName")
+    			.param("lastName", lastName))
+    			.andExpect(status().isInternalServerError())
+    			.andReturn();
+    	
+    	String actualResponse = result.getResponse().getContentAsString();
+    	String expectedResponse = "Une erreur est survenue dans la récupération de la liste d'information des personnes";
+    	
+    	assertTrue(actualResponse.contains(expectedResponse));
+    }
+    
+
 
 }

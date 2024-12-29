@@ -26,7 +26,7 @@ public class PersonServiceIntegTest {
 	MedicalrecordService medicalrecordService;
 
 	@Test
-	void testGetAllPerson() {
+	void testGetAllPerson() throws Exception {
 		List<Person> result = personService.getAllPersons();
 
 		assertThat(result).isNotNull();
@@ -126,50 +126,57 @@ public class PersonServiceIntegTest {
 		medicalrecordService.deleteMedicalrecord(newMedicalrecordChild);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	void testPersonInfo() throws Exception {
-		String lastNameTested = "Doe";
+	    // Test setup
+	    String lastNameTested = "Doe";
 
-		Person newChild = new Person("John", "Doe", "address", "Malo", "12345", "0123456789", "emailTest");
-		List<String> medications = Arrays.asList("Paracetamol 500mg", "Aspirin 100mg");
-		List<String> allergies = Arrays.asList("pollen", "cacahuete");
-		Medicalrecord newMedicalrecord = new Medicalrecord("John", "Doe", "24/09/2010", medications, allergies);
+	    // Création d'une nouvelle personne et d'un dossier médical associé
+	    Person newChild = new Person("John", "Doe", "address", "Malo", "12345", "0123456789", "emailTest");
+	    List<String> medications = Arrays.asList("Paracetamol 500mg", "Aspirin 100mg");
+	    List<String> allergies = Arrays.asList("pollen", "cacahuete");
+	    Medicalrecord newMedicalrecord = new Medicalrecord("John", "Doe", "24/09/2010", medications, allergies);
 
-		personService.addPerson(newChild);
-		medicalrecordService.addMedicalrecord(newMedicalrecord);
+	    // Ajout de la personne et du dossier médical
+	    personService.addPerson(newChild);
+	    medicalrecordService.addMedicalrecord(newMedicalrecord);
 
-		Map<String, Object> personInfoTested = personService.personInfo(lastNameTested);
+	    // Récupération des informations de la personne
+	    Map<String, Object> personInfoTested = personService.personInfo(lastNameTested);
 
-		assertThat(personInfoTested).isNotNull();
+	    // Vérifications sur les résultats
+	    assertThat(personInfoTested).isNotNull();
+	    assertThat(personInfoTested).containsKey("count");
+	    assertThat(personInfoTested).containsKey("personInfo");
 
-		assertThat(personInfoTested).containsKey("count");
-		assertThat(personInfoTested).containsKey("personInfo");
+	    // Vérification de la valeur de 'count'
+	    int count = (int) personInfoTested.get("count");
+	    assertThat(count).isEqualTo(1);
 
-		int count = (int) personInfoTested.get("count");
-		assertThat(count).isEqualTo(1);
+	    // Vérification que 'personInfo' est une liste
+	    Object personInfoObj = personInfoTested.get("personInfo");
+	    assertThat(personInfoObj).isInstanceOf(List.class);
 
-		Object personInfoObj = personInfoTested.get("personInfo");
+	    // Casting et vérification du contenu de la liste
+	    List<Map<String, Object>> personInfoList = (List<Map<String, Object>>) personInfoObj;
+	    assertThat(personInfoList).isNotEmpty();
 
-		assertThat(personInfoObj).isInstanceOf(List.class);
+	    // Vérification des valeurs des informations personnelles
+	    Map<String, Object> personInfo = personInfoList.get(0);
+	    assertThat(personInfo).containsEntry("firstName", "John");
+	    assertThat(personInfo).containsEntry("lastName", "Doe");
+	    assertThat(personInfo).containsEntry("birthdate", "24/09/2010");
+	    assertThat(personInfo).containsEntry("address", "address");
+	    assertThat(personInfo).containsEntry("phone", "0123456789");
+	    assertThat(personInfo).containsEntry("medications", medications);
+	    assertThat(personInfo).containsEntry("allergies", allergies);
 
-		@SuppressWarnings("unchecked")
-		List<Map<String, Object>> personInfoList = (List<Map<String, Object>>) personInfoObj;
-
-		assertThat(personInfoList).isNotEmpty();
-
-		Map<String, Object> personInfo = personInfoList.get(0);
-
-		assertThat(personInfo).containsEntry("firstName", "John");
-		assertThat(personInfo).containsEntry("lastName", "Doe");
-		assertThat(personInfo).containsEntry("birthdate", "24/09/2010");
-		assertThat(personInfo).containsEntry("address", "address");
-		assertThat(personInfo).containsEntry("phone", "0123456789");
-		assertThat(personInfo).containsEntry("medications", medications);
-		assertThat(personInfo).containsEntry("allergies", allergies);
-
-		personService.deletePerson("John", "Doe", "0123456789");
-		medicalrecordService.deleteMedicalrecord(newMedicalrecord);
+	    // Nettoyage après test
+	    personService.deletePerson("John", "Doe", "0123456789");
+	    medicalrecordService.deleteMedicalrecord(newMedicalrecord);
 	}
+
 
 	@Test
 	void testIsChild() {

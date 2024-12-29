@@ -92,24 +92,31 @@ public class PersonService {
 	 * </p>
 	 * 
 	 * @return {@code List<Person>} Liste des personnes.
+	 * @throws Exception        si aucune personne n'a été trouvée.
 	 * @throws RuntimeException si une erreur se produit lors de la récupération des
 	 *                          données.
 	 */
-	public List<Person> getAllPersons() {
+	public List<Person> getAllPersons() throws Exception {
 		logger.info("Entrée dans la méthode getAllPersons de la classe PersonService");
 		try {
 			logger.info("Début de la récupération de toutes les personnes.");
 			List<Person> personList = personRepository.getAllPerson();
 			if (personList.isEmpty()) {
 				logger.warn("Aucune personne trouvée.");
+				throw new Exception("Aucune personne n'a été trouvée.");
 			} else {
 				logger.debug("{} personnes récupérées.", personList.size());
 			}
 			logger.info("Appel à personRepository.getAllPerson() pour récupérer toutes les personnes.");
 			return personList;
 		} catch (Exception e) {
-			logger.error("Erreur lors de l'exécution de personRepository.getAllPerson() : ", e);
-			throw new RuntimeException("Erreur lors de la récupération des personnes.", e);
+			if (e.getMessage().contains("Aucune personne n'a été trouvée.")) {
+				throw e;
+			} else {
+				logger.error("Erreur lors de l'exécution de personRepository.getAllPerson() : ", e);
+				throw new RuntimeException("Erreur lors de la récupération des personnes.", e);
+			}
+
 		}
 	}
 
@@ -149,8 +156,12 @@ public class PersonService {
 				throw new Exception("La personne n'existe pas en base de données.");
 			}
 		} catch (Exception e) {
-			logger.error("Erreur inattendue lors de la suppression de la personne. ", e);
-			throw new RuntimeException("Erreur inattendue lors de la suppression de la personne : ", e);
+			if (e.getMessage().contains("La personne n'existe pas en base de données.")) {
+				throw e;
+			} else {
+				logger.error("Erreur inattendue lors de la suppression de la personne. ", e);
+				throw new RuntimeException("Erreur inattendue lors de la suppression de la personne.");
+			}
 		}
 	}
 
@@ -179,11 +190,10 @@ public class PersonService {
 	 */
 	public void addPerson(Person newPerson) throws Exception {
 		logger.info("Entrée dans la méthode addPerson de la classe PersonService.");
-
 		try {
 			logger.info(
 					"Vérification des champs 'firstName', 'lastName' et 'phone' pour s'assurer qu'ils ne sont pas nuls ou vides.");
-			logger.info("La personne à vérifier est : " + newPerson);
+			logger.debug("La personne à vérifier est : " + newPerson);
 			if (newPerson.getFirstName() == null || newPerson.getFirstName().isEmpty()
 					|| newPerson.getLastName() == null || newPerson.getLastName().isEmpty()
 					|| newPerson.getPhone() == null || newPerson.getPhone().isEmpty()) {
@@ -201,14 +211,20 @@ public class PersonService {
 			if (!personExists) {
 				logger.info("Appel à la méthode personRepository.addPerson pour ajouter la personne.");
 				personRepository.addPerson(newPerson);
-				logger.info("Nouvelle personne ajoutée avec succès : " + newPerson);
+				logger.debug("Nouvelle personne ajoutée avec succès : " + newPerson);
 			} else {
 				logger.error("La personne existe déjà dans la base de données.");
 				throw new Exception("La personne existe déjà dans la base de données.");
 			}
 		} catch (Exception e) {
-			logger.error("Erreur lors de l'ajout de la personne.", e);
-			throw new Exception("Erreur lors de l'ajout de la personne.", e);
+			if (e.getMessage().contains("Les champs 'firstName', 'lastName' et 'phone' sont obligatoires")) {
+				throw e;
+			} else if (e.getMessage().contains("La personne existe déjà dans la base de données.")) {
+				throw e;
+			} else {
+				logger.error("Erreur lors de l'ajout de la personne.", e);
+				throw new Exception("Erreur lors de l'ajout de la personne.");
+			}
 		}
 	}
 
@@ -225,6 +241,7 @@ public class PersonService {
 	 * @param updatedPerson L'objet représentant la personne avec les nouvelles
 	 *                      informations. Le prénom et le nom doivent être
 	 *                      renseignés pour procéder à la mise à jour.
+	 * @throws Exception
 	 * 
 	 * @throws IllegalArgumentException Si les champs 'firstName' ou 'lastName' sont
 	 *                                  vides ou nuls, ou si la personne n'existe
@@ -232,7 +249,7 @@ public class PersonService {
 	 * @throws RuntimeException         Si une erreur imprévue survient lors de la
 	 *                                  mise à jour de la personne.
 	 */
-	public void updatePerson(Person updatedPerson) {
+	public void updatePerson(Person updatedPerson) throws Exception {
 		logger.info("Entrée dans la méthode updatePerson() de la classe PersonService.");
 
 		if (updatedPerson.getFirstName() == null || updatedPerson.getFirstName().isEmpty()
@@ -256,8 +273,13 @@ public class PersonService {
 				throw new IllegalArgumentException("Cette personne n'existe pas.");
 			}
 		} catch (Exception e) {
-			logger.error("Erreur lors de la mise à jour de la personne.", e);
-			throw new RuntimeException("Erreur lors de la mise à jour de la personne : " + e.getMessage(), e);
+			if (e.getMessage().contains("Cette personne n'existe pas.")) {
+				throw e;
+			} else {
+				logger.error("Erreur lors de la mise à jour de la personne.", e);
+				throw new RuntimeException("Erreur lors de la mise à jour de la personne.");
+			}
+
 		}
 	}
 
@@ -286,9 +308,12 @@ public class PersonService {
 	public List<String> getCommunityEmail(String city) throws Exception {
 		logger.info("Début de la récupération des adresses email pour la ville : {}", city);
 
-		if (city == null || city.isEmpty()) {
-			logger.error("Le paramètre 'city' est vide ou nul.");
-			throw new Exception("Le champ 'city' ne peut pas être null ou vide.");
+		if (city == null) {
+			logger.error("Le paramètre 'city' est nul.");
+			throw new Exception("Le champ 'city' ne peut pas être nul.");
+		} else if (city.isEmpty()) {
+			logger.error("Le paramètre 'city' est vide.");
+			throw new Exception("Le champ 'city' ne peut pas être vide.");
 		}
 
 		try {
@@ -298,14 +323,23 @@ public class PersonService {
 					.map(person -> person.getEmail()).collect(Collectors.toList());
 			if (communityEmail.isEmpty()) {
 				logger.warn("Aucune personne trouvée pour la ville : {}", city);
+				throw new Exception("Aucune personne trouvée pour cette ville.");
 			} else {
 				logger.debug("Nombre d'adresses email récupérées pour la ville {} : {}", city, communityEmail.size());
 			}
 			return communityEmail;
 		} catch (Exception e) {
-			logger.error("Une erreur s'est produite lors de la récupération des adresses email pour la ville : {}",
-					city, e);
-			throw new Exception("Une erreur s'est produite dans la récupération des données.", e);
+			if (e.getMessage().contains("Le champ 'city' ne peut pas être nul.")
+					|| e.getMessage().contains("Le champ 'city' ne peut pas être vide.")) {
+				throw e;
+			} else if (e.getMessage().contains("Aucune personne trouvée pour cette ville.")) {
+				throw e;
+			} else {
+				logger.error("Une erreur s'est produite lors de la récupération des adresses email pour la ville : {}",
+						city, e);
+				throw new Exception("Une erreur s'est produite dans la récupération des données.", e);
+			}
+
 		}
 	}
 
@@ -392,8 +426,12 @@ public class PersonService {
 			}
 			return childrenAtAddress;
 		} catch (Exception e) {
-			logger.error("Erreur lors de la récupération des enfants pour l'adresse : {}", address, e);
-			throw new Exception("Une erreur s'est produite lors de la récupération des enfants pour l'adresse.", e);
+			if (e.getMessage().contains("Le champ 'address' est obligatoire.")) {
+				throw e;
+			} else {
+				logger.error("Erreur lors de la récupération des enfants pour l'adresse : {}", address, e);
+				throw new Exception("Une erreur s'est produite lors de la récupération des enfants pour l'adresse.", e);
+			}
 		}
 	}
 
@@ -409,7 +447,7 @@ public class PersonService {
 	 * @param address l'adresse à normaliser.
 	 * @return l'adresse normalisée, ou une chaîne vide si l'adresse est null.
 	 */
-	private String normalizeAddress(String address) {
+	public String normalizeAddress(String address) {
 		if (address == null) {
 			logger.debug("Adresse fournie est null, retour d'une chaîne vide.");
 			return "";

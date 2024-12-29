@@ -76,7 +76,7 @@ public class PersonController {
 		} catch (Exception e) {
 			logger.error("Erreur lors de la récupération des personnes.", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body("Erreur lors de la récupération des personnes : " + e.getMessage());
+					.body("Erreur lors de la récupération des personnes.");
 		}
 	}
 
@@ -104,7 +104,7 @@ public class PersonController {
 		} catch (Exception e) {
 			logger.error("Erreur lors de la récupération des personnes.", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body("Erreur lors de l'ajout d'une nouvelle personne : " + e.getMessage());
+					.body("Erreur lors de l'ajout d'une nouvelle personne");
 		}
 
 	}
@@ -135,7 +135,7 @@ public class PersonController {
 		} catch (Exception e) {
 			logger.error("Erreur lors de la mise à jour de la personne : " + person, e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body("Erreur lors de la mise à jour de la personne." + e.getMessage());
+					.body("Erreur lors de la mise à jour de la personne.");
 		}
 
 	}

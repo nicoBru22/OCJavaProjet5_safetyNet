@@ -91,7 +91,7 @@ public class FirestationController {
 			return ResponseEntity.status(HttpStatus.CREATED).body("La caserne a été ajoutée avec succès !");
 		} catch (Exception e) {
 			logger.error("Erreur lors de l'ajout de la caserne : {}", e.getMessage());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors de l'ajout de la caserne");
 		}
 	}
 
@@ -143,7 +143,7 @@ public class FirestationController {
 		} catch (Exception e) {
 			logger.error("Erreur lors de la suppression de la caserne : {}", e.getMessage());
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body("Erreur lors de la suppression de la caserne.");
+					.body("Erreur lors de la mise à jour de la caserne.");
 		}
 	}
 
