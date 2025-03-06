@@ -1,11 +1,15 @@
 package com.projet5.safetyNet.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Repository;
 
+import com.projet5.safetyNet.Exception.FirestationDeletedException;
+import com.projet5.safetyNet.Exception.FirestationExistingException;
+import com.projet5.safetyNet.Exception.FirestationNotFoundException;
 import com.projet5.safetyNet.model.DataModel;
 import com.projet5.safetyNet.model.Firestation;
 
@@ -69,15 +73,10 @@ public class FirestationRepository {
 	 * @return firestationList La liste de toutes les casernes de pompiers.
 	 * @throws Exception si une erreur survient lors de la récupération des données.
 	 */
-	public List<Firestation> getAllFirestations() throws Exception {
-		try {
+	public List<Firestation> getAllFirestations() {
 			logger.info("Récupération de toutes les casernes.");
 			logger.debug("Le contenu de la liste : {}", firestationList);
 			return firestationList;
-		} catch (Exception e) {
-			logger.error("Erreur lors de la récupération des casernes : " + e.getMessage());
-			throw new Exception("Erreur : ", e);
-		}
 	}
 
 	/**
@@ -93,18 +92,16 @@ public class FirestationRepository {
 	 *                       caserne à ajouter.
 	 * @throws Exception si une erreur survient lors de l'ajout des données.
 	 */
-	public void addFirestation(Firestation newFirestation) throws Exception {
-		try {
-			firestationList.add(newFirestation);
-			dataModel.setFireStations(firestationList);
-			dataRepository.writeFile(dataModel);
-			logger.info("Nouvelle caserne ajoutée.");
-			logger.debug("La nouvelle caserne ajoutée : " + newFirestation);
-		} catch (Exception e) {
-			logger.error("Erreur lors de l'ajout de la nouvelle caserne.");
-			throw new Exception("Erreur lors de l'ajout de la nouvelle caserne.", e);
+	public void addFirestation(Firestation newFirestation) {
+		if(firestationList.contains(newFirestation)) {
+			logger.error("La firestation existe déjà : {}", newFirestation);
+			throw new FirestationExistingException("La firestation existe déjà.");
 		}
-
+		firestationList.add(newFirestation);
+		dataModel.setFireStations(firestationList);
+		dataRepository.writeFile(dataModel);
+		logger.info("Nouvelle caserne ajoutée.");
+		logger.debug("La nouvelle caserne ajoutée : " + newFirestation);
 	}
 
 	/**
@@ -121,19 +118,17 @@ public class FirestationRepository {
 	 * @throws RuntimeException si une erreur survient lors de la
 	 *                                  suppression des données.
 	 */
-	public void deleteFirestation(Firestation deletedFirestation) throws RuntimeException {
-		try {
-			firestationList.removeIf(firestation -> firestation.getAddress().equals(deletedFirestation.getAddress())
-					&& firestation.getStation().equals(deletedFirestation.getStation()));
-			dataModel.setFireStations(firestationList);
-			dataRepository.writeFile(dataModel);
-			logger.info("Caserne supprimée avec succès ");
-			logger.debug("Caserne supprimée : {}", deletedFirestation);
-		} catch (RuntimeException e) {
-			logger.error("Erreur lors de la suppression des données.", e);
-			throw new RuntimeException("Erreur lors de la suppression des données.", e);
+	public void deleteFirestation(Firestation deletedFirestation) {
+		boolean firestationDeleted = firestationList.removeIf(firestation -> firestation.getAddress().equals(deletedFirestation.getAddress())
+				&& firestation.getStation().equals(deletedFirestation.getStation()));
+		if(!firestationDeleted) {
+			logger.error("La firestation {} n'a pas été supprimée.", deletedFirestation);
+			throw new FirestationDeletedException("La firestation n'a pas été supprimée : "+ deletedFirestation);
 		}
-
+		dataModel.setFireStations(firestationList);
+		dataRepository.writeFile(dataModel);
+		logger.info("Caserne supprimée avec succès ");
+		logger.debug("Caserne supprimée : {}", deletedFirestation);
 	}
 
 	/**
@@ -152,27 +147,20 @@ public class FirestationRepository {
 	 * @throws IllegalArgumentException si la caserne à mettre à jour n'est pas
 	 *                                  trouvée.
 	 */
-	public void updateFirestation(Firestation updatedFirestation) throws Exception {
-		try {
-			boolean updated = firestationList.stream()
-					.filter(firestation -> firestation.getAddress().equalsIgnoreCase(updatedFirestation.getAddress()))
-					.findFirst().map(firestation -> {
-						firestationList.set(firestationList.indexOf(firestation), updatedFirestation);
-						return true;
-					}).orElse(false);
-			logger.debug("La contenu de la mise à jour de la caserne : {}.", updatedFirestation);
-			if (updated) {
-				dataModel.setFireStations(firestationList);
-				dataRepository.writeFile(dataModel);
-				logger.info("Caserne mise à jour avec succès.");
-			} else {
-				logger.error("Caserne non trouvée pour mise à jour : {}.", updatedFirestation);
-				throw new IllegalArgumentException("Caserne non trouvée pour mise à jour.");
-			}
-		} catch (Exception e) {
-			logger.error("Erreur lors de la mise à jour de la caserne : {}", updatedFirestation);
-			throw new Exception("Erreur lors de la mise à jour de la caserne.", e);
-		}
+	public void updateFirestation(Firestation updatedFirestation) {
+	    Optional<Firestation> firestationOptional = firestationList.stream()
+	            .filter(firestation -> firestation.getAddress().equalsIgnoreCase(updatedFirestation.getAddress()))
+	            .findFirst();
+	    
+	    if (!firestationOptional.isPresent()) {
 
+	        logger.error("Caserne non trouvée pour mise à jour : {}.", updatedFirestation);
+	        throw new FirestationNotFoundException("Caserne non trouvée pour mise à jour : " + updatedFirestation);
+	    }
+        Firestation existingFirestation = firestationOptional.get();
+        firestationList.set(firestationList.indexOf(existingFirestation), updatedFirestation);
+        dataModel.setFireStations(firestationList);
+        dataRepository.writeFile(dataModel);
+        logger.info("Caserne mise à jour avec succès : {}", updatedFirestation);
 	}
 }

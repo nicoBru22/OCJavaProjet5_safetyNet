@@ -55,18 +55,10 @@ public class FirestationController {
 	 *         succès ou un message d'erreur en cas de problème.
 	 */
 	@GetMapping("/firestations")
-	public ResponseEntity<?> getAllFireStation() {
-		try {
+	public ResponseEntity<List<Firestation>> getAllFireStation() {
 			logger.info("Récupération de toutes les casernes de pompiers.");
 			List<Firestation> firestations = firestationService.getAllFireStations();
-			logger.info("La liste des caserne a été récupérée avec succès.");
-			logger.debug("Liste des casernes récupérée : {}", firestations);
 			return ResponseEntity.ok(firestations);
-		} catch (Exception e) {
-			logger.error("Erreur lors de la récupération des casernes : {}", e.getMessage());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body("Erreur lors de la récupération de toutes les casernes.");
-		}
 	}
 
 	/**
@@ -83,16 +75,11 @@ public class FirestationController {
 	 */
 	@PostMapping("/firestation")
 	public ResponseEntity<String> addFirestation(@RequestBody Firestation newFirestation) {
-		try {
 			logger.info("Ajout d'une nouvelle caserne : {}", newFirestation);
 			firestationService.addFirestation(newFirestation);
 			logger.info("La caserne a été ajoutée avec succès.");
 			logger.debug("Caserne {} ajoutée avec succès.", newFirestation);
 			return ResponseEntity.status(HttpStatus.CREATED).body("La caserne a été ajoutée avec succès !");
-		} catch (Exception e) {
-			logger.error("Erreur lors de l'ajout de la caserne : {}", e.getMessage());
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors de l'ajout de la caserne");
-		}
 	}
 
 	/**

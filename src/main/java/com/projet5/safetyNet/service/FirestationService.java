@@ -13,6 +13,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
+import com.projet5.safetyNet.Exception.FirestationExistingException;
+import com.projet5.safetyNet.Exception.FirestationNotFoundException;
+import com.projet5.safetyNet.Exception.InvalidRequestException;
 import com.projet5.safetyNet.model.Firestation;
 import com.projet5.safetyNet.model.Medicalrecord;
 import com.projet5.safetyNet.model.Person;
@@ -146,33 +149,24 @@ public class FirestationService {
 	 *                                  l'ajout.
 	 * @throws Exception                Si la caserne existe déjà dans le système.
 	 */
-	public void addFirestation(Firestation newFirestation) throws Exception {
-		try {
-			logger.info("Début de l'ajout d'une nouvelle caserne : {}", newFirestation);
-
-			if (newFirestation.getAddress() == null || newFirestation.getAddress().isEmpty()
-					|| newFirestation.getStation() == null || newFirestation.getStation().isEmpty()) {
-				logger.error("Données invalides : adresse ou numéro de station manquant.");
-				throw new IllegalArgumentException("Les champs adresse et numéro de station sont obligatoires.");
-			}
-
-			List<Firestation> firestationList = firestationRepository.getAllFirestations();
-			boolean firestationExist = firestationList.stream()
-					.anyMatch(firestation -> firestation.getAddress().equalsIgnoreCase(newFirestation.getAddress())
-							&& firestation.getStation().equalsIgnoreCase(newFirestation.getStation()));
-
-			if (firestationExist) {
-				logger.warn("La caserne avec l'adresse '{}' et la station '{}' existe déjà.",
-						newFirestation.getAddress(), newFirestation.getStation());
-				throw new Exception("La caserne existe déjà.");
-			}
-
-			firestationRepository.addFirestation(newFirestation);
-			logger.info("Caserne ajoutée avec succès : {}", newFirestation);
-		} catch (RuntimeException e) {
-			logger.error("Erreur lors de l'ajout de la caserne : {}", e.getMessage(), e);
-			throw new RuntimeException("Erreur inattendue lors de l'ajout de la caserne.", e);
+	public void addFirestation(Firestation newFirestation) {
+		logger.info("Début de l'ajout d'une nouvelle caserne : {}", newFirestation);
+		if (newFirestation.getAddress() == null || newFirestation.getAddress().isEmpty()
+				|| newFirestation.getStation() == null || newFirestation.getStation().isEmpty()) {
+			logger.error("Données invalides : adresse ou numéro de station manquant.");
+			throw new InvalidRequestException("Les champs adresse et numéro de station sont obligatoires.");
 		}
+		List<Firestation> firestationList = firestationRepository.getAllFirestations();
+		boolean firestationExist = firestationList.stream()
+				.anyMatch(firestation -> firestation.getAddress().equalsIgnoreCase(newFirestation.getAddress())
+						&& firestation.getStation().equalsIgnoreCase(newFirestation.getStation()));
+		if (firestationExist) {
+			logger.warn("La caserne avec l'adresse '{}' et la station '{}' existe déjà.",
+					newFirestation.getAddress(), newFirestation.getStation());
+			throw new FirestationExistingException("La caserne existe déjà.");
+		}
+		firestationRepository.addFirestation(newFirestation);
+		logger.info("Caserne ajoutée avec succès : {}", newFirestation);
 	}
 
 	/**
@@ -195,40 +189,26 @@ public class FirestationService {
 	 * @throws RuntimeException         Si une erreur inattendue se produit pendant
 	 *                                  la suppression.
 	 */
-	public void deleteFirestation(Firestation deletedFirestation) throws Exception {
-		try {
-			logger.info("Début de la suppression de la caserne : {}", deletedFirestation);
-
-			// Validation des champs
-			if (deletedFirestation == null || deletedFirestation.getAddress() == null
-					|| deletedFirestation.getAddress().isEmpty() || deletedFirestation.getStation() == null
-					|| deletedFirestation.getStation().isEmpty()) {
-				logger.error("Données invalides : adresse ou numéro de station manquant.");
-				throw new IllegalArgumentException("Les champs adresse et station sont obligatoires.");
-			}
-
-			List<Firestation> firestationList = firestationRepository.getAllFirestations();
-			boolean firestationExist = firestationList.stream()
-					.anyMatch(firestation -> firestation.getAddress().equalsIgnoreCase(deletedFirestation.getAddress())
-							&& firestation.getStation().equalsIgnoreCase(deletedFirestation.getStation()));
-
-			if (!firestationExist) {
-				logger.warn("La caserne avec l'adresse {} et la station {} n'existe pas.",
-						deletedFirestation.getAddress(), deletedFirestation.getStation());
-				throw new Exception("La caserne n'existe pas.");
-			}
-
-			firestationRepository.deleteFirestation(deletedFirestation);
-			logger.info("Caserne supprimée avec succès : {}", deletedFirestation);
-
-		} catch (IllegalArgumentException e) {
-			logger.error("Erreur de validation : {}", e.getMessage());
-			throw new Exception("Données invalides pour la suppression : " + e.getMessage(), e);
-
-		} catch (Exception e) {
-			logger.error("Erreur lors de la suppression : {}", e.getMessage(), e);
-			throw new RuntimeException("Erreur inattendue lors de la suppression de la caserne.", e);
+	public void deleteFirestation(Firestation deletedFirestation) {
+		logger.info("Début de la suppression de la caserne : {}", deletedFirestation);
+		if (deletedFirestation == null || deletedFirestation.getAddress() == null
+				|| deletedFirestation.getAddress().isEmpty() || deletedFirestation.getStation() == null
+				|| deletedFirestation.getStation().isEmpty()) {
+			logger.error("Données invalides : adresse ou numéro de station manquant.");
+			throw new InvalidRequestException("Les champs adresse et station sont obligatoires.");
 		}
+
+		List<Firestation> firestationList = firestationRepository.getAllFirestations();
+		boolean firestationExist = firestationList.stream()
+				.anyMatch(firestation -> firestation.getAddress().equalsIgnoreCase(deletedFirestation.getAddress())
+						&& firestation.getStation().equalsIgnoreCase(deletedFirestation.getStation()));
+		if (!firestationExist) {
+			logger.warn("La caserne avec l'adresse {} et la station {} n'existe pas.",
+					deletedFirestation.getAddress(), deletedFirestation.getStation());
+			throw new FirestationNotFoundException("La caserne n'existe pas."+ deletedFirestation);
+		}
+		firestationRepository.deleteFirestation(deletedFirestation);
+		logger.info("Caserne supprimée avec succès : {}", deletedFirestation);
 	}
 
 	/**
@@ -249,32 +229,21 @@ public class FirestationService {
 	 * @throws RuntimeException         Si une erreur se produit lors de la mise à
 	 *                                  jour.
 	 */
-	public void updateFirestation(Firestation updatedFirestation) throws Exception {
-		try {
-			logger.info("Début de la mise à jour d'une firestation : {}", updatedFirestation);
-			if (updatedFirestation.getAddress() == null || updatedFirestation.getAddress().isEmpty()) {
-				logger.error("Donnée invalide pour la mise à jour : adresse manquante.");
-				throw new IllegalArgumentException("Le champ adresse est obligatoire.");
-			}
-
-			List<Firestation> firestationList = firestationRepository.getAllFirestations();
-			boolean stationExists = firestationList.stream().anyMatch(
-					firestation -> firestation.getAddress().equalsIgnoreCase(updatedFirestation.getAddress()));
-
-			if (!stationExists) {
-				logger.error("La firestation n'existe pas à cette adresse : {}", updatedFirestation.getAddress());
-				throw new Exception("La firestation n'existe pas à cette adresse.");
-			}
-
-			firestationRepository.updateFirestation(updatedFirestation);
-			logger.info("Firestation mise à jour avec succès : {}", updatedFirestation);
-		} catch (IllegalArgumentException e) {
-			logger.error("Données invalides pour la mise à jour de la firestation : {}", e.getMessage());
-			throw new IllegalArgumentException("Données invalide pour la mise à jour de la station.", e);
-		} catch (Exception e) {
-			logger.error("Erreur lors de la mise à jour de la firestation : {}", e.getMessage(), e);
-			throw new RuntimeException("Erreur lors de la mise à jour de la firestation", e);
+	public void updateFirestation(Firestation updatedFirestation) {
+		logger.info("Début de la mise à jour d'une firestation : {}", updatedFirestation);
+		if (updatedFirestation.getAddress() == null || updatedFirestation.getAddress().isEmpty()) {
+			logger.error("Donnée invalide pour la mise à jour : adresse manquante ou nulle : {}", updatedFirestation);
+			throw new InvalidRequestException("Le champ adresse est obligatoire."+ updatedFirestation);
 		}
+		List<Firestation> firestationList = firestationRepository.getAllFirestations();
+		boolean stationExists = firestationList.stream().anyMatch(
+				firestation -> firestation.getAddress().equalsIgnoreCase(updatedFirestation.getAddress()));
+		if (!stationExists) {
+			logger.error("La firestation n'existe pas à cette adresse : {}", updatedFirestation.getAddress());
+			throw new FirestationNotFoundException("La firestation n'existe pas à cette adresse.");
+		}
+		firestationRepository.updateFirestation(updatedFirestation);
+		logger.info("Firestation mise à jour avec succès : {}", updatedFirestation);
 	}
 
 	/**

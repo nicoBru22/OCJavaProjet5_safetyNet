@@ -21,10 +21,17 @@ public class GlobalExceptionHandler {
                              .body("Une erreur interne est survenue : " + e.getMessage());
     }
     
+    @ExceptionHandler(DateTimeParseException.class)
+    public ResponseEntity<String> handleDateTimeParseException(DateTimeParseException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Format de date invalide.");
+    }
+    
     @ExceptionHandler(InvalidRequestException.class)
     public ResponseEntity<String> handleInvalidRequestException(InvalidRequestException e) {
     	return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
+    
+  //La gestion des exceptions provenant de Person
     
     @ExceptionHandler(PersonNotFoundException.class)
     public ResponseEntity<String> handlePersonNotFoundException(PersonNotFoundException e) {
@@ -46,9 +53,26 @@ public class GlobalExceptionHandler {
     	return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
     }
     
-    @ExceptionHandler(DateTimeParseException.class)
-    public ResponseEntity<String> handleDateTimeParseException(DateTimeParseException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Format de date invalide.");
+//La gestion des exceptions provenant de Firestation
+    
+    @ExceptionHandler(FirestationDeletedException.class)
+    public ResponseEntity<String> handleFirestationDeletedException(FirestationDeletedException e) {
+    	return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+    
+    @ExceptionHandler(FirestationExistingException.class)
+    public ResponseEntity<String> handleFirestationExistingException(FirestationExistingException e) {
+    	return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
+    
+    @ExceptionHandler(FirestationAdditionException.class)
+    public ResponseEntity<String> handleFirestationAdditionException(FirestationAdditionException e) {
+    	return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+    
+    @ExceptionHandler(FirestationNotFoundException.class)
+    public ResponseEntity<String> handleFirestationNotFoundException(FirestationNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
 
 }
