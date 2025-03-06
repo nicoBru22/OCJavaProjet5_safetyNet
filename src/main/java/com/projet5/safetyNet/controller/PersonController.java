@@ -2,7 +2,6 @@ package com.projet5.safetyNet.controller;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -65,19 +64,12 @@ public class PersonController {
 	 *         un message d'erreur en cas d'échec.
 	 */
 	@GetMapping("/persons")
-	public ResponseEntity<?> getAllPersons() {
+	public ResponseEntity<Object> getAllPersons() {
 		logger.info("Entrée dans la méthode getAllPersons() de la classe PersonController.");
-		try {
-			logger.info("Appel de la méthode personService.getAllPersons()");
-			List<Person> persons = personService.getAllPersons();
-			logger.info("Récupération des personnes réussie.");
-			logger.debug("Récupération avec succès de la liste de personne : ", persons);
-			return ResponseEntity.ok(persons);
-		} catch (Exception e) {
-			logger.error("Erreur lors de la récupération des personnes.", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body("Erreur lors de la récupération des personnes.");
-		}
+		logger.info("Appel de la méthode personService.getAllPersons()");
+		List<Person> persons = personService.getAllPersons();
+		logger.debug("Récupération avec succès de la liste de personne : ", persons);
+		return ResponseEntity.ok(persons);
 	}
 
 	/**
@@ -94,19 +86,11 @@ public class PersonController {
 	 * @throws Exception si une erreur se produit lors de l'ajout de la personne.
 	 */
 	@PostMapping("/persons")
-	public ResponseEntity<?> addPerson(@RequestBody Person person) throws Exception {
+	public ResponseEntity<String> addPerson(@RequestBody Person person) {
 		logger.info("Entrée dans la méthode addPerson() de la classe PersonController.");
-		try {
-			logger.info("Appel de la méthode personService.addPerson()");
-			personService.addPerson(person);
-			logger.info("Ajout de la nouvelle personne réussi.");
-			return ResponseEntity.ok("Personne ajoutée avec succès !");
-		} catch (Exception e) {
-			logger.error("Erreur lors de la récupération des personnes.", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body("Erreur lors de l'ajout d'une nouvelle personne");
-		}
-
+		logger.info("Appel de la méthode personService.addPerson()");
+		personService.addPerson(person);
+		return ResponseEntity.ok("Personne ajoutée avec succès !");
 	}
 
 	/**
@@ -124,19 +108,11 @@ public class PersonController {
 	 *         un message d'erreur en cas d'echec.
 	 */
 	@PutMapping("/persons")
-	public ResponseEntity<?> updatePerson(@RequestBody Person person) {
+	public ResponseEntity<String> updatePerson(@RequestBody Person person) {
 		logger.info("Entrée dans la méthode updatePerson() de la classe PersonController.");
-		try {
-			logger.info("Appel de la méthode personService.updatePerson()");
-			personService.updatePerson(person);
-			logger.info("Mise à jour de la personne réussi.");
-			logger.debug("Mise à jour avec succès de la personne : ", person);
-			return ResponseEntity.ok("Personne mise à jour avec succès !");
-		} catch (Exception e) {
-			logger.error("Erreur lors de la mise à jour de la personne : " + person, e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body("Erreur lors de la mise à jour de la personne.");
-		}
+		logger.info("Appel de la méthode personService.updatePerson()");
+		personService.updatePerson(person);
+		return ResponseEntity.ok("Personne mise à jour avec succès !");
 
 	}
 
@@ -153,19 +129,13 @@ public class PersonController {
 	 *         un message d'erreur en cas d'echec.
 	 */
 	@DeleteMapping("/persons")
-	public ResponseEntity<?> deletePerson(@RequestBody Person person) {
+	public ResponseEntity<String> deletePerson(@RequestBody Person person) {
 		logger.info("Entrée dans la méthode deletePerson() de la classe PersonController.");
-		try {
-			logger.info("Appel de la méthode personService.deletePerson()");
-			personService.deletePerson(person.getFirstName(), person.getLastName(), person.getPhone());
-			logger.info("Suppression de la nouvelle personne réussi.");
-			logger.debug("Suppression avec succès de la personne : {}", person);
-			return ResponseEntity.ok("Personne supprimée avec succès.");
-		} catch (Exception e) {
-			logger.error("Erreur lors de la suppression de la personne : " + person, e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body("Erreur lors de la suppression de la personne." + e.getMessage());
-		}
+		logger.info("Appel de la méthode personService.deletePerson()");
+		personService.deletePerson(person.getFirstName(), person.getLastName(), person.getPhone());
+		logger.info("Suppression de la nouvelle personne réussi.");
+		logger.debug("Suppression avec succès de la personne : {}", person);
+		return ResponseEntity.ok("Personne supprimée avec succès.");
 	}
 
 	/**
@@ -187,22 +157,13 @@ public class PersonController {
 	 *                   adresses mails.
 	 */
 	@GetMapping("/communityEmail")
-	public ResponseEntity<?> getCommunityEmail(@RequestParam String city) throws Exception {
+	public ResponseEntity<Object> getCommunityEmail(@RequestParam String city){
 		logger.info(
 				"Entrée dans la méthode getCommunityEmail() de la classe PersonController, recherche pour la ville : {}",
 				city);
-		try {
-			logger.info("APpel de la méthode personService.getCommunityEmail(city)");
-			List<String> communityEmail = personService.getCommunityEmail(city);
-			logger.info("La liste des adresses mails a été récupérée avec succès.");
-			logger.debug("La liste des adresse mails récupérée avec succès : {}", communityEmail);
-			return ResponseEntity.ok(communityEmail);
-		} catch (Exception e) {
-			logger.error("Une erreur s'est produite lors de la récupération des adresses email pour la ville : {}",
-					city, e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body("Une erreur s'est produite lors de la récupération des adresses mails.");
-		}
+		logger.info("Appel de la méthode personService.getCommunityEmail(city)");
+		List<String> communityEmail = personService.getCommunityEmail(city);
+		return ResponseEntity.ok(communityEmail);
 	}
 
 	/**
@@ -220,19 +181,12 @@ public class PersonController {
 	 *                   liste d'enfant.
 	 */
 	@GetMapping("/childAlert")
-	public ResponseEntity<?> getChildListFromAddress(@RequestParam String address) throws Exception {
-		try {
-			logger.info("Appel de la méthode personService.getChildListFromAddress(address).");
-			List<String> childList = personService.getChildListFromAddress(address);
-			logger.info("La liste d'enfant a été récupérée avec succès.");
-			logger.debug("Récupération avec succès de la liste d'enfant : {}", childList);
-			return ResponseEntity.ok(childList);
-		} catch (Exception e) {
-			logger.error("Erreur lors de la récupération de la liste d'enfant à l'adresse {}", address, e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body("Erreur lors de la récupération de la liste d'enfant.");
-		}
-
+	public ResponseEntity<?> getChildListFromAddress(@RequestParam String address) {
+		logger.info("Appel de la méthode personService.getChildListFromAddress(address).");
+		List<String> childList = personService.getChildListFromAddress(address);
+		logger.info("La liste d'enfant a été récupérée avec succès.");
+		logger.debug("Récupération avec succès de la liste d'enfant : {}", childList);
+		return ResponseEntity.ok(childList);
 	}
 
 	/**
@@ -251,23 +205,14 @@ public class PersonController {
 	 * @throws Exception si une erreur survient lors de la récupération des données.
 	 */
 	@GetMapping("/personInfolastName")
-	public ResponseEntity<?> getPersonInfoLastName(@RequestParam String lastName) throws Exception {
+	public ResponseEntity<Object> getPersonInfoLastName(@RequestParam String lastName) throws Exception {
 		logger.info(
 				"Entrée dans la méthode getPersonInfoLastName() de la classe PersonController, recherche par nom de famille : {}",
 				lastName);
-		try {
-			logger.info("Appel de la méthode personInfo = personService.personInfo(lastName)");
-			Map<String, Object> personInfo = personService.personInfo(lastName);
-			logger.info("La liste d'information a été récupérée avec succès.");
-			logger.debug("La liste d'nformation a été récupéré et contient : ", personInfo);
-			return ResponseEntity.ok(personInfo);
-		} catch (Exception e) {
-			logger.error(
-					"Une erreur est survenue dans la récupération de la liste d'information des personnes dont le nom est : .",
-					lastName, e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body("Une erreur est survenue dans la récupération de la liste d'information des personnes");
-		}
-
+		logger.info("Appel de la méthode personInfo = personService.personInfo(lastName)");
+		Map<String, Object> personInfo = personService.personInfo(lastName);
+		logger.info("La liste d'information a été récupérée avec succès.");
+		logger.debug("La liste d'nformation a été récupéré et contient : ", personInfo);
+		return ResponseEntity.ok(personInfo);
 	}
 }
