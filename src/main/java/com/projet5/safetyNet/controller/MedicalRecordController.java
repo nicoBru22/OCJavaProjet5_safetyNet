@@ -57,16 +57,10 @@ public class MedicalRecordController {
 	@GetMapping("/medicalrecords")
 	public ResponseEntity<?> getMedicalRecords() {
 		logger.info("Requête GET pour récupérer tous les dossiers médicaux.");
-		try {
-			List<Medicalrecord> medicalrecordList = medicalrecordService.getAllMedicalrecord();
-			logger.info("La liste des dossiers médicaux a été récupérée avec succès.");
-			logger.debug("Récupération réussie de {} dossiers médicaux.", medicalrecordList.size());
-			return ResponseEntity.ok(medicalrecordList);
-		} catch (Exception e) {
-			logger.error("Erreur lors de la récupération des dossiers médicaux.", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body("Erreur dans la récupération de la liste des dossiers médicaux.");
-		}
+		List<Medicalrecord> medicalrecordList = medicalrecordService.getAllMedicalrecord();
+		logger.info("La liste des dossiers médicaux a été récupérée avec succès.");
+		logger.debug("Récupération réussie de {} dossiers médicaux.", medicalrecordList.size());
+		return ResponseEntity.ok(medicalrecordList);
 	}
 
 	/**
@@ -82,18 +76,12 @@ public class MedicalRecordController {
 	 *         un message d'erreur en cas d'echec.
 	 */
 	@PostMapping("/medicalrecords")
-	public ResponseEntity<?> addMedicalrecord(@RequestBody Medicalrecord newMedicalrecord) {
+	public ResponseEntity<String> addMedicalrecord(@RequestBody Medicalrecord newMedicalrecord) {
 		logger.info("Requête POST pour ajouter un nouveau dossier médical : {}", newMedicalrecord);
-		try {
-			medicalrecordService.addMedicalrecord(newMedicalrecord);
-			logger.info("Ajout réussi du dossier médical.");
-			logger.debug("Le dossier médical {} a été ajouté avec succès", newMedicalrecord);
-			return ResponseEntity.status(HttpStatus.CREATED).body("Le medicalrecord a été ajouté avec succès.");
-		} catch (Exception e) {
-			logger.error("Erreur lors de l'ajout d'un nouveau dossier médical.", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body("Erreur dans l'ajout d'un nouveau medicalrecord.");
-		}
+		medicalrecordService.addMedicalrecord(newMedicalrecord);
+		logger.info("Ajout réussi du dossier médical.");
+		logger.debug("Le dossier médical {} a été ajouté avec succès", newMedicalrecord);
+		return ResponseEntity.status(HttpStatus.CREATED).body("Le medicalrecord a été ajouté avec succès.");
 	}
 
 	/**
@@ -109,18 +97,12 @@ public class MedicalRecordController {
 	 *         un message d'erreur en cas d'echec.
 	 */
 	@DeleteMapping("/medicalrecords")
-	public ResponseEntity<?> deleteMedicalrecord(@RequestBody Medicalrecord deletedMedicalrecord) {
+	public ResponseEntity<String> deleteMedicalrecord(@RequestBody Medicalrecord deletedMedicalrecord) {
 		logger.info("Requête DELETE pour supprimer un dossier médical : {}", deletedMedicalrecord);
-		try {
-			medicalrecordService.deleteMedicalrecord(deletedMedicalrecord);
-			logger.info("Suppression réussie du dossier médical.");
-			logger.debug("Le dossier médical {} a été supprimé avec succès", deletedMedicalrecord);
-			return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Le medicalrecord a été supprimé avec succès.");
-		} catch (Exception e) {
-			logger.error("Erreur lors de la suppression du dossier médical.", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body("Erreur lors de la suppression du medicalrecord.");
-		}
+		medicalrecordService.deleteMedicalrecord(deletedMedicalrecord);
+		logger.info("Suppression réussie du dossier médical.");
+		logger.debug("Le dossier médical {} a été supprimé avec succès", deletedMedicalrecord);
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Le medicalrecord a été supprimé avec succès.");
 	}
 
 	/**
@@ -137,17 +119,11 @@ public class MedicalRecordController {
 	 *         un message d'erreur en cas d'echec.
 	 */
 	@PutMapping("/medicalrecords")
-	public ResponseEntity<?> updateMedicalrecord(@RequestBody Medicalrecord updatedMedicalrecord) {
+	public ResponseEntity<String> updateMedicalrecord(@RequestBody Medicalrecord updatedMedicalrecord) {
 		logger.info("Requête PUT pour mettre à jour un dossier médical : {}", updatedMedicalrecord);
-		try {
-			medicalrecordService.updateMedicalrecord(updatedMedicalrecord);
-			logger.info("Mise à jour réussie du dossier médical.");
-			logger.debug("Le dossier médical {} a été mise à jour avec succès", updatedMedicalrecord);
-			return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Le medicalrecord a été modifié avec succès.");
-		} catch (Exception e) {
-			logger.error("Erreur lors de la mise à jour du dossier médical.", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body("Erreur lors de la modification du medicalrecord.");
-		}
+		medicalrecordService.updateMedicalrecord(updatedMedicalrecord);
+		logger.info("Mise à jour réussie du dossier médical.");
+		logger.debug("Le dossier médical {} a été mise à jour avec succès", updatedMedicalrecord);
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Le medicalrecord a été modifié avec succès.");
 	}
 }

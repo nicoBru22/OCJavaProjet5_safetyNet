@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import com.projet5.safetyNet.Exception.FirestationExistingException;
 import com.projet5.safetyNet.Exception.FirestationNotFoundException;
+import com.projet5.safetyNet.Exception.InvalidDateFormatException;
 import com.projet5.safetyNet.Exception.InvalidRequestException;
 import com.projet5.safetyNet.model.Firestation;
 import com.projet5.safetyNet.model.Medicalrecord;
@@ -267,15 +268,14 @@ public class FirestationService {
 	 * @throws Exception                Si une erreur se produit lors de la
 	 *                                  récupération des données ou du filtrage.
 	 */
-	public List<String> personFromStationNumber(String stationNumber) throws Exception {
+	public List<String> personFromStationNumber(String stationNumber) {
 		logger.info("Début de la récupération des personnes pour la station : {}", stationNumber);
 
 		if (stationNumber == null || stationNumber.isEmpty()) {
 			logger.error("Le numéro de station est vide ou nul.");
-			throw new IllegalArgumentException("Le numéro de station ne peut pas être vide.");
+			throw new InvalidRequestException("Le numéro de station ne peut pas être vide.");
 		}
 
-		try {
 			logger.debug("Initialisation des listes de données.");
 			List<String> personFromFirestationList = new ArrayList<>();
 
@@ -290,7 +290,7 @@ public class FirestationService {
 
 			if (filteredStationsAddress.isEmpty()) {
 				logger.error("Aucune firestation trouvée pour le numéro de station : {}", stationNumber);
-				throw new Exception("Il n'existe pas de firestation avec ce numéro.");
+				throw new FirestationNotFoundException("Il n'existe pas de firestation avec ce numéro.");
 			}
 
 			logger.debug("Filtrage des personnes résidant aux adresses trouvées : {}", filteredStationsAddress);
@@ -311,7 +311,6 @@ public class FirestationService {
 								&& record.getLastName().equalsIgnoreCase(person.getLastName()))
 						.findFirst().ifPresent(record -> {
 							String personInfo;
-							try {
 								int age = ageOfPerson(record.getBirthdate());
 								String ageCategory = (age < 18) ? "Enfant" : "Adulte";
 
@@ -324,12 +323,6 @@ public class FirestationService {
 								personInfo = String.format("%s %s, %s, %s, Station: %s, %s, Age: %d ans",
 										person.getFirstName(), person.getLastName(), person.getPhone(),
 										person.getAddress(), stationNumber, ageCategory, age);
-							} catch (Exception e) {
-								personInfo = String.format("%s %s, Age information unavailable, Station: %s",
-										person.getFirstName(), person.getLastName(), stationNumber);
-								logger.debug("Erreur lors du calcul de l'âge pour {} {} : {}", person.getFirstName(),
-										person.getLastName(), e.getMessage());
-							}
 
 							personFromFirestationList.add(personInfo);
 						});
@@ -341,11 +334,6 @@ public class FirestationService {
 
 			logger.info("Récupération terminée pour la station : {}. Résumé : {}", stationNumber, summary);
 			return personFromFirestationList;
-
-		} catch (Exception e) {
-			logger.error("Erreur lors de la récupération des personnes liées à la station : {}", stationNumber, e);
-			throw new Exception("Erreur lors de la récupération des personnes liées à la station de pompiers.", e);
-		}
 	}
 
 	/**
@@ -364,22 +352,16 @@ public class FirestationService {
 	 * @throws Exception si une erreur se produit lors de la récupération des
 	 *                   données
 	 */
-	public List<String> phoneAlert(String station) throws Exception {
+	public List<String> phoneAlert(String station) {
 		logger.info("Début de la récupération des personnes associées à la station : {}", station);
-
-		try {
-			List<String> personToAlert = personFromStationNumber(station);
-			List<String> phoneListAlert = personToAlert.stream().map(personInfo -> personInfo.split(",")[1].trim())
-					.collect(Collectors.toList());
-			logger.debug("La liste des numéros de téléphone pour la station : {}  est : {}", station, phoneListAlert);
-			return phoneListAlert;
-		} catch (Exception e) {
-			logger.error("Erreur lors de la récupération des numéros de téléphone associés à la station : {}", station,
-					e);
-			throw new Exception(
-					"Erreur lors de la récupération des numéros de téléphone associés à la station de pompiers.", e);
+		List<String> personToAlert = personFromStationNumber(station);
+		List<String> phoneListAlert = personToAlert.stream().map(personInfo -> personInfo.split(",")[1].trim())
+				.collect(Collectors.toList());
+		if(phoneListAlert.isEmpty()) {
+			logger.warn("La liste des numéro de téléphone pour la station {} est vide.", station);
 		}
-
+		logger.debug("La liste des numéros de téléphone pour la station : {}  est : {}", station, phoneListAlert);
+		return phoneListAlert;
 	}
 
 	/**
@@ -391,18 +373,22 @@ public class FirestationService {
 	 * @throws Exception Si la date de naissance fournie ne peut pas être parsée ou
 	 *                   si le calcul échoue.
 	 */
-	public int ageOfPerson(String birthdate) throws Exception {
-		logger.info("Tentative de calcul de l'âge pour la date de naissance : {}", birthdate);
-		try {
-			LocalDate birthDate = LocalDate.parse(birthdate, DATE_FORMATTER);
-			int age = Period.between(birthDate, LocalDate.now()).getYears();
-			logger.debug("Âge calculé avec succès : {} ans pour la date de naissance {}", age, birthdate);
-			return age;
-		} catch (DateTimeParseException e) {
-			logger.error("Erreur de format pour la date de naissance : {}. Format attendu : {}", birthdate,
-					DATE_FORMATTER);
-			throw new Exception("Impossible de calculer l'âge de la personne.", e);
-		}
+	public int ageOfPerson(String birthdate) {
+	    logger.info("Tentative de calcul de l'âge pour la date de naissance : {}", birthdate);
+
+	    LocalDate birthDate;
+	    try {
+	        birthDate = LocalDate.parse(birthdate, DATE_FORMATTER);
+	    } catch (DateTimeParseException e) {
+	        logger.error("Erreur de format pour la date de naissance : {}. Format attendu : {}", birthdate, DATE_FORMATTER);
+	        throw new InvalidDateFormatException("Format de date invalide. Utilisez le format : " + DATE_FORMATTER);
+	    }
+
+	    int age = Period.between(birthDate, LocalDate.now()).getYears();
+	    logger.debug("Âge calculé avec succès : {} ans pour la date de naissance {}", age, birthdate);
+	    
+	    return age;
 	}
+
 
 }

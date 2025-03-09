@@ -6,6 +6,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
+import com.projet5.safetyNet.Exception.InvalidRequestException;
+import com.projet5.safetyNet.Exception.MedicalrecordNotFoundException;
 import com.projet5.safetyNet.model.Medicalrecord;
 import com.projet5.safetyNet.repository.MedicalrecordRepository;
 
@@ -58,19 +60,13 @@ public class MedicalrecordService {
 	 *                          dossiers médicaux depuis le repository.
 	 */
 	public List<Medicalrecord> getAllMedicalrecord() {
-		try {
-			logger.info("Récupération de la liste des dossiers médicaux.");
-			List<Medicalrecord> medicalrecords = medicalrecordRepository.getAllMedicalrecord();
-			if (medicalrecords.isEmpty()) {
-				logger.warn("La liste de dossiers médicaux est vide.");
-			} else {
-				logger.info("{} dossiers médicaux récupérés.", medicalrecords.size());
-			}
-			return medicalrecords;
-		} catch (Exception e) {
-			logger.error("Erreur lors de la récupération des dossiers médicaux.", e);
-			throw new RuntimeException("Erreur lors de la récupération des dossiers médicaux", e);
+		logger.info("Récupération de la liste des dossiers médicaux.");
+		List<Medicalrecord> medicalrecords = medicalrecordRepository.getAllMedicalrecord();
+		if (medicalrecords.isEmpty()) {
+			logger.warn("La liste de dossiers médicaux est vide.");
 		}
+		logger.info("{} dossiers médicaux récupérés.", medicalrecords.size());
+		return medicalrecords;
 	}
 
 	/**
@@ -92,38 +88,31 @@ public class MedicalrecordService {
 	 * @throws Exception                si un dossier médical existe déjà pour la
 	 *                                  personne donnée.
 	 */
-	public void addMedicalrecord(Medicalrecord newMedicalrecord) throws Exception {
+	public void addMedicalrecord(Medicalrecord newMedicalrecord) {
 		if (newMedicalrecord.getFirstName() == null || newMedicalrecord.getFirstName().isEmpty()
 				|| newMedicalrecord.getLastName() == null || newMedicalrecord.getLastName().isEmpty()
 				|| newMedicalrecord.getBirthdate() == null) {
 			logger.error("Les champs firstName, lastName ou birthdate sont manquants ou invalides.");
-			throw new IllegalArgumentException("Les champs prénom, nom et date de naissance sont obligatoires.");
+			throw new InvalidRequestException("Les champs prénom, nom et date de naissance sont obligatoires.");
 		}
 
-		try {
-			List<Medicalrecord> medicalrecordList = medicalrecordRepository.getAllMedicalrecord();
-			boolean isExist = medicalrecordList.stream().anyMatch(
-					medicalrecord -> medicalrecord.getFirstName().equalsIgnoreCase(newMedicalrecord.getFirstName())
-							&& medicalrecord.getLastName().equalsIgnoreCase(newMedicalrecord.getLastName())
-							&& medicalrecord.getBirthdate().equalsIgnoreCase(newMedicalrecord.getBirthdate()));
+		List<Medicalrecord> medicalrecordList = medicalrecordRepository.getAllMedicalrecord();
+		boolean isExist = medicalrecordList.stream().anyMatch(
+				medicalrecord -> medicalrecord.getFirstName().equalsIgnoreCase(newMedicalrecord.getFirstName())
+						&& medicalrecord.getLastName().equalsIgnoreCase(newMedicalrecord.getLastName())
+						&& medicalrecord.getBirthdate().equalsIgnoreCase(newMedicalrecord.getBirthdate()));
 
-			if (isExist) {
-				logger.error("Un dossier médical existe déjà pour {} {} {}", newMedicalrecord.getFirstName(),
-						newMedicalrecord.getLastName(), newMedicalrecord.getBirthdate());
-				throw new Exception("Un dossier médical existe déjà pour cette personne.");
-			}
-
-			logger.info("Ajout d'un nouveau dossier médical pour {} {}.", newMedicalrecord.getFirstName(),
-					newMedicalrecord.getLastName());
-			medicalrecordRepository.addMedicalrecord(newMedicalrecord);
-			logger.info("Le dossier médical de {} {} a été ajouté avec succès.", newMedicalrecord.getFirstName(),
-					newMedicalrecord.getLastName());
-
-		} catch (Exception e) {
-			logger.error("Une erreur s'est produite lors de l'ajout du dossier médical de {} {}.",
-					newMedicalrecord.getFirstName(), newMedicalrecord.getLastName(), e);
-			throw new RuntimeException("Une erreur s'est produite lors de l'ajout du dossier médical.", e);
+		if (isExist) {
+			logger.error("Un dossier médical existe déjà pour {} {} {}", newMedicalrecord.getFirstName(),
+					newMedicalrecord.getLastName(), newMedicalrecord.getBirthdate());
+			throw new MedicalrecordNotFoundException("Un dossier médical existe déjà pour cette personne.");
 		}
+
+		logger.info("Ajout d'un nouveau dossier médical pour {} {}.", newMedicalrecord.getFirstName(),
+				newMedicalrecord.getLastName());
+		medicalrecordRepository.addMedicalrecord(newMedicalrecord);
+		logger.info("Le dossier médical de {} {} a été ajouté avec succès.", newMedicalrecord.getFirstName(),
+				newMedicalrecord.getLastName());
 	}
 
 	/**
@@ -143,12 +132,12 @@ public class MedicalrecordService {
 	 * @throws Exception                si le dossier médical n'existe pas pour la
 	 *                                  personne donnée.
 	 */
-	public void deleteMedicalrecord(Medicalrecord deletedMedicalrecord) throws Exception {
+	public void deleteMedicalrecord(Medicalrecord deletedMedicalrecord) {
 		if (deletedMedicalrecord.getFirstName() == null || deletedMedicalrecord.getFirstName().isEmpty()
 				|| deletedMedicalrecord.getLastName() == null || deletedMedicalrecord.getLastName().isEmpty()) {
 			logger.error("Les champs firstName ou lastName sont invalides pour : {} {}",
 					deletedMedicalrecord.getFirstName(), deletedMedicalrecord.getLastName());
-			throw new IllegalArgumentException("Les champs prénom et nom sont obligatoires.");
+			throw new InvalidRequestException("Les champs prénom et nom sont obligatoires.");
 		}
 
 		List<Medicalrecord> medicalrecordList = medicalrecordRepository.getAllMedicalrecord();
@@ -159,20 +148,14 @@ public class MedicalrecordService {
 		if (!isExist) {
 			logger.error("Le dossier médical n'existe pas pour {} {}.", deletedMedicalrecord.getFirstName(),
 					deletedMedicalrecord.getLastName());
-			throw new Exception("Le dossier médical n'existe pas pour cette personne.");
+			throw new MedicalrecordNotFoundException("Le dossier médical n'existe pas pour cette personne.");
 		}
 
-		try {
-			logger.info("Suppression du dossier médical pour {} {}.", deletedMedicalrecord.getFirstName(),
-					deletedMedicalrecord.getLastName());
-			medicalrecordRepository.deleteMedicalrecord(deletedMedicalrecord);
-			logger.info("Le dossier médical de {} {} a été supprimé avec succès.", deletedMedicalrecord.getFirstName(),
-					deletedMedicalrecord.getLastName());
-		} catch (Exception e) {
-			logger.error("Une erreur s'est produite lors de la suppression du dossier médical de {} {}.",
-					deletedMedicalrecord.getFirstName(), deletedMedicalrecord.getLastName(), e);
-			throw new RuntimeException("Une erreur s'est produite lors de la suppression du dossier médical.", e);
-		}
+		logger.info("Suppression du dossier médical pour {} {}.", deletedMedicalrecord.getFirstName(),
+				deletedMedicalrecord.getLastName());
+		medicalrecordRepository.deleteMedicalrecord(deletedMedicalrecord);
+		logger.info("Le dossier médical de {} {} a été supprimé avec succès.", deletedMedicalrecord.getFirstName(),
+				deletedMedicalrecord.getLastName());
 	}
 
 	/**
@@ -193,36 +176,28 @@ public class MedicalrecordService {
 	 * @throws Exception                si le dossier médical n'existe pas pour la
 	 *                                  personne donnée.
 	 */
-	public void updateMedicalrecord(Medicalrecord updatedMedicalrecord) throws Exception {
+	public void updateMedicalrecord(Medicalrecord updatedMedicalrecord) {
 		if (updatedMedicalrecord.getFirstName() == null || updatedMedicalrecord.getFirstName().isEmpty()
 				|| updatedMedicalrecord.getLastName() == null || updatedMedicalrecord.getLastName().isEmpty()) {
 			logger.error("Les champs firstName ou lastName sont vides ou invalides pour : {} {}",
 					updatedMedicalrecord.getFirstName(), updatedMedicalrecord.getLastName());
-			throw new IllegalArgumentException("Les champs prénom et nom sont obligatoires.");
+			throw new InvalidRequestException("Les champs prénom et nom sont obligatoires.");
 		}
+		List<Medicalrecord> medicalrecordList = medicalrecordRepository.getAllMedicalrecord();
+		boolean isExist = medicalrecordList.stream().anyMatch(
+				medicalrecord -> medicalrecord.getFirstName().equalsIgnoreCase(updatedMedicalrecord.getFirstName())
+						&& medicalrecord.getLastName().equalsIgnoreCase(updatedMedicalrecord.getLastName()));
 
-		try {
-			List<Medicalrecord> medicalrecordList = medicalrecordRepository.getAllMedicalrecord();
-			boolean isExist = medicalrecordList.stream().anyMatch(
-					medicalrecord -> medicalrecord.getFirstName().equalsIgnoreCase(updatedMedicalrecord.getFirstName())
-							&& medicalrecord.getLastName().equalsIgnoreCase(updatedMedicalrecord.getLastName()));
-
-			if (!isExist) {
-				logger.error("Le dossier médical n'existe pas pour {} {}.", updatedMedicalrecord.getFirstName(),
-						updatedMedicalrecord.getLastName());
-				throw new Exception("Le dossier médical n'existe pas pour cette personne.");
-			}
-
-			logger.info("Mise à jour du dossier médical pour {} {}.", updatedMedicalrecord.getFirstName(),
+		if (!isExist) {
+			logger.error("Le dossier médical n'existe pas pour {} {}.", updatedMedicalrecord.getFirstName(),
 					updatedMedicalrecord.getLastName());
-			medicalrecordRepository.updateMedicalrecord(updatedMedicalrecord);
-			logger.info("Le dossier médical de {} {} a été mis à jour avec succès.",
-					updatedMedicalrecord.getFirstName(), updatedMedicalrecord.getLastName());
-		} catch (Exception e) {
-			logger.error("Une erreur s'est produite lors de la mise à jour du dossier médical de {} {}.",
-					updatedMedicalrecord.getFirstName(), updatedMedicalrecord.getLastName(), e);
-			throw new RuntimeException("Une erreur s'est produite lors de la mise à jour du dossier médical.", e);
+			throw new MedicalrecordNotFoundException("Le dossier médical n'existe pas pour cette personne.");
 		}
+		logger.info("Mise à jour du dossier médical pour {} {}.", updatedMedicalrecord.getFirstName(),
+				updatedMedicalrecord.getLastName());
+		medicalrecordRepository.updateMedicalrecord(updatedMedicalrecord);
+		logger.info("Le dossier médical de {} {} a été mis à jour avec succès.",
+				updatedMedicalrecord.getFirstName(), updatedMedicalrecord.getLastName());
 	}
 
 }

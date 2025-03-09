@@ -6,6 +6,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Repository;
 
+import com.projet5.safetyNet.Exception.MedicalrecordAdditionException;
+import com.projet5.safetyNet.Exception.MedicalrecordDeletionException;
+import com.projet5.safetyNet.Exception.MedicalrecordNotFoundException;
 import com.projet5.safetyNet.model.DataModel;
 import com.projet5.safetyNet.model.Medicalrecord;
 
@@ -89,15 +92,10 @@ public class MedicalrecordRepository {
 	 * @throws Exception si une erreur intervient lors de la récupération de la
 	 *                   liste de dossier médicaux.
 	 */
-	public List<Medicalrecord> getAllMedicalrecord() throws Exception {
-		try {
-			logger.info("Récupération de la liste de dossier médicaux.");
-			logger.debug("La liste récupérée : {}", medicalrecordList);
-			return medicalrecordList;
-		} catch (Exception e) {
-			logger.error("Erreur lors de la récupération des dossiers médicaux.", e);
-			throw new Exception("Erreur lors de la récupération des dossiers médicaux.", e);
-		}
+	public List<Medicalrecord> getAllMedicalrecord() {
+		logger.info("Récupération de la liste de dossier médicaux.");
+		logger.debug("La liste récupérée : {}", medicalrecordList);
+		return medicalrecordList;
 
 	}
 
@@ -115,18 +113,16 @@ public class MedicalrecordRepository {
 	 *                   dossier médical.
 	 * 
 	 */
-	public void addMedicalrecord(Medicalrecord newMedicalrecord) throws Exception {
-		try {
-			logger.info("Ajout du nouveau dossier médical.");
-			logger.debug("Le dossier médical à ajouter : {}", newMedicalrecord);
-			medicalrecordList.add(newMedicalrecord);
-			logger.info("Le dossier médical a été ajouté avec succès.");
-			dataModel.setMedicalrecords(medicalrecordList);
-			dataRepository.writeFile(dataModel);
-		} catch (Exception e) {
-			logger.error("Erreur lors de l'ajout du dossier médical.", e);
-			throw new Exception("Erreur lors de l'ajout du dossier médical.", e);
+	public void addMedicalrecord(Medicalrecord newMedicalrecord) {
+		logger.debug("Tentative d'ajout du dossier médical : {}", newMedicalrecord);
+		boolean medicalrecordAdded = medicalrecordList.add(newMedicalrecord);
+		if(!medicalrecordAdded) {
+			logger.error("Le Medicalrecord n'a pas pu être ajouté : ", newMedicalrecord);
+			throw new MedicalrecordAdditionException("Le Medicalrecord n'a pas pu être ajouté : "+ newMedicalrecord);
 		}
+		logger.info("Le dossier médical a été ajouté avec succès.");
+		dataModel.setMedicalrecords(medicalrecordList);
+		dataRepository.writeFile(dataModel);
 
 	}
 
@@ -145,27 +141,20 @@ public class MedicalrecordRepository {
 	 * @throws Exception si une erreur intervient lors de la suppression du dossier
 	 *                   médical ou si le dossier médical n'existe pas.
 	 */
-	public void deleteMedicalrecord(Medicalrecord deletedMedicalrecord) throws Exception {
-		try {
-			logger.debug("Le dossier médical à supprimer : {}", deletedMedicalrecord);
+	public void deleteMedicalrecord(Medicalrecord deletedMedicalrecord) {
+		logger.debug("Le dossier médical à supprimer : {}", deletedMedicalrecord);
 
-			boolean isRemoved = medicalrecordList.removeIf(
-					medicalrecord -> medicalrecord.getFirstName().equalsIgnoreCase(deletedMedicalrecord.getFirstName())
-							&& medicalrecord.getLastName().equalsIgnoreCase(deletedMedicalrecord.getLastName()));
-			if (isRemoved) {
-				dataModel.setMedicalrecords(medicalrecordList);
-				dataRepository.writeFile(dataModel);
-				logger.info("Le dossier médical a été supprimé avec succès.");
-			} else {
-				logger.error("Le dossier médical de : {} {} n'existe pas.", deletedMedicalrecord.getFirstName(),
-						deletedMedicalrecord.getLastName());
-				throw new Exception("Le dossier médical n'existe pas.");
-
-			}
-		} catch (Exception e) {
-			logger.error("Erreur lors de la suppression du dossier médical.", e);
-			throw new Exception("Erreur lors de la suppression du dossier médical.", e);
+		boolean isRemoved = medicalrecordList.removeIf(
+				medicalrecord -> medicalrecord.getFirstName().equalsIgnoreCase(deletedMedicalrecord.getFirstName())
+						&& medicalrecord.getLastName().equalsIgnoreCase(deletedMedicalrecord.getLastName()));
+		if (!isRemoved) {
+			logger.error("Le dossier médical de : {} {} n'a pas pu être supprimé.", deletedMedicalrecord.getFirstName(),
+					deletedMedicalrecord.getLastName());
+			throw new MedicalrecordDeletionException("Le Medicalrecord n'a pas pu être supprimé : " + deletedMedicalrecord);
 		}
+		dataModel.setMedicalrecords(medicalrecordList);
+		dataRepository.writeFile(dataModel);
+		logger.info("Le dossier médical a été supprimé avec succès.");
 
 	}
 
@@ -184,32 +173,24 @@ public class MedicalrecordRepository {
 	 * @throws Exception si une erreur intervient lors de la mise à jour du dossier
 	 *                   médical ou si le dossier médical n'existe pas.
 	 */
-	public void updateMedicalrecord(Medicalrecord updatedMedicalrecord) throws Exception {
-		try {
-			logger.info("Mise à jour du dossier médical.");
-			logger.debug("Le dossier médical à mettre à jour : {}", updatedMedicalrecord);
-			boolean updated = medicalrecordList.stream()
-					.filter(medicalrecord -> medicalrecord.getFirstName().equals(updatedMedicalrecord.getFirstName())
-							&& medicalrecord.getLastName().equals(updatedMedicalrecord.getLastName()))
-					.findFirst().map(medicalrecord -> {
-						medicalrecordList.set(medicalrecordList.indexOf(medicalrecord), updatedMedicalrecord);
-						return true;
-					}).orElse(false);
+	public void updateMedicalrecord(Medicalrecord updatedMedicalrecord) {
+		logger.debug("Tentative de mise à jour du dossier médical : {}", updatedMedicalrecord);
+		boolean updated = medicalrecordList.stream()
+				.filter(medicalrecord -> medicalrecord.getFirstName().equals(updatedMedicalrecord.getFirstName())
+						&& medicalrecord.getLastName().equals(updatedMedicalrecord.getLastName()))
+				.findFirst().map(medicalrecord -> {
+					medicalrecordList.set(medicalrecordList.indexOf(medicalrecord), updatedMedicalrecord);
+					return true;
+				}).orElse(false);
 
-			if (updated) {
-				dataModel.setMedicalrecords(medicalrecordList);
-				dataRepository.writeFile(dataModel);
-				logger.info("Le dossier médical a été mis à jour.");
-			} else {
-				logger.error("Le dossier médical de {} {} n'a pas été trouvée", updatedMedicalrecord.getFirstName(),
-						updatedMedicalrecord.getLastName());
-				throw new Exception("Le dossier médical n'a pas été trouvée");
-			}
-		} catch (Exception e) {
-			logger.error("Erreur lors de la mise à jour du dossier médical.", e);
-			throw new Exception("Erreur lors de la mise à jour du dossier médical", e);
+		if (!updated) {
+			logger.error("Le dossier médical de {} {} n'a pas été trouvée", updatedMedicalrecord.getFirstName(),
+					updatedMedicalrecord.getLastName());
+			throw new MedicalrecordNotFoundException("Le dossier médical n'a pas été trouvée");
 		}
-
+		dataModel.setMedicalrecords(medicalrecordList);
+		dataRepository.writeFile(dataModel);
+		logger.info("Le dossier médical a été mis à jour.");
 	}
 
 }

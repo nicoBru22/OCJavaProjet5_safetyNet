@@ -1,6 +1,8 @@
 package com.projet5.safetyNet.Exception;
 
 import java.time.format.DateTimeParseException;
+import java.io.IOException;
+
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,63 +18,107 @@ public class GlobalExceptionHandler {
     
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleGlobalException(Exception e) {
-        logger.error("Une erreur interne est survenue : {}", e.getMessage());
+        logger.error("Une erreur interne est survenue : {}", e.getMessage(), e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                             .body("Une erreur interne est survenue : " + e.getMessage());
+                             .body("Une erreur interne est survenue.");
     }
     
     @ExceptionHandler(DateTimeParseException.class)
     public ResponseEntity<String> handleDateTimeParseException(DateTimeParseException e) {
+        logger.error("Format de date invalide : {}", e.getParsedString(), e);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Format de date invalide.");
     }
     
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
+        logger.warn("Requête invalide : {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
     @ExceptionHandler(InvalidRequestException.class)
     public ResponseEntity<String> handleInvalidRequestException(InvalidRequestException e) {
+        logger.warn("Requête invalide : {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+    
+    @ExceptionHandler(InvalidDateFormatException.class)
+    public ResponseEntity<String> handleInvalidDateFormatException(InvalidDateFormatException e) {
+    	logger.warn("Format de date invalide : {}", e.getMessage());
     	return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
     
-  //La gestion des exceptions provenant de Person
+// Gestion des exceptions Person
     
     @ExceptionHandler(PersonNotFoundException.class)
     public ResponseEntity<String> handlePersonNotFoundException(PersonNotFoundException e) {
+        logger.warn("Personne non trouvée : {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
     
     @ExceptionHandler(PersonDeletionException.class)
     public ResponseEntity<String> handlePersonDeletionException(PersonDeletionException e) {
-    	return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        logger.warn("Erreur lors de la suppression : {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
     
     @ExceptionHandler(PersonAdditionException.class)
     public ResponseEntity<String> handlePersonAdditionException(PersonAdditionException e) {
-    	return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        logger.warn("Erreur lors de l'ajout : {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
     
     @ExceptionHandler(PersonExistingException.class)
     public ResponseEntity<String> handlePersonExistingException(PersonExistingException e) {
-    	return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        logger.warn("Personne déjà existante : {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
     }
     
-//La gestion des exceptions provenant de Firestation
+// Gestion des exceptions Firestation
     
     @ExceptionHandler(FirestationDeletedException.class)
     public ResponseEntity<String> handleFirestationDeletedException(FirestationDeletedException e) {
-    	return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        logger.warn("Erreur lors de la suppression de la caserne : {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
     
     @ExceptionHandler(FirestationExistingException.class)
     public ResponseEntity<String> handleFirestationExistingException(FirestationExistingException e) {
-    	return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        logger.warn("Caserne déjà existante : {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
     }
     
     @ExceptionHandler(FirestationAdditionException.class)
     public ResponseEntity<String> handleFirestationAdditionException(FirestationAdditionException e) {
-    	return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        logger.warn("Erreur lors de l'ajout de la caserne : {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
     
     @ExceptionHandler(FirestationNotFoundException.class)
     public ResponseEntity<String> handleFirestationNotFoundException(FirestationNotFoundException e) {
+        logger.warn("Caserne non trouvée : {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
-
+    
+// Gestion des exceptions Medicalrecord
+    
+    @ExceptionHandler(MedicalrecordNotFoundException.class)
+    public ResponseEntity<String> handleMedicalrecordNotFoundException(MedicalrecordNotFoundException e) {
+    	logger.warn("Medicalrecord non trouvée : {}", e.getMessage());
+    	return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+    
+    @ExceptionHandler(MedicalrecordAdditionException.class)
+    public ResponseEntity<String> handleMedicalrecordAdditionException(MedicalrecordAdditionException e) {
+    	return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+    
+    @ExceptionHandler(MedicalrecordDeletionException.class)
+    public ResponseEntity<String> handleMedicalrecordDeletionException(MedicalrecordDeletionException e) {
+    	return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+    
+    
+    
+    
+    
 }

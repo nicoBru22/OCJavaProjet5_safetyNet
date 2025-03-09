@@ -74,9 +74,9 @@ public class FirestationRepository {
 	 * @throws Exception si une erreur survient lors de la récupération des données.
 	 */
 	public List<Firestation> getAllFirestations() {
-			logger.info("Récupération de toutes les casernes.");
-			logger.debug("Le contenu de la liste : {}", firestationList);
-			return firestationList;
+		logger.info("Récupération de toutes les casernes.");
+		logger.debug("Le contenu de la liste : {}", firestationList);
+		return firestationList;
 	}
 
 	/**
