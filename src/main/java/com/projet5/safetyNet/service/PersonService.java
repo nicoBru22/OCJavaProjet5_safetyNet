@@ -32,13 +32,17 @@ import org.springframework.stereotype.Service;
  * 
  * Voici les principales fonctionnalités de la classe :
  * <ul>
- * <li>Récupérer une liste de toutes les personnes.</li>
- * <li>Ajouter une nouvelle personne.</li>
- * <li>Supprimer une personne existante.</li>
- * <li>Mettre à jour les informations d'une personne.</li>
- * <li>Récupérer une liste d'email des personnes selon leur ville.</li>
- * <li>Récupère une liste d'enfant selon l'adresse.</li>
- * <li>Savoir si une personne est un enfant ou non.</li>
+ * 	<li>Récupère toutes les personnes enregistrées dans la base de données.</li>
+ * 	<li>Supprime une personne de la base de données en utilisant son prénom, nom et téléphone.</li>
+ * 	<li>Ajoute une nouvelle personne dans la base de données.</li>
+ * 	<li>Met à jour les informations d'une personne dans le système.</li>
+ * 	<li>Récupère la liste des adresses email des personnes d'une ville donnée.</li>
+ * 	<li>Récupère la liste des enfants vivant à une adresse donnée.</li>
+ * 	<li> Récupère la liste des personnes vivant à une adresse donnée.</li>
+ * 	<li>Normalise une adresse en la mettant en minuscule et en supprimant les espaces inutiles.</li>
+ * 	<li>Vérifie si une personne est mineure en fonction de sa date de naissance.</li>
+ * 	<li>Récupère les informations des personnes portant un nom de famille donné.</li>
+ *  <li>Recherche des personnes par nom de famille.</li>
  * </ul>
  */
 @Service
@@ -86,17 +90,17 @@ public class PersonService {
 	}
 
 	/**
-	 * Récupère la liste de toutes les personnes.
+	 * Récupère toutes les personnes enregistrées dans la base de données.
 	 * 
-	 * <p>
-	 * Cette méthode permet de récupérer la liste de toutes les personnes présentes
-	 * dans le système. Si la liste est vide, un avertissement est généré.
-	 * </p>
+	 * Cette méthode interroge le repository pour obtenir la liste complète des personnes. Si aucune personne
+	 * n'est trouvée dans la base de données, une exception {@link PersonNotFoundException} est levée.
 	 * 
-	 * @return {@code List<Person>} Liste des personnes.
-	 * @throws Exception        si aucune personne n'a été trouvée.
-	 * @throws RuntimeException si une erreur se produit lors de la récupération des
-	 *                          données.
+	 * @return Une liste contenant toutes les personnes présentes dans la base de données.
+	 * 
+	 * @throws PersonNotFoundException Si aucune personne n'est trouvée dans la base de données.
+	 * 
+	 * @see PersonNotFoundException
+	 * @see PersonRepository#getAllPerson()
 	 */
 	public List<Person> getAllPersons() {
 		logger.info("Entrée dans la méthode getAllPersons de la classe PersonService");
@@ -106,112 +110,110 @@ public class PersonService {
 			logger.warn("Aucune personne trouvée.");
 			throw new PersonNotFoundException("Aucune personne n'a été trouvée.");
 		}
-			logger.debug("{} personnes récupérées.", personList.size());
+		logger.debug("{} personnes récupérées.", personList.size());
 		return personList;
 	}
 
 	/**
-	 * Supprime une personne après avoir vérifié son existence dans la base de
-	 * données.
+	 * Supprime une personne de la base de données en utilisant son prénom, nom et téléphone.
 	 * 
-	 * <p>
-	 * Cette méthode permet de supprimer une personne en vérifiant d'abord si cette
-	 * personne existe dans la base de données en fonction de son prénom, nom et
-	 * numéro de téléphone. Si la personne existe, la suppression est effectuée,
-	 * sinon une exception est levée.
-	 * </p>
+	 * Cette méthode vérifie si une personne avec les informations fournies (prénom, nom et téléphone) existe
+	 * dans la base de données. Si la personne n'existe pas, une exception {@link PersonNotFoundException} est levée.
+	 * Si la personne existe, elle est supprimée en appelant la méthode {@link PersonRepository#deletePerson(String, String, String)}.
 	 * 
 	 * @param firstName Le prénom de la personne à supprimer.
-	 * @param lastName  Le nom de famille de la personne à supprimer.
-	 * @param phone     Le numéro de téléphone de la personne à supprimer.
-	 * @throws Exception        Si la personne n'existe pas dans la base de données.
-	 * @throws RuntimeException Si une erreur inattendue se produit lors de la
-	 *                          suppression de la personne.
+	 * @param lastName Le nom de famille de la personne à supprimer.
+	 * @param phone Le numéro de téléphone de la personne à supprimer.
+	 * 
+	 * @throws PersonNotFoundException Si la personne avec les informations spécifiées n'existe pas dans la base de données.
+	 * 
+	 * @see PersonNotFoundException
+	 * @see PersonRepository#deletePerson(String, String, String)
 	 */
 	public void deletePerson(String firstName, String lastName, String phone) {
 		logger.info("Entrée dans la méthode deletePerson() de PersonService");
-			logger.info("Vérification si la personne existe bien en base de données.");
-			logger.debug("La personne à vérifier est : " + firstName + " " + lastName + " " + phone);
-			boolean personExists = personRepository.getAllPerson().stream()
-					.anyMatch(person -> person.getFirstName().equalsIgnoreCase(firstName)
-							&& person.getLastName().equalsIgnoreCase(lastName)
-							&& person.getPhone().equalsIgnoreCase(phone));
-			if (!personExists) {
-				logger.error("La personne n'existe pas en base de données.");
-				throw new PersonNotFoundException("La personne n'existe pas en base de données.");
-			}
-			logger.info(
-					"La personne existe en base de données. Lancement de la méthode personRepository.deletePerson().");
-			personRepository.deletePerson(firstName, lastName, phone);
+		logger.info("Vérification si la personne existe bien en base de données.");
+		logger.debug("La personne à vérifier est : " + firstName + " " + lastName + " " + phone);
+		boolean personExists = personRepository.getAllPerson().stream()
+				.anyMatch(person -> person.getFirstName().equalsIgnoreCase(firstName)
+						&& person.getLastName().equalsIgnoreCase(lastName)
+						&& person.getPhone().equalsIgnoreCase(phone));
+		if (!personExists) {
+			logger.error("La personne n'existe pas en base de données.");
+			throw new PersonNotFoundException("La personne n'existe pas en base de données.");
+		}
+		logger.info(
+				"La personne existe en base de données. Lancement de la méthode personRepository.deletePerson().");
+		personRepository.deletePerson(firstName, lastName, phone);
 	}
 
 	/**
-	 * Ajoute une nouvelle personne.
+	 * Ajoute une nouvelle personne dans la base de données.
 	 * 
-	 * Cette méthode permet d'ajouter une nouvelle personne en effectuant les
-	 * vérifications suivantes :
-	 * <ul>
-	 * <li>Les champs 'firstName', 'lastName' et 'phone' doivent être non nuls et
-	 * non vides.</li>
-	 * <li>Aucune personne avec les mêmes informations (prénom, nom, numéro de
-	 * téléphone) ne doit déjà exister dans la base de données.</li>
-	 * </ul>
-	 * Si ces conditions sont respectées, la personne est ajoutée, sinon une
-	 * exception est levée.
+	 * Cette méthode vérifie si les champs essentiels (prénom, nom, téléphone) de l'objet {@link Person}
+	 * ne sont pas nuls ou vides. Ensuite, elle vérifie si une personne avec les mêmes informations
+	 * (prénom, nom, téléphone) existe déjà dans la base de données. Si la personne existe déjà,
+	 * une exception {@link PersonExistingException} est levée. Si la personne n'existe pas encore,
+	 * elle est ajoutée dans la base de données.
 	 * 
-	 * @param newPerson L'objet représentant la personne à ajouter. Il ne doit pas
-	 *                  avoir de champs 'firstName', 'lastName' ou 'phone' vides.
+	 * @param newPerson L'objet {@link Person} à ajouter dans la base de données. Il ne doit pas être nul
+	 *                  et doit contenir des valeurs valides pour les champs 'firstName', 'lastName' et 'phone'.
 	 * 
-	 * @throws Exception        Si les champs obligatoires sont vides ou nuls, ou si
-	 *                          une personne identique existe déjà dans la base de
-	 *                          données.
-	 * @throws RuntimeException Si une erreur imprévue survient lors de l'ajout de
-	 *                          la personne.
+	 * @throws InvalidRequestException Si l'objet {@link Person} est nul ou si l'un des champs 'firstName',
+	 *                                  'lastName' ou 'phone' est vide ou nul.
+	 * @throws PersonExistingException Si une personne avec les mêmes informations existe déjà dans la base de données.
+	 * 
+	 * @see Person
+	 * @see InvalidRequestException
+	 * @see PersonExistingException
 	 */
 	public void addPerson(Person newPerson) {
 		logger.info("Entrée dans la méthode addPerson de la classe PersonService.");
 		logger.info(
 				"Vérification des champs 'firstName', 'lastName' et 'phone' pour s'assurer qu'ils ne sont pas nuls ou vides.");
 		logger.debug("La personne à vérifier est : " + newPerson);
+		
+		if (newPerson == null) {
+		    throw new InvalidRequestException("La personne à ajouter ne peut pas être nulle.");
+		}
+		
 		if (newPerson.getFirstName() == null || newPerson.getFirstName().isEmpty()
 				|| newPerson.getLastName() == null || newPerson.getLastName().isEmpty()
 				|| newPerson.getPhone() == null || newPerson.getPhone().isEmpty()) {
 			logger.error("Les champs 'firstName', 'lastName' et 'phone' sont obligatoires et ne peuvent être nuls ou vides : {}", newPerson);
 			throw new InvalidRequestException("Les champs 'firstName', 'lastName' et 'phone' sont obligatoires et ne peuvent être nuls ou vides.");
 		}
+		
 		boolean personExists = personRepository.getAllPerson().stream()
 				.anyMatch(person -> person.getFirstName().equalsIgnoreCase(newPerson.getFirstName())
 						&& person.getLastName().equalsIgnoreCase(newPerson.getLastName())
 						&& person.getPhone().equals(newPerson.getPhone()));
+		
 		if (personExists) {
-			logger.error("La personne existe déjà dans la base de données.");
+			logger.error("La personne {} {} avec le téléphone {} existe déjà dans la base de données.",
+				    newPerson.getFirstName(), newPerson.getLastName(), newPerson.getPhone());
 			throw new PersonExistingException("La personne existe déjà dans la base de données.");
 		}
 		logger.info("La personne n'existe pas en base de donnée, donc elle peut être ajoutée.");
 		personRepository.addPerson(newPerson);
-		logger.debug("Nouvelle personne ajoutée avec succès : " + newPerson);
+		logger.debug("Nouvelle personne ajoutée avec succès : {} ", newPerson);
 	}
 
 	/**
-	 * Met à jour les informations d'une personne existante dans la base de données.
+	 * Met à jour les informations d'une personne dans le système.
 	 * 
 	 * <p>
-	 * Cette méthode recherche une personne dans la base de données en utilisant son
-	 * prénom et son nom. Si la personne existe, ses informations sont mises à jour
-	 * avec les nouvelles données fournies. Si la personne n'existe pas ou si les
-	 * champs obligatoires (prénom et nom) sont manquants, une exception est levée.
+	 * Cette méthode permet de mettre à jour les informations d'une personne existante dans
+	 * la base de données. Elle vérifie que les champs 'firstName' et 'lastName' sont fournis
+	 * et non vides. Si ces informations sont absentes ou si la personne à mettre à jour n'existe
+	 * pas dans la base de données, des exceptions spécifiques sont levées :
+	 * - {@link InvalidRequestException} si les champs 'firstName' ou 'lastName' sont manquants.
+	 * - {@link PersonNotFoundException} si la personne à mettre à jour n'est pas trouvée.
 	 * </p>
 	 * 
-	 * @param updatedPerson L'objet représentant la personne avec les nouvelles
-	 *                      informations. Le prénom et le nom doivent être
-	 *                      renseignés pour procéder à la mise à jour.
-	 * @throws Exception
-	 * 
-	 * @throws IllegalArgumentException Si les champs 'firstName' ou 'lastName' sont
-	 *                                  vides ou nuls, ou si la personne n'existe
-	 *                                  pas dans la base de données.
-	 * @throws RuntimeException         Si une erreur imprévue survient lors de la
-	 *                                  mise à jour de la personne.
+	 * @param updatedPerson L'objet contenant les informations mises à jour de la personne.
+	 * @throws InvalidRequestException Si les champs 'firstName' ou 'lastName' sont null ou vides.
+	 * @throws PersonNotFoundException Si la personne à mettre à jour n'existe pas dans la base de données.
 	 */
 	public void updatePerson(Person updatedPerson) {
 		logger.info("Entrée dans la méthode updatePerson() de la classe PersonService.");
@@ -234,26 +236,19 @@ public class PersonService {
 	}
 
 	/**
-	 * Récupère la liste des adresses email des personnes résidant dans une ville
-	 * spécifique.
+	 * Récupère la liste des adresses email des personnes d'une ville donnée.
 	 * 
 	 * <p>
-	 * Cette méthode permet de récupérer toutes les adresses email des personnes qui
-	 * résident dans la ville spécifiée en paramètre. Elle interroge la base de
-	 * données pour obtenir la liste complète des personnes, puis filtre celles dont
-	 * la ville correspond à celle fournie. Elle retourne une liste des adresses
-	 * email des personnes qui habitent dans la ville donnée, ou une liste vide si
-	 * aucune personne n'est trouvée.
+	 * Cette méthode prend le nom d'une ville en entrée et récupère les adresses email
+	 * des personnes résidant dans cette ville. Si aucune personne n'est trouvée pour cette ville,
+	 * une exception {@link PersonNotFoundException} est levée. Si le nom de la ville est invalide
+	 * (nul ou vide), une exception {@link InvalidRequestException} est lancée.
 	 * </p>
 	 * 
-	 * @param city Le nom de la ville dans laquelle rechercher les adresses email
-	 *             des personnes.
-	 * @return Une liste contenant les adresses email des personnes habitant dans la
-	 *         ville spécifiée. Si aucune personne n'est trouvée pour cette ville,
-	 *         une liste vide est retournée.
-	 * @throws Exception Si une erreur survient lors de la récupération des données
-	 *                   (par exemple, si la ville est invalide, ou une erreur
-	 *                   technique survient lors de l'interrogation du repository).
+	 * @param city Le nom de la ville pour laquelle les adresses email doivent être récupérées.
+	 * @return Une liste de chaînes représentant les adresses email des personnes dans la ville spécifiée.
+	 * @throws InvalidRequestException Si le paramètre 'city' est nul ou vide.
+	 * @throws PersonNotFoundException Si aucune personne n'est trouvée dans la ville spécifiée.
 	 */
 	public List<String> getCommunityEmail(String city) {
 		logger.info("Début de la récupération des adresses email pour la ville : {}", city);
@@ -273,29 +268,26 @@ public class PersonService {
 		} 
 		logger.debug("Nombre d'adresses email récupérées pour la ville {} : {}", city, communityEmail.size());
 		return communityEmail;
-
-		
 	}
 
 	/**
-	 * Récupère la liste des enfants associés à une adresse donnée.
+	 * Récupère la liste des enfants vivant à une adresse donnée.
 	 * 
 	 * <p>
-	 * Cette méthode prend en paramètre une adresse, vérifie sa validité, puis
-	 * filtre les dossiers médicaux des personnes dont la date de naissance indique
-	 * qu'elles sont mineures. Elle retourne une liste des prénoms, noms et âges des
-	 * enfants associés à cette adresse.
+	 * Cette méthode prend une adresse en entrée, récupère les personnes vivant à cette adresse
+	 * et cherche dans leurs dossiers médicaux pour déterminer si elles sont mineures (moins de 18 ans).
+	 * Elle retourne une liste de chaînes formatées avec le nom, prénom et l'âge des enfants. 
+	 * Si l'adresse est {@code null} ou vide, une exception est levée.
 	 * </p>
 	 * 
-	 * @param address l'adresse pour laquelle rechercher les enfants associés.
-	 * @return une liste des informations des enfants (prénom, nom, âge) associés à
-	 *         cette adresse. Si aucun enfant n'est trouvé pour cette adresse, une
-	 *         liste vide est retournée.
-	 * @throws Exception si une erreur survient lors de la récupération des données,
-	 *                   par exemple si l'adresse est invalide, ou si une erreur
-	 *                   technique survient lors de l'accès aux informations.
+	 * @param address L'adresse des personnes à rechercher.
+	 * @return Une liste de chaînes représentant les enfants (nom, prénom et âge). 
+	 *         Si aucun enfant n'est trouvé, une liste vide est retournée.
+	 * @throws InvalidRequestException Si l'adresse fournie est {@code null} ou vide.
 	 */
 	public List<String> getChildListFromAddress(String address) {
+		logger.info("Entrée dans la méthode getChildListFromAddress() de la class PersonService");
+		
 		if (address == null || address.isEmpty()) {
 			logger.error("Le champ 'address' est obligatoire.");
 			throw new InvalidRequestException("Le champ 'address' est obligatoire.");
@@ -308,16 +300,7 @@ public class PersonService {
 			List<Medicalrecord> medicalRecords = medicalrecordService.getAllMedicalrecord();
 			logger.debug("Nombre de dossiers médicaux récupérés : {}", medicalRecords.size());
 
-			List<Person> persons = personRepository.getAllPerson();
-			logger.debug("Nombre de personnes récupérées : {}", persons.size());
-
-			List<Person> personsAtAddress = persons.stream().filter(person -> {
-				String normalizedPersonAddress = normalizeAddress(person.getAddress());
-				logger.debug("Adresse de la personne {} {} : {}", person.getFirstName(), person.getLastName(),
-						normalizedPersonAddress);
-				return normalizedPersonAddress.equalsIgnoreCase(normalizedAddress);})
-					.collect(Collectors.toList());
-			logger.info("Nombre de personnes trouvées à l'adresse {} : {}", normalizedAddress, personsAtAddress.size());
+			List<Person> personsAtAddress = listPersonByAddress(address);
 
 			List<String> childrenAtAddress = personsAtAddress.stream().filter(person -> {
 				Medicalrecord dossier = medicalRecords.stream()
@@ -330,47 +313,89 @@ public class PersonService {
 							person.getLastName());
 					return false;
 				}
-
+	
 				LocalDate birthDate = LocalDate.parse(dossier.getBirthdate(), DATE_FORMATTER);
 				int age = Period.between(birthDate, LocalDate.now()).getYears();
 				logger.debug("Âge calculé pour {} {} : {}", person.getFirstName(), person.getLastName(), age);
 				return age < 18;
-			}).map(person -> {
-				Medicalrecord dossier = medicalRecords.stream()
-						.filter(medical -> medical.getFirstName().equalsIgnoreCase(person.getFirstName())
-								&& medical.getLastName().equalsIgnoreCase(person.getLastName()))
-						.findFirst().orElse(null);
-				if (dossier != null) {
-					LocalDate birthDate = LocalDate.parse(dossier.getBirthdate(), DATE_FORMATTER);
-					int age = Period.between(birthDate, LocalDate.now()).getYears();
-					return person.getFirstName() + " " + person.getLastName() + ", " + age + " ans";
+				
+				}).map(person -> { Medicalrecord dossier = medicalRecords.stream()
+							.filter(medical -> medical.getFirstName().equalsIgnoreCase(person.getFirstName())
+									&& medical.getLastName().equalsIgnoreCase(person.getLastName()))
+							.findFirst().orElse(null);
+					if (dossier != null) {
+						LocalDate birthDate = LocalDate.parse(dossier.getBirthdate(), DATE_FORMATTER);
+						int age = Period.between(birthDate, LocalDate.now()).getYears();
+						return person.getFirstName() + " " + person.getLastName() + ", " + age + " ans";
+					}
+					return person.getFirstName() + " " + person.getLastName();
+				}).collect(Collectors.toList());
+	
+				if (childrenAtAddress.isEmpty()) {
+					logger.warn("Aucun enfant trouvé pour l'adresse : {}", address);
+					return childrenAtAddress;
 				}
-				return person.getFirstName() + " " + person.getLastName();
-			}).collect(Collectors.toList());
-
-			if (childrenAtAddress.isEmpty()) {
-				logger.warn("Aucun enfant trouvé pour l'adresse : {}", address);
-			} else {
-				logger.info("Nombre d'enfants trouvés pour l'adresse {} : {}", address, childrenAtAddress.size());
-			}
+			
+			logger.info("Nombre d'enfants trouvés pour l'adresse {} : {}", address, childrenAtAddress.size());
 			return childrenAtAddress;
 	}
 
+	
 	/**
-	 * Normalise l'adresse en supprimant les espaces inutiles et en la convertissant
-	 * en minuscules.
+	 * Récupère la liste des personnes vivant à une adresse donnée.
 	 * 
 	 * <p>
-	 * Cette méthode prend une adresse en entrée, élimine les espaces avant et après
-	 * l'adresse, puis la convertit en minuscules pour une comparaison cohérente.
+	 * Cette méthode prend une adresse en entrée, normalise l'adresse fournie, puis 
+	 * cherche dans le répertoire des personnes celles dont l'adresse correspond 
+	 * à celle fournie. Si l'adresse est {@code null} ou vide, une exception est levée.
+	 * Les adresses sont comparées après normalisation (mise en minuscules et suppression
+	 * des espaces superflus) pour assurer des comparaisons cohérentes.
 	 * </p>
 	 * 
-	 * @param address l'adresse à normaliser.
-	 * @return l'adresse normalisée, ou une chaîne vide si l'adresse est null.
+	 * @param address L'adresse de la personne à rechercher.
+	 * @return Une liste de personnes vivant à l'adresse spécifiée.
+	 * @throws InvalidRequestException Si l'adresse fournie est {@code null} ou vide.
 	 */
+	public List<Person> listPersonByAddress(String address) {
+		if (address == null || address.isEmpty()) {
+			logger.error("Le champ 'address' est obligatoire.");
+			throw new InvalidRequestException("Le champ 'address' est obligatoire.");
+		}
+		
+		String normalizedAddress = normalizeAddress(address);
+		logger.debug("Adresse normalisée pour la comparaison : {}", normalizedAddress);
+		
+		List<Person> persons = personRepository.getAllPerson();
+
+		List<Person> personsAtAddress = persons.stream().filter(person -> {
+			String normalizedPersonAddress = normalizeAddress(person.getAddress());
+			logger.debug("Adresse de la personne {} {} : {}", person.getFirstName(), person.getLastName(),
+					normalizedPersonAddress);
+			return normalizedPersonAddress.equalsIgnoreCase(normalizedAddress);})
+				.collect(Collectors.toList());
+		
+		logger.info("Liste des personnes trouvées à l'adresse {} : {}", normalizedAddress, personsAtAddress);
+		
+		return personsAtAddress;
+	}
+
+	/**
+	 * Normalise une adresse en la mettant en minuscule et en supprimant les espaces inutiles.
+	 * 
+	 * <p>
+	 * Cette méthode prend une adresse en entrée, supprime les espaces de début et de fin,
+	 * puis convertit l'adresse en minuscules. Si l'adresse fournie est {@code null},
+	 * une chaîne vide est retournée. Cette normalisation permet d'assurer une uniformité
+	 * des données d'adresse, utile pour des comparaisons ou des traitements ultérieurs.
+	 * </p>
+	 * 
+	 * @param address L'adresse à normaliser.
+	 * @return L'adresse normalisée (en minuscules et sans espaces superflus), ou une chaîne vide si l'adresse est {@code null}.
+	 */
+
 	public String normalizeAddress(String address) {
 		if (address == null) {
-			logger.debug("Adresse fournie est null, retour d'une chaîne vide.");
+			logger.debug("Adresse fournie est nulle, retour d'une chaîne vide.");
 			return "";
 		}
 		String normalizedAddress = address.trim().toLowerCase();
@@ -379,20 +404,17 @@ public class PersonService {
 	}
 
 	/**
-	 * Vérifie si une personne est un enfant en fonction de sa date de naissance.
+	 * Vérifie si une personne est mineure en fonction de sa date de naissance.
 	 * 
 	 * <p>
-	 * Cette méthode prend une date de naissance sous forme de chaîne de caractères,
-	 * la convertit en un objet {@link LocalDate}, puis calcule l'âge de la
-	 * personne. Si l'âge est inférieur à 18 ans, la méthode retourne {@code true},
-	 * sinon elle retourne {@code false}.
+	 * Cette méthode analyse la date de naissance fournie, calcule l'âge en années
+	 * complètes et détermine si la personne est considérée comme un enfant 
+	 * (moins de 18 ans).
 	 * </p>
 	 * 
-	 * @param birthdate la date de naissance au format "yyyy-MM-dd".
-	 * @return {@code true} si la personne est un enfant (moins de 18 ans),
-	 *         {@code false} si la personne n'est pas un enfant ou si une erreur
-	 *         survient lors du parsing de la date.
-	 */
+	 * @param birthdate La date de naissance de la personne au format {@code yyyy-MM-dd}.
+	 * @return {@code true} si la personne a moins de 18 ans, {@code false} sinon.
+	fgvr */
 	public Boolean isChild(String birthdate) {
 		logger.info("Début du parsing de la date de naissance.");
 		LocalDate birthDate = LocalDate.parse(birthdate, DATE_FORMATTER);
@@ -403,20 +425,30 @@ public class PersonService {
 	}
 
 	/**
-	 * Récupère les informations d'une personne en fonction de son nom de famille.
+	 * Récupère les informations des personnes portant un nom de famille donné.
 	 * 
 	 * <p>
-	 * Cette méthode prend un nom de famille en entrée, filtre les personnes
-	 * correspondant à ce nom, puis associe les informations de chaque personne à
-	 * son dossier médical. Elle retourne une carte contenant le nombre de personnes
-	 * trouvées et une liste des informations des personnes (nom, prénom, date de
-	 * naissance, adresse, téléphone, médicaments et allergies).
+	 * Cette méthode recherche toutes les personnes correspondant au nom de famille 
+	 * spécifié, puis enrichit leurs informations avec les données de leur dossier médical.
+	 * Elle retourne une carte contenant :
 	 * </p>
+	 * <ul>
+	 *   <li>Le nombre de personnes trouvées.</li>
+	 *   <li>Une liste d'objets contenant les détails de chaque personne :
+	 *       <ul>
+	 *         <li>Prénom</li>
+	 *         <li>Nom</li>
+	 *         <li>Date de naissance</li>
+	 *         <li>Adresse</li>
+	 *         <li>Numéro de téléphone</li>
+	 *         <li>Médicaments</li>
+	 *         <li>Allergies</li>
+	 *       </ul>
+	 *   </li>
+	 * </ul>
 	 * 
-	 * @param lastName le nom de famille de la personne à rechercher.
-	 * @return une carte contenant le nombre de personnes trouvées et une liste
-	 *         d'informations détaillées sur chaque personne.
-	 * @throws Exception si une erreur survient lors de la récupération des données.
+	 * @param lastName Le nom de famille des personnes à rechercher.
+	 * @return Une Map contenant le nombre de personne trouvée et les information sur les personnes.
 	 */
 	public Map<String, Object> personInfo(String lastName){
 			logger.info("Entrée dans la méthode personInfo() de personService avec lastName : {}", lastName);
@@ -424,7 +456,6 @@ public class PersonService {
 			List<Map<String, Object>> personInfo = new ArrayList<>();
 			List<Person> filteredPerson = listPersonByLastName(lastName);
 			List<Medicalrecord> medicalrecordList = medicalrecordService.getAllMedicalrecord();
-
 
 			for (Person person : filteredPerson) {
 				medicalrecordList.stream()
@@ -455,15 +486,27 @@ public class PersonService {
 			return result;
 	}
 	
+	/**
+	 * Recherche des personnes par nom de famille.
+	 *
+	 * <p>Cette méthode permet de récupérer toutes les personnes dont le nom de famille 
+	 * correspond à celui fourni en paramètre. Elle récupère d'abord la liste complète 
+	 * des personnes depuis le repository, puis applique un filtre pour ne conserver que 
+	 * celles ayant le nom spécifié, sans distinction entre majuscules et minuscules.
+	 * </p>
+	 *
+	 * @param lastName Le nom de famille des personnes à rechercher.
+	 * @return Une liste de personnes ayant le nom de famille spécifié, ou une liste vide si aucune correspondance n'est trouvée.
+	 */
 	public List<Person> listPersonByLastName(String lastName) {
-		logger.info("Entrée dans la méthode listPersonByLastName() de personService avec lastName : {}", lastName);
-		List<Person> personList = personRepository.getAllPerson();
-		logger.info("Tentative de récupération d'une liste de personne selon le nom : {} ", lastName);
-		List<Person> filteredPerson = personList.stream()
-				.filter(person -> person.getLastName().equalsIgnoreCase(lastName))
-				.collect(Collectors.toList());
-		logger.debug("Liste des personnes filtrées pour le nom de famille '{}': {}", lastName, filteredPerson);
-		return personList;
+	    logger.info("Entrée dans la méthode listPersonByLastName() de personService avec lastName : {}", lastName);
+	    List<Person> personList = personRepository.getAllPerson();
+	    logger.info("Tentative de récupération d'une liste de personne selon le nom : {} ", lastName);
+	    List<Person> filteredPerson = personList.stream()
+	            .filter(person -> person.getLastName().equalsIgnoreCase(lastName))
+	            .collect(Collectors.toList());
+	    logger.debug("Liste des personnes filtrées pour le nom de famille '{}': {}", lastName, filteredPerson);
+	    return filteredPerson; // Correction ici, car tu retournais `personList` au lieu de `filteredPerson`
 	}
 
 }
