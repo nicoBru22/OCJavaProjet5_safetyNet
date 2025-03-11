@@ -176,7 +176,7 @@ public class PersonService {
 		if (newPerson.getFirstName() == null || newPerson.getFirstName().isEmpty()
 				|| newPerson.getLastName() == null || newPerson.getLastName().isEmpty()
 				|| newPerson.getPhone() == null || newPerson.getPhone().isEmpty()) {
-			logger.error("Les champs 'firstName', 'lastName' et 'phone' sont obligatoires et ne peuvent être nuls ou vides.");
+			logger.error("Les champs 'firstName', 'lastName' et 'phone' sont obligatoires et ne peuvent être nuls ou vides : {}", newPerson);
 			throw new InvalidRequestException("Les champs 'firstName', 'lastName' et 'phone' sont obligatoires et ne peuvent être nuls ou vides.");
 		}
 		boolean personExists = personRepository.getAllPerson().stream()
@@ -422,15 +422,9 @@ public class PersonService {
 			logger.info("Entrée dans la méthode personInfo() de personService avec lastName : {}", lastName);
 
 			List<Map<String, Object>> personInfo = new ArrayList<>();
-
-			List<Person> personList = personRepository.getAllPerson();
+			List<Person> filteredPerson = listPersonByLastName(lastName);
 			List<Medicalrecord> medicalrecordList = medicalrecordService.getAllMedicalrecord();
 
-			logger.debug("Liste des personnes récupérées : {}", personList);
-
-			List<Person> filteredPerson = personList.stream()
-					.filter(person -> person.getLastName().equalsIgnoreCase(lastName)).collect(Collectors.toList());
-			logger.debug("Liste des personnes filtrées pour le nom de famille '{}': {}", lastName, filteredPerson);
 
 			for (Person person : filteredPerson) {
 				medicalrecordList.stream()
@@ -459,6 +453,17 @@ public class PersonService {
 
 			logger.debug("Le contenu de result : {}", result);
 			return result;
+	}
+	
+	public List<Person> listPersonByLastName(String lastName) {
+		logger.info("Entrée dans la méthode listPersonByLastName() de personService avec lastName : {}", lastName);
+		List<Person> personList = personRepository.getAllPerson();
+		logger.info("Tentative de récupération d'une liste de personne selon le nom : {} ", lastName);
+		List<Person> filteredPerson = personList.stream()
+				.filter(person -> person.getLastName().equalsIgnoreCase(lastName))
+				.collect(Collectors.toList());
+		logger.debug("Liste des personnes filtrées pour le nom de famille '{}': {}", lastName, filteredPerson);
+		return personList;
 	}
 
 }
