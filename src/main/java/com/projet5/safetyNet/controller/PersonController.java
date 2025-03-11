@@ -53,15 +53,13 @@ public class PersonController {
 	}
 
 	/**
-	 * Récupère la liste de toutes les personnes.
-	 * 
-	 * <p>
-	 * Cette méthode récupère la liste de toutes les personnes existantes dans le
-	 * systeme à partir de l'endpoint /person.
-	 * </p>
-	 * 
-	 * @return ResponseEntity contenant la liste des personnes en cas de succès ou
-	 *         un message d'erreur en cas d'échec.
+	 * Récupère la liste de toutes les personnes dans la base de données.
+	 *
+	 * Cette méthode appelle le service `personService.getAllPersons()` pour récupérer toutes les
+	 * personnes stockées dans la base de données. Elle renvoie ensuite la liste des personnes dans
+	 * une réponse HTTP.
+	 *
+	 * @return Une réponse HTTP contenant la liste de toutes les personnes, avec un code de statut HTTP 200.
 	 */
 	@GetMapping("/persons")
 	public ResponseEntity<Object> getAllPersons() {
@@ -73,17 +71,14 @@ public class PersonController {
 	}
 
 	/**
-	 * Ajoute une nouvelle personne.
-	 * 
-	 * <p>
-	 * Cette méthode permet d'ajouter une nouvelle personne dans le systeme à partir
-	 * de l'endpoint /person.
-	 * </p>
-	 * 
-	 * @param person est un objet `Person` reçu en JSON dans le corps de la requête.
-	 * @return ResponseEntity contenant un message de réussite en cas de succès ou
-	 *         un message d'erreur en cas d'echec.
-	 * @throws Exception si une erreur se produit lors de l'ajout de la personne.
+	 * Ajoute une nouvelle personne dans la base de données.
+	 *
+	 * Cette méthode permet d'ajouter une nouvelle personne en utilisant les données fournies dans 
+	 * l'objet `Person` transmis dans la requête. Elle appelle le service `personService.addPerson()`
+	 * pour effectuer l'ajout dans la base de données.
+	 *
+	 * @param person L'objet `Person` contenant les informations de la nouvelle personne à ajouter.
+	 * @return Une réponse HTTP avec un message indiquant que la personne a été ajoutée avec succès.
 	 */
 	@PostMapping("/persons")
 	public ResponseEntity<String> addPerson(@RequestBody Person person) {
@@ -94,18 +89,14 @@ public class PersonController {
 	}
 
 	/**
-	 * Met à jour les informations d'une personne.
-	 * 
-	 * <p>
-	 * Cette méthode permet de mettre à jour les données d'une personne existante à
-	 * partir des données passées dans le corps de la requête à partir de l'endpoint
-	 * /persons.
-	 * </p>
-	 * 
-	 * 
-	 * @param person est un objet `Person` reçu en JSON dans le corps de la requête.
-	 * @return ResponseEntity contenant un message de réussite en cas de succès ou
-	 *         un message d'erreur en cas d'echec.
+	 * Met à jour les informations d'une personne dans la base de données.
+	 *
+	 * Cette méthode permet de mettre à jour les informations d'une personne existante en utilisant
+	 * les données fournies dans l'objet `Person` transmis dans la requête. Elle appelle le service 
+	 * `personService.updatePerson()` pour effectuer la mise à jour dans la base de données.
+	 *
+	 * @param person L'objet `Person` contenant les informations mises à jour de la personne.
+	 * @return Une réponse HTTP avec un message indiquant que la mise à jour a été effectuée avec succès.
 	 */
 	@PutMapping("/persons")
 	public ResponseEntity<String> updatePerson(@RequestBody Person person) {
@@ -117,16 +108,14 @@ public class PersonController {
 	}
 
 	/**
-	 * Supprime une personne.
+	 * Supprime une personne en fonction de ses informations personnelles.
 	 * 
-	 * <p>
-	 * Cette méthode permet de supprimer une personne à partir des informations
-	 * contenu dans la requête et dans le systeme à l'endpoint /persons.
-	 * </p>
-	 * 
-	 * @param person est un objet `Person` reçu en JSON dans le corps de la requête.
-	 * @return ResponseEntity contenant un message de réussite en cas de succès ou
-	 *         un message d'erreur en cas d'echec.
+	 * Cette méthode permet de supprimer une personne de la base de données en utilisant les
+	 * informations fournies dans l'objet `Person` transmis dans la requête. La méthode fait appel
+	 * au service pour effectuer la suppression de la personne.
+	 *
+	 * @param person L'objet `Person` contenant les informations (prénom, nom, téléphone) de la personne à supprimer.
+	 * @return Une réponse HTTP avec un message indiquant que la suppression a été effectuée avec succès.
 	 */
 	@DeleteMapping("/persons")
 	public ResponseEntity<String> deletePerson(@RequestBody Person person) {
@@ -139,22 +128,13 @@ public class PersonController {
 	}
 
 	/**
-	 * Récupère la liste des adresses email des personnes selon leur ville.
+	 * Récupère la liste des emails de la communauté associés à une ville donnée.
 	 * 
-	 * <p>
-	 * Cette méthode permet de récupérer la liste des adresses email des personnes
-	 * qui résident dans la ville spécifiée en paramètre. Elle appelle le service
-	 * pour récupérer les données correspondantes et retourne une liste contenant
-	 * les adresses email des personnes habitant dans la ville donnée.
-	 * </p>
-	 * 
-	 * @param city le nom de la ville dans laquelle rechercher les adresses email
-	 *             des personnes.
-	 * @return ResponseEntity contenant une liste d'adresses email des personnes
-	 *         vivant dans la ville spécifiée en cas de succès ou un message
-	 *         d'erreur en cas d'échec.
-	 * @throws Exception si une erreur se produit lors de la récupération des
-	 *                   adresses mails.
+	 * Cette méthode permet de récupérer les emails de la communauté pour une ville spécifique,
+	 * en appelant le service correspondant. Le nom de la ville est fourni en tant que paramètre de requête.
+	 *
+	 * @param city La ville pour laquelle la liste des emails de la communauté est demandée.
+	 * @return Une réponse HTTP contenant la liste des emails associés à la ville donnée.
 	 */
 	@GetMapping("/communityEmail")
 	public ResponseEntity<Object> getCommunityEmail(@RequestParam String city){
@@ -167,18 +147,13 @@ public class PersonController {
 	}
 
 	/**
-	 * Récupère une liste d'enfant.
+	 * Récupère la liste des enfants associés à une adresse donnée.
 	 * 
-	 * <p>
-	 * Cette méthode permet de récupérer une liste d'enfants habitant à l'adresse
-	 * passée en paramètre à partir de l'endpoint /childAlert.
-	 * </p>
-	 * 
-	 * @param address l'adresse où vivent un ou des enfants.
-	 * @return ResponseEntity contenant une liste d'enfant vivant à l'adresse donnée
-	 *         en cas de succès ou un message d'erreur en cas d'echec.
-	 * @throws Exception si une erreur se produit lors de la récupération de la
-	 *                   liste d'enfant.
+	 * Cette méthode permet de récupérer une liste d'enfants qui habitent à une adresse spécifique,
+	 * en appelant le service correspondant. L'adresse est fournie en tant que paramètre de requête.
+	 *
+	 * @param address L'adresse pour laquelle la liste des enfants est demandée.
+	 * @return Une réponse HTTP contenant la liste des enfants associés à l'adresse donnée.
 	 */
 	@GetMapping("/childAlert")
 	public ResponseEntity<?> getChildListFromAddress(@RequestParam String address) {
@@ -190,19 +165,14 @@ public class PersonController {
 	}
 
 	/**
-	 * Récupère les informations médical des personnes selon leur nom.
+	 * Récupère les informations d'une personne en fonction de son nom de famille.
 	 * 
-	 * <p>
-	 * Cette méthode permet de récupérer les informations médicales concernant les
-	 * personnes dont le nom est donnée en paramètre à partir de l'endpoint
-	 * /personInfoLastName.
-	 * </p>
-	 * 
-	 * @param lastName le nom des personne dont on veut les informations.
-	 * @return ResponseEntity conteannt une liste d'information sur les personnes
-	 *         dont le nom est passé en paramètre en cas de succès ou un message
-	 *         d'erreur en cas d'echec.
-	 * @throws Exception si une erreur survient lors de la récupération des données.
+	 * Cette méthode permet de rechercher les informations d'une personne en se basant sur son nom de famille.
+	 * Les informations récupérées sont renvoyées sous forme de carte clé-valeur.
+	 *
+	 * @param lastName Le nom de famille de la personne recherchée.
+	 * @return Une réponse HTTP contenant les informations de la personne, sous forme d'un map.
+	 * @throws Exception Si une erreur se produit lors de la récupération des informations de la personne.
 	 */
 	@GetMapping("/personInfolastName")
 	public ResponseEntity<Object> getPersonInfoLastName(@RequestParam String lastName) throws Exception {

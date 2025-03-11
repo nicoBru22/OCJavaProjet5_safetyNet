@@ -75,16 +75,13 @@ public class PersonRepository {
 	}
 
 	/**
-	 * Récupère la liste de toutes les personnes.
-	 * <p>
-	 * Cette méthode permet de récupérer toutes les personnes enregistrées. Cette
-	 * liste a été initialisée dans le constructeur.
-	 * </p>
+	 * Récupère la liste de toutes les personnes présentes dans le dépôt.
 	 * 
-	 * @return personList Une liste de toutes les personnes présentes dans le
-	 *         fichier JSON.
-	 * @throws Exception si une erreur intervient lors de la récupération des
-	 *                   données.
+	 * Cette méthode renvoie la liste complète des personnes stockées dans `personsList`. 
+	 * Si la liste contient des données, elles sont retournées telles quelles.
+	 * Cette méthode peut être utilisée pour obtenir toutes les personnes sans filtrage.
+	 * 
+	 * @return Une liste contenant toutes les personnes présentes dans le dépôt.
 	 */
 	public List<Person> getAllPerson() {
 		logger.info("Entrée dans la méthode getAllPersons() de la class PersonRepository.");
@@ -94,20 +91,20 @@ public class PersonRepository {
 	}
 
 	/**
-	 * Supprime une personne du systeme.
-	 * <p>
-	 * Cette méthode recherche et supprime la personne correspondant aux critères
-	 * (prénom, nom et numéro de téléphone) dans la liste des personnes en mémoire.
-	 * Si la suppression réussit, elle met à jour la liste dans le modèle de données
-	 * et réécrit le fichier de données.
-	 * </p>
+	 * Supprime une personne de la liste des personnes en fonction des critères fournis.
 	 * 
-	 * @param firstName Prénom de la personne à supprimer.
-	 * @param lastName  Nom de famille de la personne à supprimer.
-	 * @param phone     Numéro de téléphone de la personne à supprimer.
-	 * @throws Exception Si la personne n'existe pas dans la liste ou si une erreur
-	 *                   survient lors de la suppression ou de l'écriture dans le
-	 *                   fichier.
+	 * Cette méthode cherche une personne correspondant aux critères (`firstName`, `lastName`, et `phone`) dans la liste
+	 * `personsList`. Si une personne correspond, elle est supprimée. Si la suppression échoue, une exception
+	 * {@link PersonDeletionException} est levée. Après la suppression, la liste est mise à jour dans le modèle de données
+	 * et sauvegardée dans le fichier.
+	 * 
+	 * @param firstName Le prénom de la personne à supprimer.
+	 * @param lastName Le nom de la personne à supprimer.
+	 * @param phone Le numéro de téléphone de la personne à supprimer.
+	 * 
+	 * @throws PersonDeletionException Si la personne n'a pas pu être supprimée.
+	 * 
+	 * @see PersonDeletionException
 	 */
 	public void deletePerson(String firstName, String lastName, String phone) {
 		logger.info("Entrée dans la méthode deletePerson() de la class PersonRepository.");
@@ -126,17 +123,18 @@ public class PersonRepository {
 	}
 
 	/**
-	 * Ajoute une nouvelle personne à la liste.
-	 * <p>
-	 * Cette méthode ajoute la nouvelle personne à la liste actuelle des personnes.
-	 * Après l'ajout, la liste est mise à jour dans le modèle de données et le
-	 * fichier est réécrit pour refléter ce changement.
-	 * </p>
+	 * Ajoute une nouvelle personne à la liste des personnes.
 	 * 
-	 * @param newPerson Objet {@link Person} représentant la nouvelle personne à
-	 *                  ajouter à la liste.
-	 * @throws Exception Si une erreur survient lors de l'ajout de la personne ou de
-	 *                   l'écriture dans le fichier de données.
+	 * Cette méthode tente d'ajouter une nouvelle personne à la liste `personsList`. Si l'ajout échoue,
+	 * une exception {@link PersonAdditionException} est levée. Après l'ajout, la liste des personnes
+	 * est mise à jour dans le modèle de données et sauvegardée dans le fichier.
+	 * 
+	 * @param newPerson L'objet {@link Person} représentant la personne à ajouter à la liste.
+	 * 
+	 * @throws PersonAdditionException Si l'ajout de la personne à la liste échoue.
+	 * 
+	 * @see PersonAdditionException
+	 * @see Person
 	 */
 	public void addPerson(Person newPerson){
 		logger.info("Entrée dans la méthode addPerson() de la class PersonRepository.");
@@ -152,19 +150,22 @@ public class PersonRepository {
 	}
 
 	/**
-	 * Met à jour les informations d'une personne existante.
-	 *
-	 * <p>
-	 * Cette méthode met à jour une personne existante dans le systeme après avoir
-	 * comparé les firstName et lastName. Après la mise à jour, la liste est mise à
-	 * jour dans le modèle de données et le fichier est réécrit pour refléter ce
-	 * changement.
-	 * </p>
+	 * Met à jour les informations d'une personne dans la liste des personnes.
 	 * 
-	 * @param updatedPerson Objet {@link Person} représentant les informations mises
-	 *                      à jour.
-	 * @throws Exception Si la personne n'existe pas ou si une erreur survient lors
-	 *                   de l'écriture.
+	 * Cette méthode parcourt la liste des personnes et met à jour les informations de la personne
+	 * qui correspond aux critères spécifiés (prénom et nom). Si la personne n'est pas trouvée,
+	 * une exception {@link PersonNotFoundException} est levée. Si les informations à mettre à jour
+	 * sont invalides (null ou vides), une exception {@link InvalidRequestException} est levée.
+	 * 
+	 * @param updatedPerson L'objet {@link Person} contenant les nouvelles informations à mettre à jour.
+	 * 
+	 * @throws InvalidRequestException Si l'objet {@link Person} ou les champs 'firstName' ou 'lastName'
+	 *                                  sont nuls ou invalides.
+	 * @throws PersonNotFoundException Si la personne à mettre à jour n'est pas trouvée dans la liste.
+	 * 
+	 * @see PersonNotFoundException
+	 * @see InvalidRequestException
+	 * @see Person
 	 */
 	public void updatePerson(Person updatedPerson) {
 		logger.info("Entrée dans la méthode updatePerson de la class PersonRepository.");
