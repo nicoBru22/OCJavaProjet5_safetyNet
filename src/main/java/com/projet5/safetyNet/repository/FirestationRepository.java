@@ -63,15 +63,13 @@ public class FirestationRepository {
 		logger.info("FirestationRepository initialisé avec succès.");
 	}
 
+
 	/**
-	 * Récupère la liste de toutes les casernes de pompiers.
-	 * <p>
-	 * Cette méthode permet de récupérer la liste des casernes. Cette liste a été
-	 * initialisée dans le constructeur.
-	 * </p>
-	 * 
-	 * @return firestationList La liste de toutes les casernes de pompiers.
-	 * @throws Exception si une erreur survient lors de la récupération des données.
+	 * Récupère la liste de toutes les casernes.
+	 *
+	 * Cette méthode retourne une liste contenant toutes les casernes enregistrées dans le système.
+	 *
+	 * @return une liste de toutes les casernes
 	 */
 	public List<Firestation> getAllFirestations() {
 		logger.info("Récupération de toutes les casernes.");
@@ -79,18 +77,14 @@ public class FirestationRepository {
 		return firestationList;
 	}
 
+
 	/**
-	 * Ajoute une nouvelle caserne
-	 * <p>
-	 * Ajoute une nouvelle caserne à la liste des casernes et met à jour le fichier
-	 * de données. Cette méthode permet d'ajouter une caserne à la liste interne des
-	 * casernes, puis de enregistrer cette nouvelle liste dans le fichier JSON en
-	 * appelant la méthode writeFile de DataRepository.
-	 * </p>
-	 * 
-	 * @param newFirestation Object {@link Firestation} contenant la nouvelle
-	 *                       caserne à ajouter.
-	 * @throws Exception si une erreur survient lors de l'ajout des données.
+	 * Ajoute une nouvelle caserne.
+	 *
+	 * Cette méthode ajoute une nouvelle caserne à la liste des casernes. Si la caserne existe déjà, une exception est lancée.
+	 *
+	 * @param newFirestation la nouvelle caserne à ajouter
+	 * @throws FirestationExistingException si la caserne existe déjà
 	 */
 	public void addFirestation(Firestation newFirestation) {
 		if(firestationList.contains(newFirestation)) {
@@ -104,19 +98,15 @@ public class FirestationRepository {
 		logger.debug("La nouvelle caserne ajoutée : " + newFirestation);
 	}
 
+
 	/**
-	 * Supprime une caserne
-	 * <p>
-	 * Supprime une caserne de la liste des casernes et met à jour le fichier de
-	 * données. Cette méthode permet de supprimer une caserne spécifique en se
-	 * basant sur son adresse et son numéro de station. Une fois supprimée, la liste
-	 * des casernes est enregistrée à nouveau dans le fichier JSON.
-	 * </p>
-	 * 
-	 * @param deletedFirestation Objet {@link Firestation} contenant la caserne à
-	 *                           supprimer.
-	 * @throws RuntimeException si une erreur survient lors de la
-	 *                                  suppression des données.
+	 * Supprime une caserne.
+	 *
+	 * Cette méthode supprime une caserne de la liste en fonction de son adresse et de son nom de station. Si la caserne n'est pas trouvée,
+	 * une exception est lancée.
+	 *
+	 * @param deletedFirestation la caserne à supprimer
+	 * @throws FirestationDeletedException si la caserne n'a pas pu être supprimée
 	 */
 	public void deleteFirestation(Firestation deletedFirestation) {
 		boolean firestationDeleted = firestationList.removeIf(firestation -> firestation.getAddress().equals(deletedFirestation.getAddress())
@@ -131,21 +121,14 @@ public class FirestationRepository {
 		logger.debug("Caserne supprimée : {}", deletedFirestation);
 	}
 
+
 	/**
-	 * Met à jour les informations d'une caserne.
-	 * <p>
-	 * Cette méthode met à jour les informations d'une caserne existante dans la
-	 * liste des casernes. Cette méthode recherche une caserne dans la liste en
-	 * fonction de son adresse. Si la caserne est trouvée, elle est mise à jour avec
-	 * les nouvelles informations. Si la caserne n'existe pas, une exception est
-	 * lancée.
-	 * </p>
-	 * 
-	 * @param updatedFirestation Objet {@link Firestation} contenant la caserne mise
-	 *                           à jour.
-	 * @throws Exception si une erreur intervient lors de la mise à jour de la caserne.
-	 * @throws IllegalArgumentException si la caserne à mettre à jour n'est pas
-	 *                                  trouvée.
+	 * Met à jour une caserne existante.
+	 *
+	 * Cette méthode met à jour une caserne en fonction de son adresse. Si la caserne n'est pas trouvée, une exception est lancée.
+	 *
+	 * @param updatedFirestation la caserne mise à jour
+	 * @throws FirestationNotFoundException si la caserne n'a pas été trouvée pour mise à jour
 	 */
 	public void updateFirestation(Firestation updatedFirestation) {
 	    Optional<Firestation> firestationOptional = firestationList.stream()

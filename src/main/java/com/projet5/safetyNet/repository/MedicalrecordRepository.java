@@ -79,18 +79,13 @@ public class MedicalrecordRepository {
 		this.medicalrecordList = dataModel.getMedicalrecords();
 	}
 
+
 	/**
 	 * Récupère la liste de tous les dossiers médicaux.
-	 * 
-	 * <p>
-	 * Cette méthode permet de récupérer l'ensemble des dossiers médicaux sous forme
-	 * de liste. La liste a été initialisée dans le constructeur.
-	 * </p>
-	 * 
-	 * @return medicalrecordList Une liste de dossier médicaux stocké dans le
-	 *         systeme.
-	 * @throws Exception si une erreur intervient lors de la récupération de la
-	 *                   liste de dossier médicaux.
+	 *
+	 * Cette méthode retourne une liste contenant tous les dossiers médicaux enregistrés dans le système.
+	 *
+	 * @return une liste de tous les dossiers médicaux
 	 */
 	public List<Medicalrecord> getAllMedicalrecord() {
 		logger.info("Récupération de la liste de dossier médicaux.");
@@ -99,19 +94,14 @@ public class MedicalrecordRepository {
 
 	}
 
+
 	/**
 	 * Ajoute un nouveau dossier médical.
-	 * 
-	 * <p>
-	 * Cette méthode permet d'ajouter un nouveau dossier médical à la liste
-	 * existante.
-	 * </p>
-	 * 
-	 * @param newMedicalrecord Objet {@link Medicalrecord} représentant le nouveau
-	 *                         dossier médical à ajouter.
-	 * @throws Exception si une erreur intervient lors de l'ajout d'un nouveau
-	 *                   dossier médical.
-	 * 
+	 *
+	 * Cette méthode ajoute un nouveau dossier médical à la liste des dossiers médicaux. Si l'ajout échoue, une exception est lancée.
+	 *
+	 * @param newMedicalrecord le dossier médical à ajouter
+	 * @throws MedicalrecordAdditionException si l'ajout du dossier médical échoue
 	 */
 	public void addMedicalrecord(Medicalrecord newMedicalrecord) {
 		logger.debug("Tentative d'ajout du dossier médical : {}", newMedicalrecord);
@@ -126,20 +116,15 @@ public class MedicalrecordRepository {
 
 	}
 
+
 	/**
 	 * Supprime un dossier médical.
-	 * 
-	 * <p>
-	 * Cette méthode permet de supprimer un dossier médical à partir du nom et du
-	 * prénom de la personne à qui appartient ce dossier médical. Si le nom et le
-	 * prénom correspondent à un dossier dans le systeme alors celui-ci est supprimé
-	 * puis la liste est mise à jour.
-	 * </p>
-	 * 
-	 * @param deletedMedicalrecord objet {@link Medicalrecord} représentant le
-	 *                             dossier médical à supprimer.
-	 * @throws Exception si une erreur intervient lors de la suppression du dossier
-	 *                   médical ou si le dossier médical n'existe pas.
+	 *
+	 * Cette méthode supprime un dossier médical de la liste en fonction du prénom et du nom. Si le dossier médical
+	 * n'est pas trouvé, une exception est lancée.
+	 *
+	 * @param deletedMedicalrecord le dossier médical à supprimer
+	 * @throws MedicalrecordDeletionException si le dossier médical n'a pas pu être supprimé
 	 */
 	public void deleteMedicalrecord(Medicalrecord deletedMedicalrecord) {
 		logger.debug("Le dossier médical à supprimer : {}", deletedMedicalrecord);
@@ -158,20 +143,15 @@ public class MedicalrecordRepository {
 
 	}
 
+
 	/**
-	 * Met à jour un dossier médical.
-	 * 
-	 * <p>
-	 * Cette méthode permet de mettre à jour un dossier médical en verifiant s'il
-	 * correspond bien a un dossier médical stocké dans le systeme à partir de son
-	 * nom et son prénom. S'il existe alors il est supprimé et la liste est mise à
-	 * jour.
-	 * </p>
-	 * 
-	 * @param updatedMedicalrecord objet {@link Medicalrecord} représentant les
-	 *                             données mises à jour.
-	 * @throws Exception si une erreur intervient lors de la mise à jour du dossier
-	 *                   médical ou si le dossier médical n'existe pas.
+	 * Met à jour un dossier médical existant.
+	 *
+	 * Cette méthode met à jour un dossier médical en fonction du prénom et du nom. Si le dossier médical n'est pas
+	 * trouvé, une exception est lancée.
+	 *
+	 * @param updatedMedicalrecord le dossier médical à mettre à jour
+	 * @throws MedicalrecordNotFoundException si le dossier médical n'a pas été trouvé
 	 */
 	public void updateMedicalrecord(Medicalrecord updatedMedicalrecord) {
 		logger.debug("Tentative de mise à jour du dossier médical : {}", updatedMedicalrecord);

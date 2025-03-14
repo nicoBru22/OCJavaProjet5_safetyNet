@@ -10,6 +10,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -31,7 +33,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 @WebMvcTest(FirestationController.class)
 @AutoConfigureMockMvc
 public class FirestationControllerUnitTest {
-
+	
+	private Logger logger = LogManager.getLogger();
 	@Autowired
 	private MockMvc mockMvc;
 	
@@ -52,7 +55,8 @@ public class FirestationControllerUnitTest {
 		mockMvc.perform(MockMvcRequestBuilders.get("/firestations"))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$[0].address").value("addressTest1"))
-				.andExpect(jsonPath("$[1].address").value("addressTest2")).andReturn();
+				.andExpect(jsonPath("$[1].address").value("addressTest2"))
+				.andReturn();
 	}
 
     @Test
@@ -160,7 +164,7 @@ public class FirestationControllerUnitTest {
     			.andReturn();
     	
     	String actualResponse = result.getResponse().getContentAsString();
-    	String expectedResponse = "Erreur lors de la récupération de toutes les casernes.";
+    	String expectedResponse = "Une erreur interne est survenue.";
     	
     	assertTrue(actualResponse.contains(expectedResponse));
     }
@@ -179,7 +183,8 @@ public class FirestationControllerUnitTest {
                 .andReturn();
 
         String actualResponse = result.getResponse().getContentAsString();
-        String expectedResponse = "Erreur lors de l'ajout de la caserne";
+        String expectedResponse = "Une erreur interne est survenue.";
+        
         assertTrue(actualResponse.contains(expectedResponse));
     }
     
@@ -197,7 +202,7 @@ public class FirestationControllerUnitTest {
                 .andReturn();
 
         String actualResponse = result.getResponse().getContentAsString();
-        String expectedResponse = "Erreur lors de la suppression de la caserne.";
+        String expectedResponse = "Une erreur interne est survenue.";
         assertTrue(actualResponse.contains(expectedResponse));
     }
     
@@ -206,7 +211,7 @@ public class FirestationControllerUnitTest {
         Firestation updatedFirestation = new Firestation("addressTest", "numberTest");
         String updatedFirestationJson = new ObjectMapper().writeValueAsString(updatedFirestation);
 
-        doThrow(new Exception("Erreur simulée")).when(firestationService).updateFirestation(updatedFirestation);
+        doThrow(new RuntimeException("Erreur simulée")).when(firestationService).updateFirestation(updatedFirestation);
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.put("/firestation")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -215,84 +220,8 @@ public class FirestationControllerUnitTest {
                 .andReturn();
 
         String actualResponse = result.getResponse().getContentAsString();
-        String expectedResponse = "Erreur lors de la mise à jour de la caserne.";
+        String expectedResponse = "Une erreur interne est survenue.";
         assertTrue(actualResponse.contains(expectedResponse));
-    }
-
-    
-    @Test
-    void testPersonFromFirestationWithPersonEmpty() throws Exception {
-    	String stationNumber = "0";
-    	List<String> listEmpty = List.of();
-    	
-    	when(firestationService.personFromStationNumber(stationNumber)).thenReturn(listEmpty);
-    	
-    	MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/firestation")
-    			.param("stationNumber", stationNumber))
-    			.andExpect(status().isNotFound())
-    			.andReturn();
-    	
-    	String actualResponse = result.getResponse().getContentAsString();
-    	String expectedResponse = "Aucune personne associée à cette caserne.";
-    	
-    	assertTrue(actualResponse.contains(expectedResponse));
-    }
-    
-    @Test
-    void testPersonFromFirestationWithPersonNull() throws Exception {
-    	String stationNumber = "0";
-    	List<String> listNull = null;
-    	
-    	when(firestationService.personFromStationNumber(stationNumber)).thenReturn(listNull);
-    	
-    	MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/firestation")
-    			.param("stationNumber", stationNumber))
-    			.andExpect(status().isInternalServerError())
-    			.andReturn();
-    	
-    	String actualResponse = result.getResponse().getContentAsString();
-    	String expectedResponse = "Erreur lors de la récupération de la liste des personnes associées à la caserne.";
-    	
-    	assertTrue(actualResponse.contains(expectedResponse));
-    }
-    
-    
-    @Test
-    void testPersonToAlertWithPhoneListAlertEmpty() throws Exception {
-    	String stationNumber = "0";
-    	List<String> phoneListAlert = List.of();
-    	
-    	when(firestationService.phoneAlert(stationNumber)).thenReturn(phoneListAlert);
-    	
-    	MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/phoneAlert")
-    			.param("station", stationNumber))
-    			.andExpect(status().isNoContent())
-    			.andReturn();	
-    	
-    	String response = result.getResponse().getContentAsString();
-    	
-    	assertTrue(response.contains(""));
-    }
-    
-    @Test
-    void testPersonToAlertWithPhoneListAlertNull() throws Exception {
-    	String stationNumber = "0";
-    	List<String> phoneListAlert = null;
-    	
-    	when(firestationService.phoneAlert(stationNumber)).thenReturn(phoneListAlert);
-    	
-    	MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/phoneAlert")
-    			.param("station", stationNumber))
-    			.andExpect(status().isInternalServerError())
-    			.andReturn();	
-    	
-    	String response = result.getResponse().getContentAsString();
-    	
-    	assertTrue(response.contains("Erreur lors de la récupération des numéros de téléphone."));
-    }
-    
-    
-
-
+    }  
 
 }

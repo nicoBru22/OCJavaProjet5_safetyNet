@@ -21,6 +21,13 @@ public class GlobalExceptionHandler {
                              .body("Une erreur interne est survenue.");
     }
     
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<String> handleGlobalRuntimeException(RuntimeException e) {
+        logger.error("Une erreur interne est survenue : {}", e.getMessage(), e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                             .body("Une erreur interne est survenue.");
+    }
+    
     @ExceptionHandler(DateTimeParseException.class)
     public ResponseEntity<String> handleDateTimeParseException(DateTimeParseException e) {
         logger.error("Format de date invalide : {}", e.getParsedString(), e);
@@ -113,6 +120,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MedicalrecordDeletionException.class)
     public ResponseEntity<String> handleMedicalrecordDeletionException(MedicalrecordDeletionException e) {
     	return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+    
+    @ExceptionHandler(MedicalRecordExistException.class)
+    public ResponseEntity<String> handleMedicalRecordExistException(MedicalRecordExistException e) {
+    	return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
     }
     
     

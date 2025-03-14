@@ -99,56 +99,35 @@ public class FirestationService {
 	}
 
 	/**
-	 * Récupère la liste complète des casernes de pompiers.
-	 * 
-	 * <p>
-	 * Cette méthode permet de récupérer toutes les casernes de pompiers
-	 * enregistrées dans le système. Elle effectue un appel au repository pour
-	 * récupérer la liste des casernes. Si aucune caserne n'est trouvée, un
-	 * avertissement est émis. En cas de succès, le nombre de casernes récupérées
-	 * est loggé.
-	 * </p>
-	 * 
-	 * @return Une liste d'objets {@link Firestation} représentant toutes les
-	 *         casernes de pompiers disponibles. Si aucune caserne n'est trouvée,
-	 *         une liste vide est retournée.
-	 * @throws RuntimeException Si une erreur se produit lors de la récupération des
-	 *                          données depuis le repository.
+	 * Récupère la liste de toutes les casernes de pompiers.
+	 *
+	 * Cette méthode interroge le repository pour obtenir toutes les casernes enregistrées.
+	 * Elle journalise les étapes du processus et génère un avertissement si aucune caserne n'est trouvée.
+	 *
+	 * @return une liste contenant toutes les casernes de pompiers, possiblement vide si aucune caserne n'est enregistrée
 	 */
-
 	public List<Firestation> getAllFireStations() {
-		try {
-			logger.info("Début de la récupération de toutes les firestations.");
-			List<Firestation> firestations = firestationRepository.getAllFirestations();
-			if (firestations.isEmpty()) {
-				logger.warn("Aucune firestation trouvée.");
-			} else {
-				logger.info("{} firestations récupérées.", firestations.size());
-			}
-			return firestations;
-		} catch (Exception e) {
-			logger.error("Erreur lors de la récupération des firestations : {}", e.getMessage(), e);
-			throw new RuntimeException("Erreur lors de la récupération des firestations", e);
+		logger.info("Début de la récupération de toutes les firestations.");
+		List<Firestation> firestations = firestationRepository.getAllFirestations();
+		if (firestations.isEmpty()) {
+			logger.warn("Aucune firestation trouvée.");
+		} else {
+			logger.info("{} firestations récupérées.", firestations.size());
 		}
+		return firestations;
 	}
 
 	/**
 	 * Ajoute une nouvelle caserne de pompiers.
-	 * 
-	 * <p>
-	 * Cette méthode permet d'ajouter une caserne de pompiers en vérifiant d'abord
-	 * que les données de l'objet {@link Firestation} fourni sont valides. Elle
-	 * vérifie également que la caserne n'existe pas déjà dans le système avant
-	 * d'effectuer l'ajout.
-	 * </p>
-	 * 
-	 * @param newFirestation L'objet {@link Firestation} contenant les informations
-	 *                       de la caserne à ajouter (adresse et numéro de station).
-	 * @throws IllegalArgumentException Si les champs adresse ou numéro de station
-	 *                                  sont invalides (null ou vides).
-	 * @throws RuntimeException         Si une erreur inattendue se produit lors de
-	 *                                  l'ajout.
-	 * @throws Exception                Si la caserne existe déjà dans le système.
+	 *
+	 * Cette méthode vérifie si les informations de la caserne sont valides (adresse et numéro de station).
+	 * Elle vérifie également qu'aucune caserne n'existe déjà avec les mêmes informations. Si la caserne existe déjà,
+	 * une exception est lancée. Si les informations sont valides et que la caserne n'existe pas déjà, la nouvelle
+	 * caserne est ajoutée au repository.
+	 *
+	 * @param newFirestation la caserne à ajouter
+	 * @throws InvalidRequestException si l'adresse ou le numéro de station est manquant ou invalide
+	 * @throws FirestationExistingException si une caserne avec les mêmes informations existe déjà
 	 */
 	public void addFirestation(Firestation newFirestation) {
 		logger.info("Début de l'ajout d'une nouvelle caserne : {}", newFirestation);
@@ -171,24 +150,15 @@ public class FirestationService {
 	}
 
 	/**
-	 * Supprime une caserne de pompiers existante.
-	 * 
-	 * <p>
-	 * Cette méthode supprime une caserne de pompiers à partir des informations
-	 * fournies dans l'objet {@link Firestation}. Elle vérifie que l'objet passé en
-	 * paramètre contient des données valides (adresse et numéro de station non
-	 * nulles et non vides) avant de rechercher la caserne dans le système. Si la
-	 * caserne existe, elle est supprimée ; sinon, une exception est levée.
-	 * </p>
-	 * 
-	 * @param deletedFirestation L'objet {@link Firestation} contenant les
-	 *                           informations de la caserne à supprimer.
-	 * @throws IllegalArgumentException Si les champs adresse ou numéro de station
-	 *                                  sont invalides (nulles ou vides).
-	 * @throws Exception                Si la caserne n'existe pas ou en cas
-	 *                                  d'erreur lors de la suppression.
-	 * @throws RuntimeException         Si une erreur inattendue se produit pendant
-	 *                                  la suppression.
+	 * Supprime une caserne de pompiers.
+	 *
+	 * Cette méthode vérifie si les informations de la caserne à supprimer sont valides (adresse et numéro de station).
+	 * Si les informations sont invalides ou si la caserne n'existe pas, une exception est lancée. Si les informations
+	 * sont valides et que la caserne existe, elle est supprimée du repository.
+	 *
+	 * @param deletedFirestation la caserne à supprimer
+	 * @throws InvalidRequestException si l'adresse ou le numéro de station est manquant ou invalide
+	 * @throws FirestationNotFoundException si la caserne n'existe pas
 	 */
 	public void deleteFirestation(Firestation deletedFirestation) {
 		logger.info("Début de la suppression de la caserne : {}", deletedFirestation);
@@ -213,22 +183,15 @@ public class FirestationService {
 	}
 
 	/**
-	 * Met à jour une caserne de pompiers existante.
-	 * 
-	 * <p>
-	 * Cette méthode met à jour une caserne existante à partir des données fournies
-	 * en paramètre. Elle vérifie d'abord si les données passées sont nulles ou
-	 * vides, puis s'assure que la caserne existe déjà dans le système. Enfin, elle
-	 * utilise la méthode
-	 * {@link com.projet5.safetyNet.repository.FirestationRepository#updateFirestation}
-	 * pour effectuer la mise à jour.
-	 * </p>
-	 * 
-	 * @param updatedFirestation L'objet {@link Firestation} à mettre à jour.
-	 * @throws IllegalArgumentException Si le champ adresse est invalide.
-	 * @throws Exception                Si la caserne n'existe pas à cette adresse.
-	 * @throws RuntimeException         Si une erreur se produit lors de la mise à
-	 *                                  jour.
+	 * Met à jour les informations d'une caserne de pompiers.
+	 *
+	 * Cette méthode vérifie si l'adresse de la caserne à mettre à jour est valide. Si l'adresse est manquante ou invalide,
+	 * une exception est lancée. Si la caserne n'existe pas à l'adresse fournie, une exception est également lancée.
+	 * Si les vérifications passent, la caserne est mise à jour dans le repository.
+	 *
+	 * @param updatedFirestation la caserne avec les nouvelles informations
+	 * @throws InvalidRequestException si l'adresse est manquante ou invalide
+	 * @throws FirestationNotFoundException si la caserne n'existe pas à l'adresse spécifiée
 	 */
 	public void updateFirestation(Firestation updatedFirestation) {
 		logger.info("Début de la mise à jour d'une firestation : {}", updatedFirestation);
@@ -248,25 +211,18 @@ public class FirestationService {
 	}
 
 	/**
-	 * Récupère la liste des personnes associées à une station de pompiers donnée.
-	 * <p>
-	 * Cette méthode filtre les stations et les personnes associées à l'adresse de
-	 * la station de pompiers, puis retourne une liste d'informations détaillées
-	 * sous forme de chaînes de caractères (prénom, nom, téléphone, adresse,
-	 * catégorie d'âge et âge).
-	 * </p>
-	 * <p>
-	 * Le résultat inclut également un résumé contenant le nombre total d'adultes et
-	 * d'enfants.
-	 * </p>
-	 * 
-	 * @param stationNumber Le numéro de la station de pompiers.
-	 * @return Une liste de chaînes de caractères contenant les informations des
-	 *         personnes liées à la station, ainsi qu'un résumé des catégories
-	 *         d'âge.
-	 * @throws IllegalArgumentException Si le numéro de station est vide ou nul.
-	 * @throws Exception                Si une erreur se produit lors de la
-	 *                                  récupération des données ou du filtrage.
+	 * Récupère une liste d'informations sur les personnes associées à un numéro de station spécifique.
+	 *
+	 * Cette méthode filtre les personnes en fonction de leur adresse, qui est liée à une station donnée. Elle récupère
+	 * toutes les personnes vivant à des adresses associées à la station spécifiée et fournit des informations détaillées
+	 * sur ces personnes, y compris leur prénom, nom, numéro de téléphone, adresse, numéro de station et catégorie d'âge
+	 * (enfant ou adulte). Elle retourne également un résumé du nombre total d'enfants et d'adultes pour la station.
+	 *
+	 * @param stationNumber le numéro de la station pour laquelle récupérer les personnes
+	 * @return une liste contenant des informations détaillées sur les personnes associées à la station, ainsi qu'un résumé
+	 *         du nombre d'adultes et d'enfants
+	 * @throws InvalidRequestException si le numéro de station est vide ou nul
+	 * @throws FirestationNotFoundException si aucune firestation n'est trouvée pour le numéro de station spécifié
 	 */
 	public List<String> personFromStationNumber(String stationNumber) {
 		logger.info("Début de la récupération des personnes pour la station : {}", stationNumber);
@@ -337,20 +293,17 @@ public class FirestationService {
 	}
 
 	/**
-	 * * Récupère les numéros de téléphone des personnes couverte par la caserne
-	 * donnée.
-	 * 
-	 * <p>
-	 * Cette Méthode prend en paramètre un numéro de station et retourne une liste
-	 * des numéro de téléphone associés à la caserne. Elle récupère la liste des
-	 * personnes couverte par la caserne et extrait les numéros de téléphone.
-	 * </p>
-	 * 
-	 * @param station le numéro de station de la caserne.
-	 * @return phoneListAlert une liste de numéro de téléphone associé à la caserne
-	 *         ou une liste vide.
-	 * @throws Exception si une erreur se produit lors de la récupération des
-	 *                   données
+	 * Récupère la liste des numéros de téléphone des personnes associées à une station donnée.
+	 *
+	 * Cette méthode utilise la méthode `personFromStationNumber` pour récupérer les informations des personnes résidant
+	 * à une adresse associée à une station donnée. Elle extrait ensuite les numéros de téléphone des personnes et les 
+	 * retourne sous forme de liste. Si aucune personne n'est associée à la station ou si la liste des numéros de téléphone
+	 * est vide, un avertissement est loggé.
+	 *
+	 * @param station le numéro de la station pour laquelle récupérer les numéros de téléphone des personnes
+	 * @return une liste contenant les numéros de téléphone des personnes associées à la station
+	 * @throws InvalidRequestException si le numéro de station est vide ou nul
+	 * @throws FirestationNotFoundException si aucune firestation n'est trouvée pour le numéro de station spécifié
 	 */
 	public List<String> phoneAlert(String station) {
 		logger.info("Début de la récupération des personnes associées à la station : {}", station);
@@ -366,12 +319,14 @@ public class FirestationService {
 
 	/**
 	 * Calcule l'âge d'une personne à partir de sa date de naissance.
-	 * 
-	 * @param birthdate La date de naissance de la personne au format String. Le
-	 *                  format attendu est défini par {@code DATE_FORMATTER}.
-	 * @return age L'âge de la personne en années entières (en format int).
-	 * @throws Exception Si la date de naissance fournie ne peut pas être parsée ou
-	 *                   si le calcul échoue.
+	 *
+	 * Cette méthode prend une date de naissance sous forme de chaîne de caractères et calcule l'âge en années
+	 * en comparant cette date à la date actuelle. La date de naissance doit être dans le format spécifié par 
+	 * `DATE_FORMATTER`. Si le format est incorrect, une exception est levée.
+	 *
+	 * @param birthdate la date de naissance de la personne sous forme de chaîne de caractères
+	 * @return l'âge de la personne en années
+	 * @throws InvalidDateFormatException si le format de la date de naissance est invalide
 	 */
 	public int ageOfPerson(String birthdate) {
 	    logger.info("Tentative de calcul de l'âge pour la date de naissance : {}", birthdate);

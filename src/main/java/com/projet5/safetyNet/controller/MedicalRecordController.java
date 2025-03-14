@@ -47,7 +47,7 @@ public class MedicalRecordController {
 	/**
 	 * Récupère la liste des dossiers médicaux.
 	 * <p>
-	 * Récupérer la liste de tous les dossiers médicaux à partir du endpoint
+	 * Cette méthode permet de récupérer tous les dossiers médicaux à partir de l'endpoint
 	 * /medicalrecords.
 	 * </p>
 	 *
@@ -56,16 +56,15 @@ public class MedicalRecordController {
 	 */
 	@GetMapping("/medicalrecords")
 	public ResponseEntity<?> getMedicalRecords() {
-		logger.info("Requête GET pour récupérer tous les dossiers médicaux.");
-		List<Medicalrecord> medicalrecordList = medicalrecordService.getAllMedicalrecord();
-		logger.info("La liste des dossiers médicaux a été récupérée avec succès.");
-		logger.debug("Récupération réussie de {} dossiers médicaux.", medicalrecordList.size());
-		return ResponseEntity.ok(medicalrecordList);
+	    logger.info("Requête GET pour récupérer tous les dossiers médicaux.");
+	    List<Medicalrecord> medicalrecordList = medicalrecordService.getAllMedicalrecord();
+	    logger.info("La liste des dossiers médicaux a été récupérée avec succès.");
+	    logger.debug("Récupération réussie de {} dossiers médicaux.", medicalrecordList.size());
+	    return ResponseEntity.ok(medicalrecordList);
 	}
 
 	/**
-	 * Ajoute un novueau dossier médical.
-	 * 
+	 * Ajoute un nouveau dossier médical.
 	 * <p>
 	 * Cette méthode permet d'ajouter un nouveau dossier médical dans le système à
 	 * partir de l'endpoint /medicalrecords.
@@ -73,57 +72,56 @@ public class MedicalRecordController {
 	 *
 	 * @param newMedicalrecord le dossier médical à ajouter.
 	 * @return ResponseEntity contenant un message de réussite en cas de succès ou
-	 *         un message d'erreur en cas d'echec.
+	 *         un message d'erreur en cas d'échec.
 	 */
 	@PostMapping("/medicalrecords")
 	public ResponseEntity<String> addMedicalrecord(@RequestBody Medicalrecord newMedicalrecord) {
-		logger.info("Requête POST pour ajouter un nouveau dossier médical : {}", newMedicalrecord);
-		medicalrecordService.addMedicalrecord(newMedicalrecord);
-		logger.info("Ajout réussi du dossier médical.");
-		logger.debug("Le dossier médical {} a été ajouté avec succès", newMedicalrecord);
-		return ResponseEntity.status(HttpStatus.CREATED).body("Le medicalrecord a été ajouté avec succès.");
+	    logger.info("Requête POST pour ajouter un nouveau dossier médical : {}", newMedicalrecord);
+	    medicalrecordService.addMedicalrecord(newMedicalrecord);
+	    logger.info("Ajout réussi du dossier médical.");
+	    logger.debug("Le dossier médical {} a été ajouté avec succès", newMedicalrecord);
+	    return ResponseEntity.status(HttpStatus.CREATED).body("Le dossier médical a été ajouté avec succès.");
 	}
 
 	/**
 	 * Supprime un dossier médical.
-	 * 
 	 * <p>
-	 * Cette méthode permet de supprimer un dossier médical du systeme à partir de
-	 * ses données existante à l'endpoint /medicalrecords.
+	 * Cette méthode permet de supprimer un dossier médical du système à partir de
+	 * l'endpoint /medicalrecords.
 	 * </p>
 	 *
 	 * @param deletedMedicalrecord le dossier médical à supprimer.
 	 * @return ResponseEntity contenant un message de réussite en cas de succès ou
-	 *         un message d'erreur en cas d'echec.
+	 *         un message d'erreur en cas d'échec.
 	 */
 	@DeleteMapping("/medicalrecords")
 	public ResponseEntity<String> deleteMedicalrecord(@RequestBody Medicalrecord deletedMedicalrecord) {
-		logger.info("Requête DELETE pour supprimer un dossier médical : {}", deletedMedicalrecord);
-		medicalrecordService.deleteMedicalrecord(deletedMedicalrecord);
-		logger.info("Suppression réussie du dossier médical.");
-		logger.debug("Le dossier médical {} a été supprimé avec succès", deletedMedicalrecord);
-		return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Le medicalrecord a été supprimé avec succès.");
+	    logger.info("Requête DELETE pour supprimer un dossier médical : {}", deletedMedicalrecord);
+	    medicalrecordService.deleteMedicalrecord(deletedMedicalrecord);
+	    logger.info("Suppression réussie du dossier médical.");
+	    logger.debug("Le dossier médical {} a été supprimé avec succès", deletedMedicalrecord);
+	    return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Le dossier médical a été supprimé avec succès.");
 	}
 
 	/**
 	 * Met à jour un dossier médical.
-	 * 
 	 * <p>
-	 * Cette méthode met à jour un dossier médical existant à partir de l'endpoint
-	 * /medicalrecord.
+	 * Cette méthode permet de mettre à jour un dossier médical existant à partir de
+	 * l'endpoint /medicalrecords.
 	 * </p>
 	 * 
 	 * @param updatedMedicalrecord le dossier médical contenant les nouvelles
 	 *                             informations.
 	 * @return ResponseEntity contenant un message de réussite en cas de succès ou
-	 *         un message d'erreur en cas d'echec.
+	 *         un message d'erreur en cas d'échec.
 	 */
 	@PutMapping("/medicalrecords")
 	public ResponseEntity<String> updateMedicalrecord(@RequestBody Medicalrecord updatedMedicalrecord) {
-		logger.info("Requête PUT pour mettre à jour un dossier médical : {}", updatedMedicalrecord);
-		medicalrecordService.updateMedicalrecord(updatedMedicalrecord);
-		logger.info("Mise à jour réussie du dossier médical.");
-		logger.debug("Le dossier médical {} a été mise à jour avec succès", updatedMedicalrecord);
-		return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Le medicalrecord a été modifié avec succès.");
+	    logger.info("Requête PUT pour mettre à jour un dossier médical : {}", updatedMedicalrecord);
+	    medicalrecordService.updateMedicalrecord(updatedMedicalrecord);
+	    logger.info("Mise à jour réussie du dossier médical.");
+	    logger.debug("Le dossier médical {} a été mis à jour avec succès", updatedMedicalrecord);
+	    return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Le dossier médical a été modifié avec succès.");
 	}
+
 }

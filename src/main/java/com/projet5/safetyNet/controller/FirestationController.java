@@ -45,14 +45,13 @@ public class FirestationController {
 		this.firestationService = firestationService;
 	}
 
+
 	/**
-	 * Récupère la liste complète des casernes de pompiers.
-	 * 
-	 * Cette méthode retourne une liste de toutes les casernes de pompiers
-	 * existantes dans le système à partir du endpoint /firestation.
-	 * 
-	 * @return ResponseEntity contenant la liste des casernes de pompiers en cas de
-	 *         succès ou un message d'erreur en cas de problème.
+	 * Récupère la liste de toutes les casernes de pompiers.
+	 *
+	 * Cette méthode appelle le service pour obtenir toutes les casernes de pompiers et renvoie la liste dans une réponse HTTP avec un statut 200 OK.
+	 *
+	 * @return une réponse HTTP contenant la liste des casernes de pompiers
 	 */
 	@GetMapping("/firestations")
 	public ResponseEntity<List<Firestation>> getAllFireStation() {
@@ -61,17 +60,14 @@ public class FirestationController {
 			return ResponseEntity.ok(firestations);
 	}
 
+
 	/**
 	 * Ajoute une nouvelle caserne de pompiers.
-	 * <p>
-	 * Cette méthode permet d'ajouter une nouvelle caserne dans le système à partir
-	 * de l'endpoint /firestation.
-	 * </p>
-	 * 
-	 * @param newFirestation la caserne à ajouter
-	 * @return ResponseEntity contenant un message de succès en cas de réussite ou
-	 *         un message d'erreur en cas d'échec.
-	 * 
+	 *
+	 * Cette méthode accepte une requête POST contenant une nouvelle caserne à ajouter. Elle appelle le service pour l'ajouter, puis renvoie une réponse HTTP indiquant que la caserne a été ajoutée avec succès.
+	 *
+	 * @param newFirestation l'objet Firestation à ajouter
+	 * @return une réponse HTTP avec un statut 201 CREATED et un message de confirmation
 	 */
 	@PostMapping("/firestation")
 	public ResponseEntity<String> addFirestation(@RequestBody Firestation newFirestation) {
@@ -82,16 +78,14 @@ public class FirestationController {
 			return ResponseEntity.status(HttpStatus.CREATED).body("La caserne a été ajoutée avec succès !");
 	}
 
+
 	/**
 	 * Supprime une caserne de pompiers.
-	 * <p>
-	 * Cette méthode permet de supprimer une caserne existante à partir de ses
-	 * informations à l'endpoint /firestation.
-	 * </p>
 	 *
-	 * @param deletedFirestation la caserne à supprimer
-	 * @return ResponseEntity contenant un message de succès en cas de réussite ou
-	 *         un message d'erreur en cas d'échec.
+	 * Cette méthode accepte une requête DELETE contenant une caserne à supprimer. Elle appelle le service pour supprimer la caserne, puis renvoie une réponse HTTP indiquant que la caserne a été supprimée avec succès.
+	 *
+	 * @param deletedFirestation l'objet Firestation à supprimer
+	 * @return une réponse HTTP avec un statut 204 NO_CONTENT et un message de confirmation
 	 */
 	@DeleteMapping("/firestation")
 	public ResponseEntity<String> deleteFirestation(@RequestBody Firestation deletedFirestation) {
@@ -103,15 +97,12 @@ public class FirestationController {
 	}
 
 	/**
-	 * Met à jour une caserne de pompiers existante.
-	 * <p>
-	 * Cette méthode permet de mettre à jour les informations d'une caserne
-	 * existante dans le système.
-	 * </p>
+	 * Met à jour les informations d'une caserne de pompiers.
 	 *
-	 * @param updatedFirestation la caserne avec les nouvelles informations
-	 * @return ResponseEntity contenant un message de succès en cas de réussite ou
-	 *         un message d'erreur en cas d'échec.
+	 * Cette méthode accepte une requête PUT contenant les informations mises à jour d'une caserne. Elle appelle le service pour effectuer la mise à jour, puis renvoie une réponse HTTP indiquant que la caserne a été modifiée avec succès.
+	 *
+	 * @param updatedFirestation l'objet Firestation avec les nouvelles informations
+	 * @return une réponse HTTP avec un statut 204 NO_CONTENT et un message de confirmation
 	 */
 	@PutMapping("/firestation")
 	public ResponseEntity<String> updateFirestation(@RequestBody Firestation updatedFirestation) {
@@ -122,20 +113,15 @@ public class FirestationController {
 	}
 
 	/**
-	 * Récupère les noms et numéros de téléphone des personnes couvertes par une
-	 * caserne donnée.
-	 * <p>
-	 * Cette méthode prend un numéro de station en paramètre et retourne une liste
-	 * de personnes associées à la caserne spécifiée à partir de l'endpoint
-	 * /firestation.
-	 * </p>
+	 * Recherche les personnes associées à une caserne de pompiers en fonction du numéro de station.
 	 *
-	 * @param stationNumber le numéro de la caserne.
-	 * @return ResponseEntity contenant une liste de personnes associées à la
-	 *         caserne en cas de succès ou un message d'erreur en cas d'echec.
+	 * Cette méthode récupère la liste des personnes associées à une caserne donnée, en fonction du numéro de station, et renvoie une réponse HTTP contenant cette liste.
+	 *
+	 * @param stationNumber le numéro de la station pour rechercher les personnes associées
+	 * @return une réponse HTTP contenant la liste des personnes associées à la caserne
 	 */
 	@GetMapping("/firestation")
-	public ResponseEntity<?> personFromFirestation(@RequestParam String stationNumber) {
+	public ResponseEntity<List<String>> personFromFirestation(@RequestParam String stationNumber) {
 		logger.info("Recherche des personnes associées à la caserne : {}", stationNumber);
 		List<String> persons = firestationService.personFromStationNumber(stationNumber);
 		logger.info("La liste des personnes associées à la caserne a été récupérée avec succès");
@@ -144,27 +130,30 @@ public class FirestationController {
 	}
 
 	/**
-	 * Récupère les numéros de téléphone des personnes couverte par la caserne
-	 * donnée.
+	 * Récupère la liste des numéros de téléphone associés à une caserne de pompiers spécifiée.
 	 * 
-	 * <p>
-	 * Cette Méthode prend en paramètre un numéro de station et retourne une liste
-	 * de String contenant les numéro de téléphone des personnes associées à la
-	 * caserne à partir de l'endpoint /phoneAlert.
-	 * </p>
+	 * Cette méthode interroge le service `firestationService` pour obtenir la liste des numéros de téléphone 
+	 * des personnes associées à la caserne dont le numéro est fourni en paramètre.
+	 * Si la liste est vide, une réponse HTTP avec un statut 204 (No Content) est renvoyée. 
+	 * Si une erreur interne survient, une réponse avec un statut 500 (Internal Server Error) est retournée.
 	 * 
-	 * @param station le numéro de la caserne
-	 * @return ResponseEntity contenant une liste de numéro de téléphone des
-	 *         personnes associées à la caserne en cas de succès ou un message
-	 *         d'erreur en cas d'echec.
+	 * @param station Le numéro de la caserne pour laquelle les numéros de téléphone sont récupérés.
+	 * @return ResponseEntity<?> La réponse contenant la liste des numéros de téléphone si elle est disponible, 
+	 *         ou un statut d'erreur approprié en cas de problème.
+	 *         - Si la liste des numéros est trouvée et non vide, un statut HTTP 200 (OK) avec la liste des numéros.
+	 *         - Si la liste est vide, un statut HTTP 204 (No Content) est retourné.
+	 *         - Si une erreur interne se produit, un statut HTTP 500 (Internal Server Error) est retourné.
 	 */
 	@GetMapping("/phoneAlert")
-	public ResponseEntity<?> personToAlert(@RequestParam String station) {
-		logger.info("Recherche des numéros de téléphone associés à la caserne : {}", station);
-		List<String> phoneListAlert = firestationService.phoneAlert(station);
-		logger.info("La liste des numéros de téléphone selon le numéro de station a été récupérée avec succès.");
-		logger.debug("Liste des numéros de téléphone associés à la caserne {} : {}", station, phoneListAlert);
-		return ResponseEntity.ok(phoneListAlert);
+	public ResponseEntity<List<String>> personToAlert(@RequestParam String station) {
+	    logger.info("Recherche des numéros de téléphone associés à la caserne : {}", station);
+	    
+	    List<String> phoneListAlert = firestationService.phoneAlert(station);
+	    
+	    logger.info("La liste des numéros de téléphone selon le numéro de station a été récupérée avec succès.");
+	    logger.debug("Liste des numéros de téléphone associés à la caserne {} : {}", station, phoneListAlert);
+	    return ResponseEntity.ok(phoneListAlert);
 	}
+
 
 }

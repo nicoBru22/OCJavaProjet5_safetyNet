@@ -69,8 +69,9 @@ public class MedicalrecordControllerUnitTest {
 				.contentType(MediaType.APPLICATION_JSON).content(medicalrecord1Json)).andExpect(status().isCreated())
 				.andReturn();
 
-		String expectedResult = "Le medicalrecord a été ajouté avec succès.";
+		String expectedResult = "Le dossier médical a été ajouté avec succès.";
 		String actualResult = result.getResponse().getContentAsString();
+		
 		assertEquals(expectedResult, actualResult);
 	}
 
@@ -89,7 +90,7 @@ public class MedicalrecordControllerUnitTest {
 				.contentType(MediaType.APPLICATION_JSON).content(medicalrecord1Json)).andExpect(status().isNoContent())
 				.andReturn();
 
-		String expectedResult = "Le medicalrecord a été supprimé avec succès.";
+		String expectedResult = "Le dossier médical a été supprimé avec succès.";
 		String actualResult = result.getResponse().getContentAsString();
 		assertEquals(expectedResult, actualResult);
 	}
@@ -109,7 +110,7 @@ public class MedicalrecordControllerUnitTest {
 				.contentType(MediaType.APPLICATION_JSON).content(medicalrecord1Json)).andExpect(status().isNoContent())
 				.andReturn();
 
-		String expectedResult = "Le medicalrecord a été modifié avec succès.";
+		String expectedResult = "Le dossier médical a été modifié avec succès.";
 		String actualResult = result.getResponse().getContentAsString();
 		assertEquals(expectedResult, actualResult);
 	}
@@ -122,7 +123,7 @@ public class MedicalrecordControllerUnitTest {
 				.andExpect(status().isInternalServerError()).andReturn();
 
 		String actualResponse = result.getResponse().getContentAsString();
-		String expectedResponse = "Erreur dans la récupération de la liste des dossiers médicaux.";
+		String expectedResponse = "Une erreur interne est survenue.";
 
 		assertTrue(actualResponse.contains(expectedResponse));
 	}
@@ -142,7 +143,7 @@ public class MedicalrecordControllerUnitTest {
 				.andExpect(status().isInternalServerError()).andReturn();
 
 		String actualResponse = result.getResponse().getContentAsString();
-		String expectedResponse = "Erreur dans l'ajout d'un nouveau medicalrecord.";
+		String expectedResponse = "Une erreur interne est survenue.";
 
 		assertTrue(actualResponse.contains(expectedResponse));
 	}
@@ -162,7 +163,7 @@ public class MedicalrecordControllerUnitTest {
 				.andExpect(status().isInternalServerError()).andReturn();
 
 		String actualResponse = result.getResponse().getContentAsString();
-		String expectedResponse = "Erreur lors de la suppression du medicalrecord.";
+		String expectedResponse = "Une erreur interne est survenue.";
 
 		assertTrue(actualResponse.contains(expectedResponse));
 	}
@@ -182,7 +183,7 @@ public class MedicalrecordControllerUnitTest {
 				.andExpect(status().isInternalServerError()).andReturn();
 
 		String actualResponse = result.getResponse().getContentAsString();
-		String expectedResponse = "Erreur lors de la modification du medicalrecord.";
+		String expectedResponse = "Une erreur interne est survenue.";
 
 		assertTrue(actualResponse.contains(expectedResponse));
 	}

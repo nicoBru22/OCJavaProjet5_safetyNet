@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import com.projet5.safetyNet.Exception.InvalidRequestException;
+import com.projet5.safetyNet.Exception.MedicalRecordExistException;
 import com.projet5.safetyNet.Exception.MedicalrecordNotFoundException;
 import com.projet5.safetyNet.model.Medicalrecord;
 import com.projet5.safetyNet.repository.MedicalrecordRepository;
@@ -46,18 +47,13 @@ public class MedicalrecordService {
 	}
 
 	/**
-	 * Récupère la liste des dossiers médicaux.
-	 * 
-	 * <p>
-	 * Cette méthode permet de récupérer la liste de tous les dossiers médicaux.
-	 * Elle vérifie si la liste est vide et, si c'est le cas, renvoie une liste
-	 * vide. En cas de succès, la liste des dossiers médicaux est retournée.
-	 * </p>
-	 * 
-	 * @return Une liste contenant les objets {@link Medicalrecord}. Si aucun
-	 *         dossier médical n'est trouvé, une liste vide est retournée.
-	 * @throws RuntimeException Si une erreur se produit lors de la récupération des
-	 *                          dossiers médicaux depuis le repository.
+	 * Récupération de la liste des dossiers médicaux.
+	 *
+	 * Cette méthode retourne l'ensemble des dossiers médicaux enregistrés. 
+	 * Elle journalise l'opération et avertit si aucun dossier médical n'est disponible.
+	 *
+	 * @return une liste de {@code Medicalrecord}, pouvant être vide si aucun dossier médical n'est trouvé.
+	 * @see MedicalrecordRepository#getAllMedicalrecord()
 	 */
 	public List<Medicalrecord> getAllMedicalrecord() {
 		logger.info("Récupération de la liste des dossiers médicaux.");
@@ -71,22 +67,14 @@ public class MedicalrecordService {
 
 	/**
 	 * Ajoute un nouveau dossier médical.
-	 * 
-	 * <p>
-	 * Cette méthode permet d'ajouter un nouveau dossier médical à partir des
-	 * données passées en paramètre. Elle vérifie que les champs obligatoires
-	 * (prénom, nom et date de naissance) ne sont ni nuls ni vides avant de procéder
-	 * à la vérification de la présence du dossier dans le systeme avant de pouvoir
-	 * l'ajouter.
-	 * </p>
-	 * 
-	 * @param newMedicalrecord L'objet {@link Medicalrecord} à ajouter.
-	 * @throws IllegalArgumentException Si les champs prénom, nom ou date de
-	 *                                  naissance sont invalides.
-	 * @throws RuntimeException         Si une erreur se produit lors de l'ajout du
-	 *                                  dossier médical.
-	 * @throws Exception                si un dossier médical existe déjà pour la
-	 *                                  personne donnée.
+	 *
+	 * Cette méthode vérifie la validité des informations du dossier médical avant de l'ajouter. 
+	 * Elle s'assure que les champs prénom, nom et date de naissance sont renseignés, 
+	 * et qu'aucun dossier médical identique n'existe déjà dans la base de données.
+	 *
+	 * @param newMedicalrecord le dossier médical à ajouter
+	 * @throws InvalidRequestException si le prénom, le nom ou la date de naissance est manquant
+	 * @throws MedicalRecordExistException si un dossier médical existe déjà pour cette personne
 	 */
 	public void addMedicalrecord(Medicalrecord newMedicalrecord) {
 		if (newMedicalrecord.getFirstName() == null || newMedicalrecord.getFirstName().isEmpty()
@@ -105,7 +93,7 @@ public class MedicalrecordService {
 		if (isExist) {
 			logger.error("Un dossier médical existe déjà pour {} {} {}", newMedicalrecord.getFirstName(),
 					newMedicalrecord.getLastName(), newMedicalrecord.getBirthdate());
-			throw new MedicalrecordNotFoundException("Un dossier médical existe déjà pour cette personne.");
+			throw new MedicalRecordExistException("Un dossier médical existe déjà pour cette personne.");
 		}
 
 		logger.info("Ajout d'un nouveau dossier médical pour {} {}.", newMedicalrecord.getFirstName(),
@@ -116,21 +104,15 @@ public class MedicalrecordService {
 	}
 
 	/**
-	 * Supprime un dossier médical existant.
-	 * 
-	 * <p>
-	 * Cette méthode permet de supprimer un dossier médical existant à partir des
-	 * informations contenues dans le paramètre. Elle vérifie que les champs prénom
-	 * et nom ne sont pas nuls et que le dossier médical existe avant de procéder à
-	 * sa suppression.
-	 * </p>
-	 * 
-	 * @param deletedMedicalrecord L'objet {@link Medicalrecord} à supprimer.
-	 * @throws IllegalArgumentException Si les champs prénom ou nom sont invalides.
-	 * @throws RuntimeException         Si une erreur se produit lors de la
-	 *                                  suppression du dossier médical.
-	 * @throws Exception                si le dossier médical n'existe pas pour la
-	 *                                  personne donnée.
+	 * Supprime un dossier médical.
+	 *
+	 * Cette méthode vérifie la validité des informations fournies avant de supprimer 
+	 * le dossier médical correspondant. Elle s'assure que les champs prénom et nom 
+	 * sont renseignés et que le dossier médical existe dans la base de données.
+	 *
+	 * @param deletedMedicalrecord le dossier médical à supprimer
+	 * @throws InvalidRequestException si le prénom ou le nom est manquant
+	 * @throws MedicalrecordNotFoundException si aucun dossier médical correspondant n'est trouvé
 	 */
 	public void deleteMedicalrecord(Medicalrecord deletedMedicalrecord) {
 		if (deletedMedicalrecord.getFirstName() == null || deletedMedicalrecord.getFirstName().isEmpty()
@@ -160,21 +142,14 @@ public class MedicalrecordService {
 
 	/**
 	 * Met à jour un dossier médical existant.
-	 * 
-	 * <p>
-	 * Cette méthode permet de mettre à jour un dossier médical existant à partir
-	 * des données fournies en paramètre. Elle vérifie si les champs prénom et nom
-	 * ne sont pas nuls, et si le dossier médical existe en base de données avant de
-	 * procéder à sa mise à jour.
-	 * </p>
-	 * 
-	 * @param updatedMedicalrecord L'objet {@link Medicalrecord} contenant les
-	 *                             nouvelles informations.
-	 * @throws IllegalArgumentException Si les champs prénom ou nom sont invalides.
-	 * @throws RuntimeException         Si une erreur se produit lors de la mise à
-	 *                                  jour du dossier médical.
-	 * @throws Exception                si le dossier médical n'existe pas pour la
-	 *                                  personne donnée.
+	 *
+	 * Cette méthode vérifie la validité des informations fournies avant de procéder 
+	 * à la mise à jour du dossier médical correspondant. Elle s'assure que les champs 
+	 * prénom et nom sont renseignés et que le dossier médical existe dans la base de données.
+	 *
+	 * @param updatedMedicalrecord le dossier médical mis à jour
+	 * @throws InvalidRequestException si le prénom ou le nom est manquant
+	 * @throws MedicalrecordNotFoundException si aucun dossier médical correspondant n'est trouvé
 	 */
 	public void updateMedicalrecord(Medicalrecord updatedMedicalrecord) {
 		if (updatedMedicalrecord.getFirstName() == null || updatedMedicalrecord.getFirstName().isEmpty()

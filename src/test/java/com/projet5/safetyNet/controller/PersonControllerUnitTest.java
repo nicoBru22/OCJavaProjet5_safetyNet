@@ -197,7 +197,7 @@ public class PersonControllerUnitTest {
     			.andReturn();
     	
     	String actualResponse = result.getResponse().getContentAsString();
-    	String expectedResponse = "Erreur lors de la récupération des personnes.";
+    	String expectedResponse = "Une erreur interne est survenue.";
     	
     	assertTrue(actualResponse.contains(expectedResponse));
     }
@@ -217,7 +217,7 @@ public class PersonControllerUnitTest {
     			.andReturn();
     	
     	String actualResponse = result.getResponse().getContentAsString();
-    	String expectedResponse = "Erreur lors de l'ajout d'une nouvelle personne";
+    	String expectedResponse = "Une erreur interne est survenue.";
     	
     	assertTrue(actualResponse.contains(expectedResponse));
     }
@@ -237,13 +237,13 @@ public class PersonControllerUnitTest {
     			.andReturn();
     	
     	String actualResponse = result.getResponse().getContentAsString();
-    	String expectedResponse = "Erreur lors de la suppression de la personne.";
+    	String expectedResponse = "Une erreur interne est survenue.";
     	
     	assertTrue(actualResponse.contains(expectedResponse));
     }
     
     @Test
-    void testUpdateersonError() throws Exception {
+    void testUpdatePersonError() throws Exception {
 		Person updatedPerson1 = new Person("Nicolas", "Brunet", "addressTest", "cityTest", "zipTest", "123456789",
 				"email@test.fr");
 		String updatedPerson1Json = new ObjectMapper().writeValueAsString(updatedPerson1);
@@ -257,7 +257,7 @@ public class PersonControllerUnitTest {
     			.andReturn();
     	
     	String actualResponse = result.getResponse().getContentAsString();
-    	String expectedResponse = "Erreur lors de la mise à jour de la personne.";
+    	String expectedResponse = "Une erreur interne est survenue.";
     	
     	assertTrue(actualResponse.contains(expectedResponse));
     }
@@ -266,7 +266,7 @@ public class PersonControllerUnitTest {
     void testGetCommunityEmailError() throws Exception {
     	String city = "SaintMalo";
     	
-    	doThrow(new Exception("Erreur simulée")).when(personService).getCommunityEmail(city);
+    	doThrow(new RuntimeException("Erreur simulée")).when(personService).getCommunityEmail(city);
     	
     	MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/communityEmail")
     			.param("city", city))
@@ -274,7 +274,7 @@ public class PersonControllerUnitTest {
     			.andReturn();
     	
     	String actualResponse = result.getResponse().getContentAsString();
-    	String expectedResponse = "Une erreur s'est produite lors de la récupération des adresses mails.";
+    	String expectedResponse = "Une erreur interne est survenue.";
     	
     	assertTrue(actualResponse.contains(expectedResponse));
     	
@@ -284,7 +284,7 @@ public class PersonControllerUnitTest {
     void testGetChildAlertError() throws Exception {
     	String address = "SaintMalo";
     	
-    	doThrow(new Exception("Erreur simulée")).when(personService).getChildListFromAddress(address);
+    	doThrow(new RuntimeException("Erreur simulée")).when(personService).getChildListFromAddress(address);
     	
     	MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/childAlert")
     			.param("address", address))
@@ -292,7 +292,7 @@ public class PersonControllerUnitTest {
     			.andReturn();
     	
     	String actualResponse = result.getResponse().getContentAsString();
-    	String expectedResponse = "Erreur lors de la récupération de la liste d'enfant.";
+    	String expectedResponse = "Une erreur interne est survenue.";
     	
     	assertTrue(actualResponse.contains(expectedResponse));
     	
@@ -302,7 +302,7 @@ public class PersonControllerUnitTest {
     void testPersonInfoError() throws Exception {
     	String lastName = "Brunet";
     	
-    	doThrow(new Exception("Erreur simulée.")).when(personService).personInfo(lastName);
+    	doThrow(new RuntimeException("Erreur simulée.")).when(personService).personInfo(lastName);
     	
     	MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/personInfolastName")
     			.param("lastName", lastName))
@@ -310,7 +310,7 @@ public class PersonControllerUnitTest {
     			.andReturn();
     	
     	String actualResponse = result.getResponse().getContentAsString();
-    	String expectedResponse = "Une erreur est survenue dans la récupération de la liste d'information des personnes";
+    	String expectedResponse = "Une erreur interne est survenue.";
     	
     	assertTrue(actualResponse.contains(expectedResponse));
     }

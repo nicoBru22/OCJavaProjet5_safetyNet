@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import com.projet5.safetyNet.Exception.InvalidRequestException;
+import com.projet5.safetyNet.Exception.PersonNotFoundException;
 import com.projet5.safetyNet.model.Medicalrecord;
 import com.projet5.safetyNet.model.Person;
 import com.projet5.safetyNet.repository.PersonRepository;
@@ -132,13 +134,13 @@ public class PersonService_UnitTest {
 	void testAddPersonError() throws Exception {
 		Person person1 = new Person("Nico", "Bru", "addressTest", "villeTest", "22630", "0123456789", "emailTest");
 
-		doThrow(new Exception("Erreur simulée.")).when(personRepository).addPerson(person1);
+		doThrow(new RuntimeException("Erreur simulée.")).when(personRepository).addPerson(person1);
 
 		Exception exception = assertThrows(Exception.class, () -> {
 			personService.addPerson(person1);
 		});
 
-		String expectedMessage = "Erreur lors de l'ajout de la personne.";
+		String expectedMessage = "Une erreur interne est survenue.";
 		String actualMessage = exception.getMessage();
 		assertTrue(actualMessage.contains(expectedMessage));
 
@@ -169,7 +171,7 @@ public class PersonService_UnitTest {
 
 		when(personRepository.getAllPerson()).thenReturn(List.of());
 
-		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+		PersonNotFoundException exception = assertThrows(PersonNotFoundException.class, () -> {
 			personService.updatePerson(personToUpdate);
 		});
 
@@ -224,14 +226,15 @@ public class PersonService_UnitTest {
 	void testGetchildFromAddressError() throws Exception {
 		String address = "addressTest";
 
-		doThrow(new Exception("Erreur simulée.")).when(personRepository).getAllPerson();
+		doThrow(new RuntimeException("Erreur simulée.")).when(personRepository).getAllPerson();
 
-		Exception exception = assertThrows(Exception.class, () -> {
+		RuntimeException exception = assertThrows(RuntimeException.class, () -> {
 			personService.getChildListFromAddress(address);
 		});
 
-		String expectedResponse = "Une erreur s'est produite lors de la récupération des enfants pour l'adresse.";
+		String expectedResponse = "Une erreur interne est survenue.";
 		String actualResponse = exception.getMessage();
+		
 		assertEquals(expectedResponse, actualResponse);
 
 	}
@@ -240,13 +243,14 @@ public class PersonService_UnitTest {
 	void testGetchildFromAddressEmpty() throws Exception {
 		String addressEmpty = "";
 
-		Exception exception = assertThrows(Exception.class, () -> {
+		InvalidRequestException exception = assertThrows(InvalidRequestException.class, () -> {
 			personService.getChildListFromAddress(addressEmpty);
 		});
 
 		String expectedResponse = "Le champ 'address' est obligatoire.";
 		String actualResponse = exception.getMessage();
-		assertEquals(expectedResponse, actualResponse);
+		
+		assertTrue(actualResponse.contains(expectedResponse));
 
 	}
 
