@@ -7,7 +7,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Repository;
 
-import com.projet5.safetyNet.Exception.FirestationDeletedException;
 import com.projet5.safetyNet.Exception.FirestationExistingException;
 import com.projet5.safetyNet.Exception.FirestationNotFoundException;
 import com.projet5.safetyNet.model.DataModel;
@@ -87,10 +86,6 @@ public class FirestationRepository {
 	 * @throws FirestationExistingException si la caserne existe déjà
 	 */
 	public void addFirestation(Firestation newFirestation) {
-		if(firestationList.contains(newFirestation)) {
-			logger.error("La firestation existe déjà : {}", newFirestation);
-			throw new FirestationExistingException("La firestation existe déjà.");
-		}
 		firestationList.add(newFirestation);
 		dataModel.setFireStations(firestationList);
 		dataRepository.writeFile(dataModel);
@@ -109,12 +104,8 @@ public class FirestationRepository {
 	 * @throws FirestationDeletedException si la caserne n'a pas pu être supprimée
 	 */
 	public void deleteFirestation(Firestation deletedFirestation) {
-		boolean firestationDeleted = firestationList.removeIf(firestation -> firestation.getAddress().equals(deletedFirestation.getAddress())
+		firestationList.removeIf(firestation -> firestation.getAddress().equals(deletedFirestation.getAddress())
 				&& firestation.getStation().equals(deletedFirestation.getStation()));
-		if(!firestationDeleted) {
-			logger.error("La firestation {} n'a pas été supprimée.", deletedFirestation);
-			throw new FirestationDeletedException("La firestation n'a pas été supprimée : "+ deletedFirestation);
-		}
 		dataModel.setFireStations(firestationList);
 		dataRepository.writeFile(dataModel);
 		logger.info("Caserne supprimée avec succès ");
@@ -134,12 +125,6 @@ public class FirestationRepository {
 	    Optional<Firestation> firestationOptional = firestationList.stream()
 	            .filter(firestation -> firestation.getAddress().equalsIgnoreCase(updatedFirestation.getAddress()))
 	            .findFirst();
-	    
-	    if (!firestationOptional.isPresent()) {
-
-	        logger.error("Caserne non trouvée pour mise à jour : {}.", updatedFirestation);
-	        throw new FirestationNotFoundException("Caserne non trouvée pour mise à jour : " + updatedFirestation);
-	    }
         Firestation existingFirestation = firestationOptional.get();
         firestationList.set(firestationList.indexOf(existingFirestation), updatedFirestation);
         dataModel.setFireStations(firestationList);

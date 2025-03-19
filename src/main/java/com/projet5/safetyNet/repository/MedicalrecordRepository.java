@@ -6,8 +6,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Repository;
 
-import com.projet5.safetyNet.Exception.MedicalrecordAdditionException;
-import com.projet5.safetyNet.Exception.MedicalrecordDeletionException;
 import com.projet5.safetyNet.Exception.MedicalrecordNotFoundException;
 import com.projet5.safetyNet.model.DataModel;
 import com.projet5.safetyNet.model.Medicalrecord;
@@ -105,11 +103,7 @@ public class MedicalrecordRepository {
 	 */
 	public void addMedicalrecord(Medicalrecord newMedicalrecord) {
 		logger.debug("Tentative d'ajout du dossier médical : {}", newMedicalrecord);
-		boolean medicalrecordAdded = medicalrecordList.add(newMedicalrecord);
-		if(!medicalrecordAdded) {
-			logger.error("Le Medicalrecord n'a pas pu être ajouté : ", newMedicalrecord);
-			throw new MedicalrecordAdditionException("Le Medicalrecord n'a pas pu être ajouté : "+ newMedicalrecord);
-		}
+		medicalrecordList.add(newMedicalrecord);
 		logger.info("Le dossier médical a été ajouté avec succès.");
 		dataModel.setMedicalrecords(medicalrecordList);
 		dataRepository.writeFile(dataModel);
@@ -129,14 +123,9 @@ public class MedicalrecordRepository {
 	public void deleteMedicalrecord(Medicalrecord deletedMedicalrecord) {
 		logger.debug("Le dossier médical à supprimer : {}", deletedMedicalrecord);
 
-		boolean isRemoved = medicalrecordList.removeIf(
+		medicalrecordList.removeIf(
 				medicalrecord -> medicalrecord.getFirstName().equalsIgnoreCase(deletedMedicalrecord.getFirstName())
 						&& medicalrecord.getLastName().equalsIgnoreCase(deletedMedicalrecord.getLastName()));
-		if (!isRemoved) {
-			logger.error("Le dossier médical de : {} {} n'a pas pu être supprimé.", deletedMedicalrecord.getFirstName(),
-					deletedMedicalrecord.getLastName());
-			throw new MedicalrecordDeletionException("Le Medicalrecord n'a pas pu être supprimé : " + deletedMedicalrecord);
-		}
 		dataModel.setMedicalrecords(medicalrecordList);
 		dataRepository.writeFile(dataModel);
 		logger.info("Le dossier médical a été supprimé avec succès.");
@@ -155,19 +144,13 @@ public class MedicalrecordRepository {
 	 */
 	public void updateMedicalrecord(Medicalrecord updatedMedicalrecord) {
 		logger.debug("Tentative de mise à jour du dossier médical : {}", updatedMedicalrecord);
-		boolean updated = medicalrecordList.stream()
+		medicalrecordList.stream()
 				.filter(medicalrecord -> medicalrecord.getFirstName().equals(updatedMedicalrecord.getFirstName())
 						&& medicalrecord.getLastName().equals(updatedMedicalrecord.getLastName()))
 				.findFirst().map(medicalrecord -> {
 					medicalrecordList.set(medicalrecordList.indexOf(medicalrecord), updatedMedicalrecord);
 					return true;
 				}).orElse(false);
-
-		if (!updated) {
-			logger.error("Le dossier médical de {} {} n'a pas été trouvée", updatedMedicalrecord.getFirstName(),
-					updatedMedicalrecord.getLastName());
-			throw new MedicalrecordNotFoundException("Le dossier médical n'a pas été trouvée");
-		}
 		dataModel.setMedicalrecords(medicalrecordList);
 		dataRepository.writeFile(dataModel);
 		logger.info("Le dossier médical a été mis à jour.");

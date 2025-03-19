@@ -111,9 +111,8 @@ public class FirestationService {
 		List<Firestation> firestations = firestationRepository.getAllFirestations();
 		if (firestations.isEmpty()) {
 			logger.warn("Aucune firestation trouvée.");
-		} else {
-			logger.info("{} firestations récupérées.", firestations.size());
 		}
+		logger.info("{} firestations récupérées.", firestations.size());
 		return firestations;
 	}
 
@@ -137,6 +136,7 @@ public class FirestationService {
 			throw new InvalidRequestException("Les champs adresse et numéro de station sont obligatoires.");
 		}
 		List<Firestation> firestationList = firestationRepository.getAllFirestations();
+		logger.debug("la liste : "+ firestationList);
 		boolean firestationExist = firestationList.stream()
 				.anyMatch(firestation -> firestation.getAddress().equalsIgnoreCase(newFirestation.getAddress())
 						&& firestation.getStation().equalsIgnoreCase(newFirestation.getStation()));

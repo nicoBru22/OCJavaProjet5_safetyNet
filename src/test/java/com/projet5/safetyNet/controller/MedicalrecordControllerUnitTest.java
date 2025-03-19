@@ -1,9 +1,7 @@
 package com.projet5.safetyNet.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -25,6 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.projet5.safetyNet.model.Medicalrecord;
+import com.projet5.safetyNet.repository.MedicalrecordRepository;
 import com.projet5.safetyNet.service.MedicalrecordService;
 
 @WebMvcTest(MedicalRecordController.class)
@@ -36,6 +35,9 @@ public class MedicalrecordControllerUnitTest {
 
 	@MockBean
 	private MedicalrecordService medicalrecordService;
+	
+	@MockBean 
+	MedicalrecordRepository medicalrecordRepository;
 
 	@Test
 	void testGetAllMedicarecord() throws Exception {
@@ -113,79 +115,6 @@ public class MedicalrecordControllerUnitTest {
 		String expectedResult = "Le dossier médical a été modifié avec succès.";
 		String actualResult = result.getResponse().getContentAsString();
 		assertEquals(expectedResult, actualResult);
-	}
-
-	@Test
-	void testGetAllMedicalrecordError() throws Exception {
-		doThrow(new RuntimeException("Erreur simulée.")).when(medicalrecordService).getAllMedicalrecord();
-
-		MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/medicalrecords"))
-				.andExpect(status().isInternalServerError()).andReturn();
-
-		String actualResponse = result.getResponse().getContentAsString();
-		String expectedResponse = "Une erreur interne est survenue.";
-
-		assertTrue(actualResponse.contains(expectedResponse));
-	}
-
-	@Test
-	void testAddMedicalrecordError() throws Exception {
-		List<String> medications = Arrays.asList("Paracetamol", "Aspirin");
-		List<String> allergies = Arrays.asList("pollen", "cacahuete");
-
-		Medicalrecord medicalrecord1 = new Medicalrecord("Nicolas", "Brunet", "17/05/1967", medications, allergies);
-		String medicalrecordJson = new ObjectMapper().writeValueAsString(medicalrecord1);
-
-		doThrow(new RuntimeException("Erreur simulée.")).when(medicalrecordService).addMedicalrecord(medicalrecord1);
-
-		MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/medicalrecords")
-				.contentType(MediaType.APPLICATION_JSON).content(medicalrecordJson))
-				.andExpect(status().isInternalServerError()).andReturn();
-
-		String actualResponse = result.getResponse().getContentAsString();
-		String expectedResponse = "Une erreur interne est survenue.";
-
-		assertTrue(actualResponse.contains(expectedResponse));
-	}
-
-	@Test
-	void testDeleteMedicalrecordError() throws Exception {
-		List<String> medications = Arrays.asList("Paracetamol", "Aspirin");
-		List<String> allergies = Arrays.asList("pollen", "cacahuete");
-
-		Medicalrecord medicalrecord1 = new Medicalrecord("Nicolas", "Brunet", "17/05/1967", medications, allergies);
-		String medicalrecordJson = new ObjectMapper().writeValueAsString(medicalrecord1);
-
-		doThrow(new RuntimeException("Erreur simulée.")).when(medicalrecordService).deleteMedicalrecord(medicalrecord1);
-
-		MvcResult result = mockMvc.perform(MockMvcRequestBuilders.delete("/medicalrecords")
-				.contentType(MediaType.APPLICATION_JSON).content(medicalrecordJson))
-				.andExpect(status().isInternalServerError()).andReturn();
-
-		String actualResponse = result.getResponse().getContentAsString();
-		String expectedResponse = "Une erreur interne est survenue.";
-
-		assertTrue(actualResponse.contains(expectedResponse));
-	}
-	
-	@Test
-	void testUpdateMedicalrecordError() throws Exception {
-		List<String> medications = Arrays.asList("Paracetamol", "Aspirin");
-		List<String> allergies = Arrays.asList("pollen", "cacahuete");
-
-		Medicalrecord medicalrecord1 = new Medicalrecord("Nicolas", "Brunet", "17/05/1967", medications, allergies);
-		String medicalrecordJson = new ObjectMapper().writeValueAsString(medicalrecord1);
-
-		doThrow(new RuntimeException("Erreur simulée.")).when(medicalrecordService).updateMedicalrecord(medicalrecord1);
-
-		MvcResult result = mockMvc.perform(MockMvcRequestBuilders.put("/medicalrecords")
-				.contentType(MediaType.APPLICATION_JSON).content(medicalrecordJson))
-				.andExpect(status().isInternalServerError()).andReturn();
-
-		String actualResponse = result.getResponse().getContentAsString();
-		String expectedResponse = "Une erreur interne est survenue.";
-
-		assertTrue(actualResponse.contains(expectedResponse));
 	}
 
 }

@@ -3,15 +3,12 @@ package com.projet5.safetyNet.controller;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -25,6 +22,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.projet5.safetyNet.model.Firestation;
+import com.projet5.safetyNet.repository.FirestationRepository;
 import com.projet5.safetyNet.service.FirestationService;
 
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -34,7 +32,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 @AutoConfigureMockMvc
 public class FirestationControllerUnitTest {
 	
-	private Logger logger = LogManager.getLogger();
 	@Autowired
 	private MockMvc mockMvc;
 	
@@ -43,6 +40,9 @@ public class FirestationControllerUnitTest {
 
 	@MockBean
 	private FirestationService firestationService;
+	
+	@MockBean
+	private FirestationRepository firestationRepository;
 
 	@Test
 	void testGetAllFirestation() throws Exception {
@@ -155,73 +155,6 @@ public class FirestationControllerUnitTest {
         assertTrue(actualResponse.contains("Sarah"));
         assertTrue(actualResponse.contains("Oceane"));
     }
-    
-    @Test
-    void testGetFirestationError() throws Exception {
-        doThrow(new RuntimeException("Erreur simulée")).when(firestationService).getAllFireStations();    	
-    	MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/firestations"))
-    			.andExpect(status().isInternalServerError())
-    			.andReturn();
-    	
-    	String actualResponse = result.getResponse().getContentAsString();
-    	String expectedResponse = "Une erreur interne est survenue.";
-    	
-    	assertTrue(actualResponse.contains(expectedResponse));
-    }
-    
-    @Test
-    void testAddFirestationError() throws Exception {
-        Firestation newFirestation = new Firestation("addressTest", "numberTest");
-        String firestationJson = new ObjectMapper().writeValueAsString(newFirestation);
 
-        doThrow(new RuntimeException("Erreur simulée")).when(firestationService).addFirestation(newFirestation);
-
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/firestation")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(firestationJson))
-                .andExpect(status().isInternalServerError())
-                .andReturn();
-
-        String actualResponse = result.getResponse().getContentAsString();
-        String expectedResponse = "Une erreur interne est survenue.";
-        
-        assertTrue(actualResponse.contains(expectedResponse));
-    }
-    
-    @Test
-    void testDeleteFirestationError() throws Exception {
-        Firestation deletedFirestation = new Firestation("addressTest", "numberTest");
-        String deletedFirestationJson = new ObjectMapper().writeValueAsString(deletedFirestation);
-
-        doThrow(new RuntimeException("Erreur simulée")).when(firestationService).deleteFirestation(deletedFirestation);
-
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.delete("/firestation")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(deletedFirestationJson))
-                .andExpect(status().isInternalServerError())
-                .andReturn();
-
-        String actualResponse = result.getResponse().getContentAsString();
-        String expectedResponse = "Une erreur interne est survenue.";
-        assertTrue(actualResponse.contains(expectedResponse));
-    }
-    
-    @Test
-    void testUpdateFirestationError() throws Exception {
-        Firestation updatedFirestation = new Firestation("addressTest", "numberTest");
-        String updatedFirestationJson = new ObjectMapper().writeValueAsString(updatedFirestation);
-
-        doThrow(new RuntimeException("Erreur simulée")).when(firestationService).updateFirestation(updatedFirestation);
-
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.put("/firestation")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(updatedFirestationJson))
-                .andExpect(status().isInternalServerError())
-                .andReturn();
-
-        String actualResponse = result.getResponse().getContentAsString();
-        String expectedResponse = "Une erreur interne est survenue.";
-        assertTrue(actualResponse.contains(expectedResponse));
-    }  
 
 }

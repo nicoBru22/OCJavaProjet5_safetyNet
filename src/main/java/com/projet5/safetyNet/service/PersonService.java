@@ -173,10 +173,6 @@ public class PersonService {
 				"Vérification des champs 'firstName', 'lastName' et 'phone' pour s'assurer qu'ils ne sont pas nuls ou vides.");
 		logger.debug("La personne à vérifier est : " + newPerson);
 		
-		if (newPerson == null) {
-		    throw new InvalidRequestException("La personne à ajouter ne peut pas être nulle.");
-		}
-		
 		if (newPerson.getFirstName() == null || newPerson.getFirstName().isEmpty()
 				|| newPerson.getLastName() == null || newPerson.getLastName().isEmpty()
 				|| newPerson.getPhone() == null || newPerson.getPhone().isEmpty()) {
@@ -356,12 +352,7 @@ public class PersonService {
 	 * @return Une liste de personnes vivant à l'adresse spécifiée.
 	 * @throws InvalidRequestException Si l'adresse fournie est {@code null} ou vide.
 	 */
-	public List<Person> listPersonByAddress(String address) {
-		if (address == null || address.isEmpty()) {
-			logger.error("Le champ 'address' est obligatoire.");
-			throw new InvalidRequestException("Le champ 'address' est obligatoire.");
-		}
-		
+	public List<Person> listPersonByAddress(String address) {		
 		String normalizedAddress = normalizeAddress(address);
 		logger.debug("Adresse normalisée pour la comparaison : {}", normalizedAddress);
 		

@@ -60,18 +60,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
     
-    @ExceptionHandler(PersonDeletionException.class)
-    public ResponseEntity<String> handlePersonDeletionException(PersonDeletionException e) {
-        logger.warn("Erreur lors de la suppression : {}", e.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-    }
-    
-    @ExceptionHandler(PersonAdditionException.class)
-    public ResponseEntity<String> handlePersonAdditionException(PersonAdditionException e) {
-        logger.warn("Erreur lors de l'ajout : {}", e.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-    }
-    
     @ExceptionHandler(PersonExistingException.class)
     public ResponseEntity<String> handlePersonExistingException(PersonExistingException e) {
         logger.warn("Personne déjà existante : {}", e.getMessage());
@@ -80,22 +68,10 @@ public class GlobalExceptionHandler {
     
 // Gestion des exceptions Firestation
     
-    @ExceptionHandler(FirestationDeletedException.class)
-    public ResponseEntity<String> handleFirestationDeletedException(FirestationDeletedException e) {
-        logger.warn("Erreur lors de la suppression de la caserne : {}", e.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-    }
-    
     @ExceptionHandler(FirestationExistingException.class)
     public ResponseEntity<String> handleFirestationExistingException(FirestationExistingException e) {
         logger.warn("Caserne déjà existante : {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-    }
-    
-    @ExceptionHandler(FirestationAdditionException.class)
-    public ResponseEntity<String> handleFirestationAdditionException(FirestationAdditionException e) {
-        logger.warn("Erreur lors de l'ajout de la caserne : {}", e.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
     
     @ExceptionHandler(FirestationNotFoundException.class)
@@ -110,16 +86,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleMedicalrecordNotFoundException(MedicalrecordNotFoundException e) {
     	logger.warn("Medicalrecord non trouvée : {}", e.getMessage());
     	return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-    }
-    
-    @ExceptionHandler(MedicalrecordAdditionException.class)
-    public ResponseEntity<String> handleMedicalrecordAdditionException(MedicalrecordAdditionException e) {
-    	return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-    }
-    
-    @ExceptionHandler(MedicalrecordDeletionException.class)
-    public ResponseEntity<String> handleMedicalrecordDeletionException(MedicalrecordDeletionException e) {
-    	return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
     
     @ExceptionHandler(MedicalRecordExistException.class)

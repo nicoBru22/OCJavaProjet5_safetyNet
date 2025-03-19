@@ -7,8 +7,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Repository;
 
 import com.projet5.safetyNet.Exception.InvalidRequestException;
-import com.projet5.safetyNet.Exception.PersonAdditionException;
-import com.projet5.safetyNet.Exception.PersonDeletionException;
 import com.projet5.safetyNet.Exception.PersonNotFoundException;
 import com.projet5.safetyNet.model.DataModel;
 import com.projet5.safetyNet.model.Person;
@@ -110,12 +108,8 @@ public class PersonRepository {
 		logger.info("Entrée dans la méthode deletePerson() de la class PersonRepository.");
 		logger.info("Vérification et suppression de la personne correspondant aux critères.");
 		logger.debug("La personne prenom: {}, nom: {}, phone: {}", firstName, lastName, phone);
-		boolean isRemoved = personsList.removeIf(person -> person.getFirstName().equalsIgnoreCase(firstName)
+		personsList.removeIf(person -> person.getFirstName().equalsIgnoreCase(firstName)
 				&& person.getLastName().equalsIgnoreCase(lastName) && person.getPhone().equalsIgnoreCase(phone));
-		if (!isRemoved) {
-			logger.error("{} {} n'a pas pu être supprimée.", firstName, lastName);
-			throw new PersonDeletionException("La personne n'a pas pu être supprimée");
-		} 
 		logger.info("La personne a été supprimée. Mise à jour de la liste.");
 		dataModel.setPersonsList(personsList);
 		logger.info("Mise à jour effectuée. Ecriture du document.");
@@ -139,10 +133,7 @@ public class PersonRepository {
 	public void addPerson(Person newPerson){
 		logger.info("Entrée dans la méthode addPerson() de la class PersonRepository.");
 		logger.info("Ajout de la nouvelle personne.");
-		boolean personAdded = personsList.add(newPerson);
-		if(!personAdded) {
-			throw new PersonAdditionException("La personne n'a pas été ajoutée." + newPerson);
-		}
+		personsList.add(newPerson);
 		logger.debug("La nouvelle personne à ajoutée est : {}", newPerson);
 		logger.info("La personne a été ajoutée. Mise à jour de la liste.");
 		dataModel.setPersonsList(personsList);
@@ -170,23 +161,15 @@ public class PersonRepository {
 	public void updatePerson(Person updatedPerson) {
 		logger.info("Entrée dans la méthode updatePerson de la class PersonRepository.");
 		logger.debug("Les données à mettre à jour sont : {}", updatedPerson);
-		if (updatedPerson == null || updatedPerson.getFirstName() == null || updatedPerson.getLastName() == null) {
-			throw new InvalidRequestException("Les informations de la personne à mettre à jour sont invalides.");
-		}
-		boolean isUpdated = false;
+
 		for (int i = 0; i < personsList.size(); i++) {
 			Person person = personsList.get(i);
 			if (person.getFirstName().equalsIgnoreCase(updatedPerson.getFirstName())
 					&& person.getLastName().equalsIgnoreCase(updatedPerson.getLastName())) {
 				logger.info("Mise à jour de la personne à l'index " + i + " : " + updatedPerson);
 				personsList.set(i, updatedPerson);
-				isUpdated = true;
 				break;
 			}
-		}
-		if (!isUpdated) {
-			logger.error("Aucune personne trouvée avec les informations fournies : {} ", updatedPerson);
-			throw new PersonNotFoundException("Cette personne n'existe pas."+ updatedPerson);
 		}
 		dataModel.setPersonsList(personsList);
 		dataRepository.writeFile(dataModel);

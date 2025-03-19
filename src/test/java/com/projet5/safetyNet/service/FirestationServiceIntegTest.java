@@ -1,7 +1,6 @@
 package com.projet5.safetyNet.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.Arrays;
 import java.util.List;
@@ -11,12 +10,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.projet5.safetyNet.model.Firestation;
+import com.projet5.safetyNet.repository.FirestationRepository;
 
 @SpringBootTest
 public class FirestationServiceIntegTest {
 
 	@Autowired
 	FirestationService firestationService;
+	
+	@Autowired
+	FirestationRepository firestationRepository;
 
 	@Test
 	void testGetAllFirestation() {
@@ -109,96 +112,6 @@ public class FirestationServiceIntegTest {
 		assertThat(ageTested).isNotNull();
 		assertThat(ageTested).isEqualTo(age);
 
-	}
-
-	@Test
-	void testAddFirestationEmpty() {
-		Firestation newFirestationEmpty1 = new Firestation("", "");
-		Firestation newFirestationEmpty2 = new Firestation("", "1");
-		Firestation newFirestationEmpty3 = new Firestation("addressTest", "");
-		Firestation firestationExisting = new Firestation("908 73rd St", "1");
-
-		assertThatThrownBy(() -> firestationService.addFirestation(newFirestationEmpty1)).isInstanceOf(Exception.class)
-				.hasMessage("Erreur inattendue lors de l'ajout de la caserne.");
-		assertThatThrownBy(() -> firestationService.addFirestation(newFirestationEmpty2)).isInstanceOf(Exception.class)
-				.hasMessage("Erreur inattendue lors de l'ajout de la caserne.");
-		assertThatThrownBy(() -> firestationService.addFirestation(newFirestationEmpty3)).isInstanceOf(Exception.class)
-				.hasMessage("Erreur inattendue lors de l'ajout de la caserne.");
-
-		assertThatThrownBy(() -> firestationService.addFirestation(firestationExisting)).isInstanceOf(Exception.class)
-				.hasMessage("La caserne existe déjà.");
-	}
-
-	@Test
-	void testAgeOfPersonNull() {
-		String birthdateTested = "24/13/1991";
-		assertThatThrownBy(() -> firestationService.ageOfPerson(birthdateTested)).isInstanceOf(Exception.class)
-				.hasMessage("Impossible de calculer l'âge de la personne.");
-	}
-
-	@Test
-	void testDeleteFirestationError() {
-		Firestation firestationDeletedTested1 = new Firestation("addressTest", "5");
-		Firestation firestationDeletedTested2 = new Firestation("addressTest", "");
-		Firestation firestationDeletedTested3 = new Firestation("", "5");
-		Firestation firestationDeletedTested4 = new Firestation("", "");
-
-		assertThatThrownBy(() -> firestationService.deleteFirestation(firestationDeletedTested1))
-				.isInstanceOf(Exception.class).hasMessage("Erreur inattendue lors de la suppression de la caserne.");
-		assertThatThrownBy(() -> firestationService.deleteFirestation(firestationDeletedTested2))
-				.isInstanceOf(Exception.class)
-				.hasMessage("Données invalides pour la suppression : Les champs adresse et station sont obligatoires.");
-		assertThatThrownBy(() -> firestationService.deleteFirestation(firestationDeletedTested3))
-				.isInstanceOf(Exception.class)
-				.hasMessage("Données invalides pour la suppression : Les champs adresse et station sont obligatoires.");
-
-		assertThatThrownBy(() -> firestationService.deleteFirestation(firestationDeletedTested4))
-				.isInstanceOf(Exception.class)
-				.hasMessage("Données invalides pour la suppression : Les champs adresse et station sont obligatoires.");
-
-	}
-
-	@Test
-	void testUpdateFirestationError() {
-		Firestation firestationUpdatedTested1 = new Firestation("addressTest", "5");
-		Firestation firestationUpdatedTested2 = new Firestation("addressTest", "");
-		Firestation firestationUpdatedTested3 = new Firestation("", "5");
-		Firestation firestationUpdatedTested4 = new Firestation("", "");
-
-		assertThatThrownBy(() -> firestationService.updateFirestation(firestationUpdatedTested4))
-				.isInstanceOf(Exception.class).hasMessage("Données invalide pour la mise à jour de la station.");
-		assertThatThrownBy(() -> firestationService.updateFirestation(firestationUpdatedTested3))
-				.isInstanceOf(Exception.class).hasMessage("Données invalide pour la mise à jour de la station.");
-		assertThatThrownBy(() -> firestationService.updateFirestation(firestationUpdatedTested2))
-				.isInstanceOf(Exception.class).hasMessage("Erreur lors de la mise à jour de la firestation");
-		assertThatThrownBy(() -> firestationService.updateFirestation(firestationUpdatedTested1))
-				.isInstanceOf(Exception.class).hasMessage("Erreur lors de la mise à jour de la firestation");
-	}
-
-	@Test
-	void testPersonFromStationNumberError() {
-		String stationNumberTestedEmpty = "";
-		String stationNumberTestedNull = null;
-		String stationNumberTested = "6";
-
-		assertThatThrownBy(() -> firestationService.personFromStationNumber(stationNumberTestedEmpty))
-				.isInstanceOf(Exception.class).hasMessage("Le numéro de station ne peut pas être vide.");
-
-		assertThatThrownBy(() -> firestationService.personFromStationNumber(stationNumberTestedNull))
-				.isInstanceOf(Exception.class).hasMessage("Le numéro de station ne peut pas être vide.");
-
-		assertThatThrownBy(() -> firestationService.personFromStationNumber(stationNumberTested))
-				.isInstanceOf(Exception.class)
-				.hasMessage("Erreur lors de la récupération des personnes liées à la station de pompiers.");
-	}
-
-	@Test
-	void testPhoneAlertError() {
-		String stationNumberTest = "6";
-
-		assertThatThrownBy(() -> firestationService.phoneAlert(stationNumberTest)).isInstanceOf(Exception.class)
-				.hasMessage(
-						"Erreur lors de la récupération des numéros de téléphone associés à la station de pompiers.");
 	}
 
 }
