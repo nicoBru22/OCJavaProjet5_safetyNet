@@ -68,7 +68,7 @@ public class PersonControllerUnitTest {
 		MvcResult result = mockMvc
 				.perform(MockMvcRequestBuilders.post("/persons").contentType(MediaType.APPLICATION_JSON)
 						.content(personJson))
-				.andExpect(status().isOk())
+				.andExpect(status().isCreated())
 				.andReturn();
 
 		System.out.println(result.getResponse().getContentAsString());
@@ -90,7 +90,7 @@ public class PersonControllerUnitTest {
 
 		MvcResult result = mockMvc.perform(
 				MockMvcRequestBuilders.delete("/persons").contentType(MediaType.APPLICATION_JSON).content(personJson))
-				.andExpect(status().isOk()).andReturn();
+				.andExpect(status().isNoContent()).andReturn();
 
 		// Afficher la réponse réelle pour le débogage
 		System.out.println(result.getResponse().getContentAsString());
@@ -116,7 +116,7 @@ public class PersonControllerUnitTest {
 		// Requête PUT
 		MvcResult result = mockMvc.perform(
 				MockMvcRequestBuilders.put("/persons").contentType(MediaType.APPLICATION_JSON).content(personJson))
-				.andExpect(status().isOk()).andReturn();
+				.andExpect(status().isNoContent()).andReturn();
 
 		// Vérification de la réponse
 		String expectedResponse = "Personne mise à jour avec succès !";
