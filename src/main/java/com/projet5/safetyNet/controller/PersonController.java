@@ -2,6 +2,7 @@ package com.projet5.safetyNet.controller;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,6 +51,7 @@ public class PersonController {
 	 */
 	public PersonController(PersonService personService) {
 		this.personService = personService;
+		logger.info("PersonCOntroller, initialisé avec succès.");
 	}
 
 	/**
@@ -62,11 +64,11 @@ public class PersonController {
 	 * @return Une réponse HTTP contenant la liste de toutes les personnes, avec un code de statut HTTP 200.
 	 */
 	@GetMapping("/persons")
-	public ResponseEntity<Object> getAllPersons() {
-		logger.info("Entrée dans la méthode getAllPersons() de la classe PersonController.");
-		logger.info("Appel de la méthode personService.getAllPersons()");
+	public ResponseEntity<List<Person>> getAllPersons() {
+		logger.debug("Entrée dans la méthode getAllPersons() de la classe PersonController.");
+		logger.debug("Appel de la méthode personService.getAllPersons()");
 		List<Person> persons = personService.getAllPersons();
-		logger.debug("Récupération avec succès de la liste de personne : ", persons);
+		logger.info("Récupération avec succès de la liste de personne : ", persons);
 		return ResponseEntity.ok(persons);
 	}
 
@@ -82,10 +84,10 @@ public class PersonController {
 	 */
 	@PostMapping("/persons")
 	public ResponseEntity<String> addPerson(@RequestBody Person person) {
-		logger.info("Entrée dans la méthode addPerson() de la classe PersonController.");
-		logger.info("Appel de la méthode personService.addPerson()");
+		logger.debug("Entrée dans la méthode addPerson() de la classe PersonController.");
+		logger.debug("Appel de la méthode personService.addPerson()");
 		personService.addPerson(person);
-		return ResponseEntity.ok("Personne ajoutée avec succès !");
+		return ResponseEntity.status(HttpStatus.CREATED).body("Personne ajoutée avec succès !");
 	}
 
 	/**
@@ -100,10 +102,10 @@ public class PersonController {
 	 */
 	@PutMapping("/persons")
 	public ResponseEntity<String> updatePerson(@RequestBody Person person) {
-		logger.info("Entrée dans la méthode updatePerson() de la classe PersonController.");
-		logger.info("Appel de la méthode personService.updatePerson()");
+		logger.debug("Entrée dans la méthode updatePerson() de la classe PersonController.");
+		logger.debug("Appel de la méthode personService.updatePerson()");
 		personService.updatePerson(person);
-		return ResponseEntity.ok("Personne mise à jour avec succès !");
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Personne mise à jour avec succès !");
 
 	}
 
@@ -119,12 +121,12 @@ public class PersonController {
 	 */
 	@DeleteMapping("/persons")
 	public ResponseEntity<String> deletePerson(@RequestBody Person person) {
-		logger.info("Entrée dans la méthode deletePerson() de la classe PersonController.");
-		logger.info("Appel de la méthode personService.deletePerson()");
+		logger.debug("Entrée dans la méthode deletePerson() de la classe PersonController.");
+		logger.debug("Appel de la méthode personService.deletePerson()");
 		personService.deletePerson(person.getFirstName(), person.getLastName(), person.getPhone());
 		logger.info("Suppression de la nouvelle personne réussi.");
 		logger.debug("Suppression avec succès de la personne : {}", person);
-		return ResponseEntity.ok("Personne supprimée avec succès.");
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Personne supprimée avec succès.");
 	}
 
 	/**
@@ -137,11 +139,11 @@ public class PersonController {
 	 * @return Une réponse HTTP contenant la liste des emails associés à la ville donnée.
 	 */
 	@GetMapping("/communityEmail")
-	public ResponseEntity<Object> getCommunityEmail(@RequestParam String city){
-		logger.info(
+	public ResponseEntity<List<String>> getCommunityEmail(@RequestParam String city){
+		logger.debug(
 				"Entrée dans la méthode getCommunityEmail() de la classe PersonController, recherche pour la ville : {}",
 				city);
-		logger.info("Appel de la méthode personService.getCommunityEmail(city)");
+		logger.debug("Appel de la méthode personService.getCommunityEmail(city)");
 		List<String> communityEmail = personService.getCommunityEmail(city);
 		return ResponseEntity.ok(communityEmail);
 	}
@@ -156,8 +158,8 @@ public class PersonController {
 	 * @return Une réponse HTTP contenant la liste des enfants associés à l'adresse donnée.
 	 */
 	@GetMapping("/childAlert")
-	public ResponseEntity<?> getChildListFromAddress(@RequestParam String address) {
-		logger.info("Appel de la méthode personService.getChildListFromAddress(address).");
+	public ResponseEntity<List<String>> getChildListFromAddress(@RequestParam String address) {
+		logger.debug("Appel de la méthode personService.getChildListFromAddress(address).");
 		List<String> childList = personService.getChildListFromAddress(address);
 		logger.info("La liste d'enfant a été récupérée avec succès.");
 		logger.debug("Récupération avec succès de la liste d'enfant : {}", childList);
@@ -175,11 +177,11 @@ public class PersonController {
 	 * @throws Exception Si une erreur se produit lors de la récupération des informations de la personne.
 	 */
 	@GetMapping("/personInfolastName")
-	public ResponseEntity<Object> getPersonInfoLastName(@RequestParam String lastName) throws Exception {
-		logger.info(
+	public ResponseEntity<Map<String, Object>> getPersonInfoLastName(@RequestParam String lastName) throws Exception {
+		logger.debug(
 				"Entrée dans la méthode getPersonInfoLastName() de la classe PersonController, recherche par nom de famille : {}",
 				lastName);
-		logger.info("Appel de la méthode personInfo = personService.personInfo(lastName)");
+		logger.debug("Appel de la méthode personInfo = personService.personInfo(lastName)");
 		Map<String, Object> personInfo = personService.personInfo(lastName);
 		logger.info("La liste d'information a été récupérée avec succès.");
 		logger.debug("La liste d'nformation a été récupéré et contient : ", personInfo);

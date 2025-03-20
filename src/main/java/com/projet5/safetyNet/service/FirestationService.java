@@ -96,18 +96,21 @@ public class FirestationService {
 		this.firestationRepository = firestationRepository;
 		this.personRepository = personRepository;
 		this.medicalrecordRepository = medicalrecordRepository;
+		logger.info("FirestationService, initialisé avec succès.");
 	}
 
 	/**
 	 * Récupère la liste de toutes les casernes de pompiers.
 	 *
-	 * Cette méthode interroge le repository pour obtenir toutes les casernes enregistrées.
-	 * Elle journalise les étapes du processus et génère un avertissement si aucune caserne n'est trouvée.
+	 * Cette méthode interroge le repository pour obtenir toutes les casernes
+	 * enregistrées. Elle journalise les étapes du processus et génère un
+	 * avertissement si aucune caserne n'est trouvée.
 	 *
-	 * @return une liste contenant toutes les casernes de pompiers, possiblement vide si aucune caserne n'est enregistrée
+	 * @return une liste contenant toutes les casernes de pompiers, possiblement
+	 *         vide si aucune caserne n'est enregistrée
 	 */
 	public List<Firestation> getAllFireStations() {
-		logger.info("Début de la récupération de toutes les firestations.");
+		logger.debug("Début de la récupération de toutes les firestations.");
 		List<Firestation> firestations = firestationRepository.getAllFirestations();
 		if (firestations.isEmpty()) {
 			logger.warn("Aucune firestation trouvée.");
@@ -119,30 +122,33 @@ public class FirestationService {
 	/**
 	 * Ajoute une nouvelle caserne de pompiers.
 	 *
-	 * Cette méthode vérifie si les informations de la caserne sont valides (adresse et numéro de station).
-	 * Elle vérifie également qu'aucune caserne n'existe déjà avec les mêmes informations. Si la caserne existe déjà,
-	 * une exception est lancée. Si les informations sont valides et que la caserne n'existe pas déjà, la nouvelle
-	 * caserne est ajoutée au repository.
+	 * Cette méthode vérifie si les informations de la caserne sont valides (adresse
+	 * et numéro de station). Elle vérifie également qu'aucune caserne n'existe déjà
+	 * avec les mêmes informations. Si la caserne existe déjà, une exception est
+	 * lancée. Si les informations sont valides et que la caserne n'existe pas déjà,
+	 * la nouvelle caserne est ajoutée au repository.
 	 *
 	 * @param newFirestation la caserne à ajouter
-	 * @throws InvalidRequestException si l'adresse ou le numéro de station est manquant ou invalide
-	 * @throws FirestationExistingException si une caserne avec les mêmes informations existe déjà
+	 * @throws InvalidRequestException      si l'adresse ou le numéro de station est
+	 *                                      manquant ou invalide
+	 * @throws FirestationExistingException si une caserne avec les mêmes
+	 *                                      informations existe déjà
 	 */
 	public void addFirestation(Firestation newFirestation) {
-		logger.info("Début de l'ajout d'une nouvelle caserne : {}", newFirestation);
+		logger.debug("Début de l'ajout d'une nouvelle caserne : {}", newFirestation);
 		if (newFirestation.getAddress() == null || newFirestation.getAddress().isEmpty()
 				|| newFirestation.getStation() == null || newFirestation.getStation().isEmpty()) {
 			logger.error("Données invalides : adresse ou numéro de station manquant.");
 			throw new InvalidRequestException("Les champs adresse et numéro de station sont obligatoires.");
 		}
 		List<Firestation> firestationList = firestationRepository.getAllFirestations();
-		logger.debug("la liste : "+ firestationList);
+		logger.debug("la liste : " + firestationList);
 		boolean firestationExist = firestationList.stream()
 				.anyMatch(firestation -> firestation.getAddress().equalsIgnoreCase(newFirestation.getAddress())
 						&& firestation.getStation().equalsIgnoreCase(newFirestation.getStation()));
 		if (firestationExist) {
-			logger.warn("La caserne avec l'adresse '{}' et la station '{}' existe déjà.",
-					newFirestation.getAddress(), newFirestation.getStation());
+			logger.error("La caserne avec l'adresse '{}' et la station '{}' existe déjà.", newFirestation.getAddress(),
+					newFirestation.getStation());
 			throw new FirestationExistingException("La caserne existe déjà.");
 		}
 		firestationRepository.addFirestation(newFirestation);
@@ -152,16 +158,18 @@ public class FirestationService {
 	/**
 	 * Supprime une caserne de pompiers.
 	 *
-	 * Cette méthode vérifie si les informations de la caserne à supprimer sont valides (adresse et numéro de station).
-	 * Si les informations sont invalides ou si la caserne n'existe pas, une exception est lancée. Si les informations
+	 * Cette méthode vérifie si les informations de la caserne à supprimer sont
+	 * valides (adresse et numéro de station). Si les informations sont invalides ou
+	 * si la caserne n'existe pas, une exception est lancée. Si les informations
 	 * sont valides et que la caserne existe, elle est supprimée du repository.
 	 *
 	 * @param deletedFirestation la caserne à supprimer
-	 * @throws InvalidRequestException si l'adresse ou le numéro de station est manquant ou invalide
+	 * @throws InvalidRequestException      si l'adresse ou le numéro de station est
+	 *                                      manquant ou invalide
 	 * @throws FirestationNotFoundException si la caserne n'existe pas
 	 */
 	public void deleteFirestation(Firestation deletedFirestation) {
-		logger.info("Début de la suppression de la caserne : {}", deletedFirestation);
+		logger.debug("Début de la suppression de la caserne : {}", deletedFirestation);
 		if (deletedFirestation == null || deletedFirestation.getAddress() == null
 				|| deletedFirestation.getAddress().isEmpty() || deletedFirestation.getStation() == null
 				|| deletedFirestation.getStation().isEmpty()) {
@@ -174,9 +182,9 @@ public class FirestationService {
 				.anyMatch(firestation -> firestation.getAddress().equalsIgnoreCase(deletedFirestation.getAddress())
 						&& firestation.getStation().equalsIgnoreCase(deletedFirestation.getStation()));
 		if (!firestationExist) {
-			logger.warn("La caserne avec l'adresse {} et la station {} n'existe pas.",
-					deletedFirestation.getAddress(), deletedFirestation.getStation());
-			throw new FirestationNotFoundException("La caserne n'existe pas."+ deletedFirestation);
+			logger.error("La caserne avec l'adresse {} et la station {} n'existe pas.", deletedFirestation.getAddress(),
+					deletedFirestation.getStation());
+			throw new FirestationNotFoundException("La caserne n'existe pas." + deletedFirestation);
 		}
 		firestationRepository.deleteFirestation(deletedFirestation);
 		logger.info("Caserne supprimée avec succès : {}", deletedFirestation);
@@ -185,23 +193,25 @@ public class FirestationService {
 	/**
 	 * Met à jour les informations d'une caserne de pompiers.
 	 *
-	 * Cette méthode vérifie si l'adresse de la caserne à mettre à jour est valide. Si l'adresse est manquante ou invalide,
-	 * une exception est lancée. Si la caserne n'existe pas à l'adresse fournie, une exception est également lancée.
+	 * Cette méthode vérifie si l'adresse de la caserne à mettre à jour est valide.
+	 * Si l'adresse est manquante ou invalide, une exception est lancée. Si la
+	 * caserne n'existe pas à l'adresse fournie, une exception est également lancée.
 	 * Si les vérifications passent, la caserne est mise à jour dans le repository.
 	 *
 	 * @param updatedFirestation la caserne avec les nouvelles informations
-	 * @throws InvalidRequestException si l'adresse est manquante ou invalide
-	 * @throws FirestationNotFoundException si la caserne n'existe pas à l'adresse spécifiée
+	 * @throws InvalidRequestException      si l'adresse est manquante ou invalide
+	 * @throws FirestationNotFoundException si la caserne n'existe pas à l'adresse
+	 *                                      spécifiée
 	 */
 	public void updateFirestation(Firestation updatedFirestation) {
-		logger.info("Début de la mise à jour d'une firestation : {}", updatedFirestation);
+		logger.debug("Début de la mise à jour d'une firestation : {}", updatedFirestation);
 		if (updatedFirestation.getAddress() == null || updatedFirestation.getAddress().isEmpty()) {
 			logger.error("Donnée invalide pour la mise à jour : adresse manquante ou nulle : {}", updatedFirestation);
-			throw new InvalidRequestException("Le champ adresse est obligatoire."+ updatedFirestation);
+			throw new InvalidRequestException("Le champ adresse est obligatoire." + updatedFirestation);
 		}
 		List<Firestation> firestationList = firestationRepository.getAllFirestations();
-		boolean stationExists = firestationList.stream().anyMatch(
-				firestation -> firestation.getAddress().equalsIgnoreCase(updatedFirestation.getAddress()));
+		boolean stationExists = firestationList.stream()
+				.anyMatch(firestation -> firestation.getAddress().equalsIgnoreCase(updatedFirestation.getAddress()));
 		if (!stationExists) {
 			logger.error("La firestation n'existe pas à cette adresse : {}", updatedFirestation.getAddress());
 			throw new FirestationNotFoundException("La firestation n'existe pas à cette adresse.");
@@ -211,139 +221,153 @@ public class FirestationService {
 	}
 
 	/**
-	 * Récupère une liste d'informations sur les personnes associées à un numéro de station spécifique.
+	 * Récupère une liste d'informations sur les personnes associées à un numéro de
+	 * station spécifique.
 	 *
-	 * Cette méthode filtre les personnes en fonction de leur adresse, qui est liée à une station donnée. Elle récupère
-	 * toutes les personnes vivant à des adresses associées à la station spécifiée et fournit des informations détaillées
-	 * sur ces personnes, y compris leur prénom, nom, numéro de téléphone, adresse, numéro de station et catégorie d'âge
-	 * (enfant ou adulte). Elle retourne également un résumé du nombre total d'enfants et d'adultes pour la station.
+	 * Cette méthode filtre les personnes en fonction de leur adresse, qui est liée
+	 * à une station donnée. Elle récupère toutes les personnes vivant à des
+	 * adresses associées à la station spécifiée et fournit des informations
+	 * détaillées sur ces personnes, y compris leur prénom, nom, numéro de
+	 * téléphone, adresse, numéro de station et catégorie d'âge (enfant ou adulte).
+	 * Elle retourne également un résumé du nombre total d'enfants et d'adultes pour
+	 * la station.
 	 *
-	 * @param stationNumber le numéro de la station pour laquelle récupérer les personnes
-	 * @return une liste contenant des informations détaillées sur les personnes associées à la station, ainsi qu'un résumé
-	 *         du nombre d'adultes et d'enfants
-	 * @throws InvalidRequestException si le numéro de station est vide ou nul
-	 * @throws FirestationNotFoundException si aucune firestation n'est trouvée pour le numéro de station spécifié
+	 * @param stationNumber le numéro de la station pour laquelle récupérer les
+	 *                      personnes
+	 * @return une liste contenant des informations détaillées sur les personnes
+	 *         associées à la station, ainsi qu'un résumé du nombre d'adultes et
+	 *         d'enfants
+	 * @throws InvalidRequestException      si le numéro de station est vide ou nul
+	 * @throws FirestationNotFoundException si aucune firestation n'est trouvée pour
+	 *                                      le numéro de station spécifié
 	 */
 	public List<String> personFromStationNumber(String stationNumber) {
-		logger.info("Début de la récupération des personnes pour la station : {}", stationNumber);
+		logger.debug("Début de la récupération des personnes pour la station : {}", stationNumber);
 
 		if (stationNumber == null || stationNumber.isEmpty()) {
 			logger.error("Le numéro de station est vide ou nul.");
 			throw new InvalidRequestException("Le numéro de station ne peut pas être vide.");
 		}
 
-			logger.debug("Initialisation des listes de données.");
-			List<String> personFromFirestationList = new ArrayList<>();
+		logger.debug("Initialisation des listes de données.");
+		List<String> personFromFirestationList = new ArrayList<>();
 
-			List<Firestation> firestationList = firestationRepository.getAllFirestations();
-			List<Person> personList = personRepository.getAllPerson();
-			List<Medicalrecord> medicalrecordList = medicalrecordRepository.getAllMedicalrecord();
+		List<Firestation> firestationList = firestationRepository.getAllFirestations();
+		List<Person> personList = personRepository.getAllPerson();
+		List<Medicalrecord> medicalrecordList = medicalrecordRepository.getAllMedicalrecord();
 
-			logger.debug("Filtrage des adresses pour la station : {}", stationNumber);
-			List<String> filteredStationsAddress = firestationList.stream()
-					.filter(firestation -> firestation.getStation().equals(stationNumber)).map(Firestation::getAddress)
-					.collect(Collectors.toList());
+		logger.debug("Filtrage des adresses pour la station : {}", stationNumber);
+		List<String> filteredStationsAddress = firestationList.stream()
+				.filter(firestation -> firestation.getStation().equals(stationNumber)).map(Firestation::getAddress)
+				.collect(Collectors.toList());
 
-			if (filteredStationsAddress.isEmpty()) {
-				logger.error("Aucune firestation trouvée pour le numéro de station : {}", stationNumber);
-				throw new FirestationNotFoundException("Il n'existe pas de firestation avec ce numéro.");
-			}
+		if (filteredStationsAddress.isEmpty()) {
+			logger.error("Aucune firestation trouvée pour le numéro de station : {}", stationNumber);
+			throw new FirestationNotFoundException("Il n'existe pas de firestation avec ce numéro.");
+		}
 
-			logger.debug("Filtrage des personnes résidant aux adresses trouvées : {}", filteredStationsAddress);
-			List<Person> personFromFirestation = personList.stream()
-					.filter(person -> filteredStationsAddress.contains(person.getAddress()))
-					.collect(Collectors.toList());
+		logger.debug("Filtrage des personnes résidant aux adresses trouvées : {}", filteredStationsAddress);
+		List<Person> personFromFirestation = personList.stream()
+				.filter(person -> filteredStationsAddress.contains(person.getAddress())).collect(Collectors.toList());
 
-			if (personFromFirestation.isEmpty()) {
-				logger.warn("Aucune personne trouvée pour la station : {}", stationNumber);
-			}
+		if (personFromFirestation.isEmpty()) {
+			logger.error("Aucune personne trouvée pour la station : {}", stationNumber);
+		}
 
-			AtomicInteger numChildren = new AtomicInteger(0);
-			AtomicInteger numAdults = new AtomicInteger(0);
+		AtomicInteger numChildren = new AtomicInteger(0);
+		AtomicInteger numAdults = new AtomicInteger(0);
 
-			for (Person person : personFromFirestation) {
-				medicalrecordList.stream()
-						.filter(record -> record.getFirstName().equals(person.getFirstName())
-								&& record.getLastName().equalsIgnoreCase(person.getLastName()))
-						.findFirst().ifPresent(record -> {
-							String personInfo;
-								int age = ageOfPerson(record.getBirthdate());
-								String ageCategory = (age < 18) ? "Enfant" : "Adulte";
+		for (Person person : personFromFirestation) {
+			medicalrecordList.stream()
+					.filter(record -> record.getFirstName().equals(person.getFirstName())
+							&& record.getLastName().equalsIgnoreCase(person.getLastName()))
+					.findFirst().ifPresent(record -> {
+						String personInfo;
+						int age = ageOfPerson(record.getBirthdate());
+						String ageCategory = (age < 18) ? "Enfant" : "Adulte";
 
-								if (age < 18) {
-									numChildren.incrementAndGet();
-								} else {
-									numAdults.incrementAndGet();
-								}
+						if (age < 18) {
+							numChildren.incrementAndGet();
+						} else {
+							numAdults.incrementAndGet();
+						}
 
-								personInfo = String.format("%s %s, %s, %s, Station: %s, %s, Age: %d ans",
-										person.getFirstName(), person.getLastName(), person.getPhone(),
-										person.getAddress(), stationNumber, ageCategory, age);
+						personInfo = String.format("%s %s, %s, %s, Station: %s, %s, Age: %d ans", person.getFirstName(),
+								person.getLastName(), person.getPhone(), person.getAddress(), stationNumber,
+								ageCategory, age);
 
-							personFromFirestationList.add(personInfo);
-						});
-			}
+						personFromFirestationList.add(personInfo);
+					});
+		}
 
-			String summary = String.format("Nombre total d'adultes : %d, Nombre total d'enfants : %d", numAdults.get(),
-					numChildren.get());
-			personFromFirestationList.add(summary);
+		String summary = String.format("Nombre total d'adultes : %d, Nombre total d'enfants : %d", numAdults.get(),
+				numChildren.get());
+		personFromFirestationList.add(summary);
 
-			logger.info("Récupération terminée pour la station : {}. Résumé : {}", stationNumber, summary);
-			return personFromFirestationList;
+		logger.info("Récupération terminée pour la station : {}. Résumé : {}", stationNumber, summary);
+		return personFromFirestationList;
 	}
 
 	/**
-	 * Récupère la liste des numéros de téléphone des personnes associées à une station donnée.
+	 * Récupère la liste des numéros de téléphone des personnes associées à une
+	 * station donnée.
 	 *
-	 * Cette méthode utilise la méthode `personFromStationNumber` pour récupérer les informations des personnes résidant
-	 * à une adresse associée à une station donnée. Elle extrait ensuite les numéros de téléphone des personnes et les 
-	 * retourne sous forme de liste. Si aucune personne n'est associée à la station ou si la liste des numéros de téléphone
-	 * est vide, un avertissement est loggé.
+	 * Cette méthode utilise la méthode `personFromStationNumber` pour récupérer les
+	 * informations des personnes résidant à une adresse associée à une station
+	 * donnée. Elle extrait ensuite les numéros de téléphone des personnes et les
+	 * retourne sous forme de liste. Si aucune personne n'est associée à la station
+	 * ou si la liste des numéros de téléphone est vide, un avertissement est loggé.
 	 *
-	 * @param station le numéro de la station pour laquelle récupérer les numéros de téléphone des personnes
-	 * @return une liste contenant les numéros de téléphone des personnes associées à la station
-	 * @throws InvalidRequestException si le numéro de station est vide ou nul
-	 * @throws FirestationNotFoundException si aucune firestation n'est trouvée pour le numéro de station spécifié
+	 * @param station le numéro de la station pour laquelle récupérer les numéros de
+	 *                téléphone des personnes
+	 * @return une liste contenant les numéros de téléphone des personnes associées
+	 *         à la station
+	 * @throws InvalidRequestException      si le numéro de station est vide ou nul
+	 * @throws FirestationNotFoundException si aucune firestation n'est trouvée pour
+	 *                                      le numéro de station spécifié
 	 */
 	public List<String> phoneAlert(String station) {
-		logger.info("Début de la récupération des personnes associées à la station : {}", station);
+		logger.debug("Début de la récupération des personnes associées à la station : {}", station);
 		List<String> personToAlert = personFromStationNumber(station);
 		List<String> phoneListAlert = personToAlert.stream().map(personInfo -> personInfo.split(",")[1].trim())
 				.collect(Collectors.toList());
-		if(phoneListAlert.isEmpty()) {
-			logger.warn("La liste des numéro de téléphone pour la station {} est vide.", station);
+		if (phoneListAlert.isEmpty()) {
+			logger.error("La liste des numéro de téléphone pour la station {} est vide.", station);
 		}
-		logger.debug("La liste des numéros de téléphone pour la station : {}  est : {}", station, phoneListAlert);
+		logger.info("La liste des numéros de téléphone pour la station : {}  est : {}", station, phoneListAlert);
 		return phoneListAlert;
 	}
 
 	/**
 	 * Calcule l'âge d'une personne à partir de sa date de naissance.
 	 *
-	 * Cette méthode prend une date de naissance sous forme de chaîne de caractères et calcule l'âge en années
-	 * en comparant cette date à la date actuelle. La date de naissance doit être dans le format spécifié par 
-	 * `DATE_FORMATTER`. Si le format est incorrect, une exception est levée.
+	 * Cette méthode prend une date de naissance sous forme de chaîne de caractères
+	 * et calcule l'âge en années en comparant cette date à la date actuelle. La
+	 * date de naissance doit être dans le format spécifié par `DATE_FORMATTER`. Si
+	 * le format est incorrect, une exception est levée.
 	 *
-	 * @param birthdate la date de naissance de la personne sous forme de chaîne de caractères
+	 * @param birthdate la date de naissance de la personne sous forme de chaîne de
+	 *                  caractères
 	 * @return l'âge de la personne en années
-	 * @throws InvalidDateFormatException si le format de la date de naissance est invalide
+	 * @throws InvalidDateFormatException si le format de la date de naissance est
+	 *                                    invalide
 	 */
 	public int ageOfPerson(String birthdate) {
-	    logger.info("Tentative de calcul de l'âge pour la date de naissance : {}", birthdate);
+		logger.debug("Tentative de calcul de l'âge pour la date de naissance : {}", birthdate);
 
-	    LocalDate birthDate;
-	    try {
-	        birthDate = LocalDate.parse(birthdate, DATE_FORMATTER);
-	    } catch (DateTimeParseException e) {
-	        logger.error("Erreur de format pour la date de naissance : {}. Format attendu : {}", birthdate, DATE_FORMATTER);
-	        throw new InvalidDateFormatException("Format de date invalide. Utilisez le format : " + DATE_FORMATTER);
-	    }
+		LocalDate birthDate;
+		try {
+			birthDate = LocalDate.parse(birthdate, DATE_FORMATTER);
+		} catch (DateTimeParseException e) {
+			logger.error("Erreur de format pour la date de naissance : {}. Format attendu : {}", birthdate,
+					DATE_FORMATTER);
+			throw new InvalidDateFormatException("Format de date invalide. Utilisez le format : " + DATE_FORMATTER);
+		}
 
-	    int age = Period.between(birthDate, LocalDate.now()).getYears();
-	    logger.debug("Âge calculé avec succès : {} ans pour la date de naissance {}", age, birthdate);
-	    
-	    return age;
+		int age = Period.between(birthDate, LocalDate.now()).getYears();
+		logger.info("Âge calculé avec succès : {} ans pour la date de naissance {}", age, birthdate);
+
+		return age;
 	}
-
 
 }

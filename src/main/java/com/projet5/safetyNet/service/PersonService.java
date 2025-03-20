@@ -87,6 +87,7 @@ public class PersonService {
 	public PersonService(PersonRepository personRepository, MedicalrecordService medicalrecordService) {
 		this.personRepository = personRepository;
 		this.medicalrecordService = medicalrecordService;
+		logger.info("PersonService, initialisé avec succès.");
 	}
 
 	/**
@@ -103,14 +104,14 @@ public class PersonService {
 	 * @see PersonRepository#getAllPerson()
 	 */
 	public List<Person> getAllPersons() {
-		logger.info("Entrée dans la méthode getAllPersons de la classe PersonService");
-		logger.info("Début de la récupération de toutes les personnes.");
+		logger.debug("Entrée dans la méthode getAllPersons de la classe PersonService");
+		logger.debug("Début de la récupération de toutes les personnes.");
 		List<Person> personList = personRepository.getAllPerson();
 		if (personList.isEmpty()) {
-			logger.warn("Aucune personne trouvée.");
+			logger.error("Aucune personne trouvée.");
 			throw new PersonNotFoundException("Aucune personne n'a été trouvée.");
 		}
-		logger.debug("{} personnes récupérées.", personList.size());
+		logger.info("{} personnes récupérées.", personList.size());
 		return personList;
 	}
 
@@ -131,8 +132,8 @@ public class PersonService {
 	 * @see PersonRepository#deletePerson(String, String, String)
 	 */
 	public void deletePerson(String firstName, String lastName, String phone) {
-		logger.info("Entrée dans la méthode deletePerson() de PersonService");
-		logger.info("Vérification si la personne existe bien en base de données.");
+		logger.debug("Entrée dans la méthode deletePerson() de PersonService");
+		logger.debug("Vérification si la personne existe bien en base de données.");
 		logger.debug("La personne à vérifier est : " + firstName + " " + lastName + " " + phone);
 		boolean personExists = personRepository.getAllPerson().stream()
 				.anyMatch(person -> person.getFirstName().equalsIgnoreCase(firstName)
@@ -168,8 +169,8 @@ public class PersonService {
 	 * @see PersonExistingException
 	 */
 	public void addPerson(Person newPerson) {
-		logger.info("Entrée dans la méthode addPerson de la classe PersonService.");
-		logger.info(
+		logger.debug("Entrée dans la méthode addPerson de la classe PersonService.");
+		logger.debug(
 				"Vérification des champs 'firstName', 'lastName' et 'phone' pour s'assurer qu'ils ne sont pas nuls ou vides.");
 		logger.debug("La personne à vérifier est : " + newPerson);
 		
@@ -190,9 +191,9 @@ public class PersonService {
 				    newPerson.getFirstName(), newPerson.getLastName(), newPerson.getPhone());
 			throw new PersonExistingException("La personne existe déjà dans la base de données.");
 		}
-		logger.info("La personne n'existe pas en base de donnée, donc elle peut être ajoutée.");
+		logger.debug("La personne n'existe pas en base de donnée, donc elle peut être ajoutée.");
 		personRepository.addPerson(newPerson);
-		logger.debug("Nouvelle personne ajoutée avec succès : {} ", newPerson);
+		logger.info("Nouvelle personne ajoutée avec succès : {} ", newPerson);
 	}
 
 	/**
@@ -212,7 +213,7 @@ public class PersonService {
 	 * @throws PersonNotFoundException Si la personne à mettre à jour n'existe pas dans la base de données.
 	 */
 	public void updatePerson(Person updatedPerson) {
-		logger.info("Entrée dans la méthode updatePerson() de la classe PersonService.");
+		logger.debug("Entrée dans la méthode updatePerson() de la classe PersonService.");
 		if (updatedPerson.getFirstName() == null || updatedPerson.getFirstName().isEmpty()
 				|| updatedPerson.getLastName() == null || updatedPerson.getLastName().isEmpty()) {
 			logger.error("Les champs 'firstName' ou 'lastName' sont null ou vides.");
@@ -226,9 +227,9 @@ public class PersonService {
 			logger.error("Cette personne n'existe pas : {}", updatedPerson);
 			throw new PersonNotFoundException("Cette personne n'existe pas.");
 		} 
-		logger.info("Personne trouvée. Mise à jour en cours...");
+		logger.debug("Personne trouvée. Mise à jour en cours...");
 		personRepository.updatePerson(updatedPerson);
-		logger.debug("Personne mise à jour avec succès : {}", updatedPerson);
+		logger.info("Personne mise à jour avec succès : {}", updatedPerson);
 	}
 
 	/**
@@ -247,7 +248,7 @@ public class PersonService {
 	 * @throws PersonNotFoundException Si aucune personne n'est trouvée dans la ville spécifiée.
 	 */
 	public List<String> getCommunityEmail(String city) {
-		logger.info("Début de la récupération des adresses email pour la ville : {}", city);
+		logger.debug("Début de la récupération des adresses email pour la ville : {}", city);
 
 		if (city == null || city.isEmpty()) {
 			logger.error("Le paramètre 'city' est nul ou vide.");
@@ -255,14 +256,14 @@ public class PersonService {
 		}
 
 		List<Person> personList = personRepository.getAllPerson();
-		logger.info("Récupération des personnes terminée, traitement des données...");
+		logger.debug("Récupération des personnes terminée, traitement des données...");
 		List<String> communityEmail = personList.stream().filter(person -> person.getCity().equalsIgnoreCase(city))
 				.map(person -> person.getEmail()).collect(Collectors.toList());
 		if (communityEmail.isEmpty()) {
 			logger.warn("Aucune personne trouvée pour la ville : {}", city);
 			throw new PersonNotFoundException("Aucune personne trouvée pour cette ville." + city);
 		} 
-		logger.debug("Nombre d'adresses email récupérées pour la ville {} : {}", city, communityEmail.size());
+		logger.info("Nombre d'adresses email récupérées pour la ville {} : {}", city, communityEmail.size());
 		return communityEmail;
 	}
 
@@ -282,19 +283,19 @@ public class PersonService {
 	 * @throws InvalidRequestException Si l'adresse fournie est {@code null} ou vide.
 	 */
 	public List<String> getChildListFromAddress(String address) {
-		logger.info("Entrée dans la méthode getChildListFromAddress() de la class PersonService");
+		logger.debug("Entrée dans la méthode getChildListFromAddress() de la class PersonService");
 		
 		if (address == null || address.isEmpty()) {
 			logger.error("Le champ 'address' est obligatoire.");
 			throw new InvalidRequestException("Le champ 'address' est obligatoire.");
 		}
 		
-		logger.info("Début de la récupération des enfants pour l'adresse : {}", address);
+		logger.debug("Début de la récupération des enfants pour l'adresse : {}", address);
 			String normalizedAddress = normalizeAddress(address);
 			logger.debug("Adresse normalisée pour la comparaison : {}", normalizedAddress);
 
 			List<Medicalrecord> medicalRecords = medicalrecordService.getAllMedicalrecord();
-			logger.debug("Nombre de dossiers médicaux récupérés : {}", medicalRecords.size());
+			logger.info("Nombre de dossiers médicaux récupérés : {}", medicalRecords.size());
 
 			List<Person> personsAtAddress = listPersonByAddress(address);
 
@@ -328,7 +329,7 @@ public class PersonService {
 				}).collect(Collectors.toList());
 	
 				if (childrenAtAddress.isEmpty()) {
-					logger.warn("Aucun enfant trouvé pour l'adresse : {}", address);
+					logger.error("Aucun enfant trouvé pour l'adresse : {}", address);
 					return childrenAtAddress;
 				}
 			
@@ -390,7 +391,7 @@ public class PersonService {
 			return "";
 		}
 		String normalizedAddress = address.trim().toLowerCase();
-		logger.debug("Adresse normalisée : {}", normalizedAddress);
+		logger.info("Adresse normalisée avec succès : {}", normalizedAddress);
 		return normalizedAddress;
 	}
 
@@ -407,11 +408,11 @@ public class PersonService {
 	 * @return {@code true} si la personne a moins de 18 ans, {@code false} sinon.
 	fgvr */
 	public Boolean isChild(String birthdate) {
-		logger.info("Début du parsing de la date de naissance.");
+		logger.debug("Début du parsing de la date de naissance.");
 		LocalDate birthDate = LocalDate.parse(birthdate, DATE_FORMATTER);
 		logger.info("Parsing effectué, calcul de l'âge.", birthDate);
 		int age = Period.between(birthDate, LocalDate.now()).getYears();
-		logger.debug("Âge calculé pour la date de naissance {} : {}", birthdate, age);
+		logger.info("Âge calculé pour la date de naissance {} obtenu avec succès : {}", birthdate, age);
 		return age < 18;
 	}
 
@@ -442,7 +443,7 @@ public class PersonService {
 	 * @return Une Map contenant le nombre de personne trouvée et les information sur les personnes.
 	 */
 	public Map<String, Object> personInfo(String lastName){
-			logger.info("Entrée dans la méthode personInfo() de personService avec lastName : {}", lastName);
+			logger.debug("Entrée dans la méthode personInfo() de personService avec lastName : {}", lastName);
 
 			List<Map<String, Object>> personInfo = new ArrayList<>();
 			List<Person> filteredPerson = listPersonByLastName(lastName);
@@ -473,7 +474,7 @@ public class PersonService {
 			result.put("count", count);
 			result.put("personInfo", personInfo);
 
-			logger.debug("Le contenu de result : {}", result);
+			logger.info("Récupération des informations avec succès : {}", result);
 			return result;
 	}
 	
@@ -490,13 +491,13 @@ public class PersonService {
 	 * @return Une liste de personnes ayant le nom de famille spécifié, ou une liste vide si aucune correspondance n'est trouvée.
 	 */
 	public List<Person> listPersonByLastName(String lastName) {
-	    logger.info("Entrée dans la méthode listPersonByLastName() de personService avec lastName : {}", lastName);
+	    logger.debug("Entrée dans la méthode listPersonByLastName() de personService avec lastName : {}", lastName);
 	    List<Person> personList = personRepository.getAllPerson();
 	    logger.info("Tentative de récupération d'une liste de personne selon le nom : {} ", lastName);
 	    List<Person> filteredPerson = personList.stream()
 	            .filter(person -> person.getLastName().equalsIgnoreCase(lastName))
 	            .collect(Collectors.toList());
-	    logger.debug("Liste des personnes filtrées pour le nom de famille '{}': {}", lastName, filteredPerson);
+	    logger.info("Liste des personnes filtrées pour le nom de famille '{}': {}", lastName, filteredPerson);
 	    return filteredPerson; // Correction ici, car tu retournais `personList` au lieu de `filteredPerson`
 	}
 

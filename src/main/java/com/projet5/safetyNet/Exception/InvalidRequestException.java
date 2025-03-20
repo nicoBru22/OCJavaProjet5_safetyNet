@@ -1,11 +1,19 @@
 package com.projet5.safetyNet.Exception;
 
+/**
+ * Exception levée lorsqu'une requête invalide est détectée.
+ */
 public class InvalidRequestException extends RuntimeException {
-	
-	private static final long serialVersionUID = 1L;
+    
+    private static final long serialVersionUID = 1L;
 
-	public InvalidRequestException(String message) {
-		super(message);
-	}
-
+    /**
+     * Constructeur de l'exception avec un message personnalisé.
+     *
+     * @param message le message décrivant l'erreur
+     */
+    public InvalidRequestException(String message) {
+        super(message);
+    }
 }
+

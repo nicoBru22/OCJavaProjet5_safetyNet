@@ -47,20 +47,20 @@ public class MedicalRecordController {
 	/**
 	 * Récupère la liste des dossiers médicaux.
 	 * <p>
-	 * Cette méthode permet de récupérer tous les dossiers médicaux à partir de l'endpoint
-	 * /medicalrecords.
+	 * Cette méthode permet de récupérer tous les dossiers médicaux à partir de
+	 * l'endpoint /medicalrecords.
 	 * </p>
 	 *
 	 * @return ResponseEntity contenant une liste des dossiers médicaux en cas de
 	 *         succès ou un message d'erreur en cas d'échec.
 	 */
 	@GetMapping("/medicalrecords")
-	public ResponseEntity<?> getMedicalRecords() {
-	    logger.info("Requête GET pour récupérer tous les dossiers médicaux.");
-	    List<Medicalrecord> medicalrecordList = medicalrecordService.getAllMedicalrecord();
-	    logger.info("La liste des dossiers médicaux a été récupérée avec succès.");
-	    logger.debug("Récupération réussie de {} dossiers médicaux.", medicalrecordList.size());
-	    return ResponseEntity.ok(medicalrecordList);
+	public ResponseEntity<List<Medicalrecord>> getMedicalRecords() {
+		logger.debug("Requête GET pour récupérer tous les dossiers médicaux.");
+		List<Medicalrecord> medicalrecordList = medicalrecordService.getAllMedicalrecord();
+		logger.info("La liste des dossiers médicaux a été récupérée avec succès.");
+		logger.debug("Récupération réussie de {} dossiers médicaux.", medicalrecordList.size());
+		return ResponseEntity.ok(medicalrecordList);
 	}
 
 	/**
@@ -76,11 +76,11 @@ public class MedicalRecordController {
 	 */
 	@PostMapping("/medicalrecords")
 	public ResponseEntity<String> addMedicalrecord(@RequestBody Medicalrecord newMedicalrecord) {
-	    logger.info("Requête POST pour ajouter un nouveau dossier médical : {}", newMedicalrecord);
-	    medicalrecordService.addMedicalrecord(newMedicalrecord);
-	    logger.info("Ajout réussi du dossier médical.");
-	    logger.debug("Le dossier médical {} a été ajouté avec succès", newMedicalrecord);
-	    return ResponseEntity.status(HttpStatus.CREATED).body("Le dossier médical a été ajouté avec succès.");
+		logger.debug("Requête POST pour ajouter un nouveau dossier médical : {}", newMedicalrecord);
+		medicalrecordService.addMedicalrecord(newMedicalrecord);
+		logger.info("Ajout réussi du dossier médical.");
+		logger.debug("Le dossier médical {} a été ajouté avec succès", newMedicalrecord);
+		return ResponseEntity.status(HttpStatus.CREATED).body("Le dossier médical a été ajouté avec succès.");
 	}
 
 	/**
@@ -96,11 +96,11 @@ public class MedicalRecordController {
 	 */
 	@DeleteMapping("/medicalrecords")
 	public ResponseEntity<String> deleteMedicalrecord(@RequestBody Medicalrecord deletedMedicalrecord) {
-	    logger.info("Requête DELETE pour supprimer un dossier médical : {}", deletedMedicalrecord);
-	    medicalrecordService.deleteMedicalrecord(deletedMedicalrecord);
-	    logger.info("Suppression réussie du dossier médical.");
-	    logger.debug("Le dossier médical {} a été supprimé avec succès", deletedMedicalrecord);
-	    return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Le dossier médical a été supprimé avec succès.");
+		logger.debug("Requête DELETE pour supprimer un dossier médical : {}", deletedMedicalrecord);
+		medicalrecordService.deleteMedicalrecord(deletedMedicalrecord);
+		logger.info("Suppression réussie du dossier médical.");
+		logger.debug("Le dossier médical {} a été supprimé avec succès", deletedMedicalrecord);
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Le dossier médical a été supprimé avec succès.");
 	}
 
 	/**
@@ -117,11 +117,11 @@ public class MedicalRecordController {
 	 */
 	@PutMapping("/medicalrecords")
 	public ResponseEntity<String> updateMedicalrecord(@RequestBody Medicalrecord updatedMedicalrecord) {
-	    logger.info("Requête PUT pour mettre à jour un dossier médical : {}", updatedMedicalrecord);
-	    medicalrecordService.updateMedicalrecord(updatedMedicalrecord);
-	    logger.info("Mise à jour réussie du dossier médical.");
-	    logger.debug("Le dossier médical {} a été mis à jour avec succès", updatedMedicalrecord);
-	    return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Le dossier médical a été modifié avec succès.");
+		logger.debug("Requête PUT pour mettre à jour un dossier médical : {}", updatedMedicalrecord);
+		medicalrecordService.updateMedicalrecord(updatedMedicalrecord);
+		logger.info("Mise à jour réussie du dossier médical.");
+		logger.debug("Le dossier médical {} a été mis à jour avec succès", updatedMedicalrecord);
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Le dossier médical a été modifié avec succès.");
 	}
 
 }

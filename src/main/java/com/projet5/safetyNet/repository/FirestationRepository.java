@@ -6,9 +6,6 @@ import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Repository;
-
-import com.projet5.safetyNet.Exception.FirestationExistingException;
-import com.projet5.safetyNet.Exception.FirestationNotFoundException;
 import com.projet5.safetyNet.model.DataModel;
 import com.projet5.safetyNet.model.Firestation;
 
@@ -71,7 +68,7 @@ public class FirestationRepository {
 	 * @return une liste de toutes les casernes
 	 */
 	public List<Firestation> getAllFirestations() {
-		logger.info("Récupération de toutes les casernes.");
+		logger.info("Liste de toutes les casernes récupérée.");
 		logger.debug("Le contenu de la liste : {}", firestationList);
 		return firestationList;
 	}
@@ -83,7 +80,6 @@ public class FirestationRepository {
 	 * Cette méthode ajoute une nouvelle caserne à la liste des casernes. Si la caserne existe déjà, une exception est lancée.
 	 *
 	 * @param newFirestation la nouvelle caserne à ajouter
-	 * @throws FirestationExistingException si la caserne existe déjà
 	 */
 	public void addFirestation(Firestation newFirestation) {
 		firestationList.add(newFirestation);
@@ -101,7 +97,6 @@ public class FirestationRepository {
 	 * une exception est lancée.
 	 *
 	 * @param deletedFirestation la caserne à supprimer
-	 * @throws FirestationDeletedException si la caserne n'a pas pu être supprimée
 	 */
 	public void deleteFirestation(Firestation deletedFirestation) {
 		firestationList.removeIf(firestation -> firestation.getAddress().equals(deletedFirestation.getAddress())
@@ -119,7 +114,6 @@ public class FirestationRepository {
 	 * Cette méthode met à jour une caserne en fonction de son adresse. Si la caserne n'est pas trouvée, une exception est lancée.
 	 *
 	 * @param updatedFirestation la caserne mise à jour
-	 * @throws FirestationNotFoundException si la caserne n'a pas été trouvée pour mise à jour
 	 */
 	public void updateFirestation(Firestation updatedFirestation) {
 	    Optional<Firestation> firestationOptional = firestationList.stream()

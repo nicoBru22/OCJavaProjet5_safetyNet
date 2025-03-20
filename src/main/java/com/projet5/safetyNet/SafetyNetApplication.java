@@ -23,7 +23,7 @@ public class SafetyNetApplication {
 	 * @param args Arguments de ligne de commande passés à l'application.
 	 */
 	public static void main(String[] args) {
-		logger.info("Démarrage de l'application SafetyNet...");
+		logger.debug("Démarrage de l'application SafetyNet...");
 		SpringApplication.run(SafetyNetApplication.class, args);
 		logger.info("L'application SafetyNet a démarré avec succès.");
 
