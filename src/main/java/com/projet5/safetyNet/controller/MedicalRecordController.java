@@ -100,7 +100,7 @@ public class MedicalRecordController {
 		medicalrecordService.deleteMedicalrecord(deletedMedicalrecord);
 		logger.info("Suppression réussie du dossier médical.");
 		logger.debug("Le dossier médical {} a été supprimé avec succès", deletedMedicalrecord);
-		return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Le dossier médical a été supprimé avec succès.");
+		return ResponseEntity.status(HttpStatus.OK).body("Le dossier médical a été supprimé avec succès.");
 	}
 
 	/**
@@ -121,7 +121,7 @@ public class MedicalRecordController {
 		medicalrecordService.updateMedicalrecord(updatedMedicalrecord);
 		logger.info("Mise à jour réussie du dossier médical.");
 		logger.debug("Le dossier médical {} a été mis à jour avec succès", updatedMedicalrecord);
-		return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Le dossier médical a été modifié avec succès.");
+		return ResponseEntity.status(HttpStatus.OK).body("Le dossier médical a été modifié avec succès.");
 	}
 
 }

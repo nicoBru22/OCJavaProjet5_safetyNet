@@ -5,7 +5,12 @@ import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -117,6 +122,25 @@ public class FirestationService {
 		}
 		logger.info("{} firestations récupérées.", firestations.size());
 		return firestations;
+	}
+	
+	/**
+	 * Récupère une liste de casernes à partir de l'identifiant de station.
+	 * 
+	 * @param station L'identifiant de la station à rechercher.
+	 * @return Une liste de casernes correspondant à l'identifiant de station.
+	 */
+	public List<Firestation> getFirestation(String station) {
+	    logger.debug("Début de la méthode getFirestation avec l'identifiant de station : {}", station);
+
+	    List<Firestation> firestationList = getAllFireStations();
+
+	    // Filtrer les casernes en fonction de l'identifiant de station
+	    List<Firestation> filteredFirestations = firestationList.stream()
+	            .filter(f -> f.getStation().equalsIgnoreCase(station))
+	            .collect(Collectors.toList());
+
+	    return filteredFirestations;
 	}
 
 	/**
@@ -369,5 +393,130 @@ public class FirestationService {
 
 		return age;
 	}
+	
+	/**
+	 * Récupère la liste des personnes associées à une adresse, ainsi que les détails sur leur caserne, leurs médicaments et allergies.
+	 * Le résultat est une liste de maps contenant ces informations pour chaque personne.
+	 * 
+	 * @param address L'adresse à rechercher dans la base de données pour lier les personnes et leur caserne.
+	 * @return Une liste de maps où chaque map représente les détails d'une personne : prénom, nom, âge, téléphone, médicaments, allergies, et caserne.
+	 * @throws InvalidRequestException Si l'adresse est nulle ou vide.
+	 */
+	public List<Map<String, Object>> personAndFirestationFromAddress(String address) {
+	    logger.debug("Début de la méthode personAndFirestationFromAddress avec l'adresse : {}", address);
+
+	    // Validation de l'adresse
+	    if (address == null || address.isBlank()) {
+	        logger.error("Adresse invalide : null ou vide");
+	        throw new InvalidRequestException("Le champ address est obligatoire.");
+	    }
+
+	    List<Firestation> firestationsList = firestationRepository.getAllFirestations();
+	    List<Person> personsList = personRepository.getAllPerson();
+	    List<Medicalrecord> medicalrecordsList = medicalrecordRepository.getAllMedicalrecord();
+
+	    Firestation firestation = firestationsList.stream()
+	            .filter(f -> f.getAddress().equalsIgnoreCase(address))
+	            .findFirst()
+	            .orElse(null);
+
+	    if (firestation != null) {
+	        logger.info("Caserne trouvée pour l'adresse {} : Station {}", address, firestation.getStation());
+	    } else {
+	        logger.warn("Aucune caserne trouvée pour l'adresse {}", address);
+	    }
+
+	    List<Person> filteredPersons = personsList.stream()
+	            .filter(person -> person.getAddress().equalsIgnoreCase(address))
+	            .collect(Collectors.toList());
+
+	    logger.info("Nombre de personnes trouvées à l'adresse {} : {}", address, filteredPersons.size());
+
+	    List<Map<String, Object>> result = new ArrayList<>();
+
+	    for (Person person : filteredPersons) {
+	        Optional<Medicalrecord> medicalRecordOpt = medicalrecordsList.stream()
+	                .filter(medicalrecord -> 
+	                    medicalrecord.getFirstName().equalsIgnoreCase(person.getFirstName()) &&
+	                    medicalrecord.getLastName().equalsIgnoreCase(person.getLastName()))
+	                .findFirst();
+
+	        List<String> medications = medicalRecordOpt.map(Medicalrecord::getMedications).orElse(Collections.emptyList());
+	        List<String> allergies = medicalRecordOpt.map(Medicalrecord::getAllergies).orElse(Collections.emptyList());
+	        
+	        String birthdate = medicalRecordOpt.map(Medicalrecord::getBirthdate).orElse(null);
+	        int age = ageOfPerson(birthdate);
+
+	        Map<String, Object> personDetails = new LinkedHashMap<>();
+	        personDetails.put("firstName", person.getFirstName());
+	        personDetails.put("lastName", person.getLastName());
+	        personDetails.put("age", age);
+	        personDetails.put("phone", person.getPhone());
+	        personDetails.put("medications", medications);
+	        personDetails.put("allergies", allergies);
+	        personDetails.put("address", person.getAddress());
+	        personDetails.put("firestation", firestation != null ? firestation.getStation() : "Aucune caserne");
+
+	        result.add(personDetails);
+
+	        logger.debug("Ajouté : {} {} - Téléphone : {} - Caserne : {}",
+	                person.getFirstName(), person.getLastName(), person.getPhone(), 
+	                firestation != null ? firestation.getStation() : "Aucune");
+	    }
+
+	    logger.info("Fin de la méthode personAndFirestationFromAddress. Nombre total de résultats : {}", result.size());
+	    
+	    return result;
+	}
+	
+	public List<Map<String, Object>> floodFromFirestation(String stationNumber) {
+	    logger.debug("Début de la méthode floodFromFirestation avec le numéro de station : {}", stationNumber);
+
+	    List<Firestation> firestationList = getFirestation(stationNumber);
+	    List<Person> personsList = personRepository.getAllPerson();
+	    
+	    List<Map<String, Object>> result = new ArrayList<>();
+
+	    // Récupérer les adresses des casernes
+	    List<String> allFirestationAddresses = firestationList.stream()
+	            .map(Firestation::getAddress)
+	            .collect(Collectors.toList());
+	    logger.debug("La liste des adresses des casernes : {}", allFirestationAddresses);
+	    
+	    // Créer un Map pour regrouper les personnes par adresse
+	    Map<String, List<Map<String, Object>>> groupedByAddress = new HashMap<>();
+
+	    // Parcourir chaque adresse de caserne et récupérer les personnes associées
+	    for (String address : allFirestationAddresses) {
+	        List<Map<String, Object>> personsAtAddress = personAndFirestationFromAddress(address);
+	        
+	        // Regrouper les personnes par adresse
+	        groupedByAddress.put(address, personsAtAddress);
+	        logger.debug("Ajouté les personnes de l'adresse : {}", address);
+	    }
+
+	    // Ajouter les informations regroupées dans le résultat final
+	    for (Map.Entry<String, List<Map<String, Object>>> entry : groupedByAddress.entrySet()) {
+	        Map<String, Object> addressInfo = new HashMap<>();
+	        addressInfo.put("address", entry.getKey());
+	        addressInfo.put("people", entry.getValue());
+
+	        result.add(addressInfo);
+	        logger.debug("Ajouté les personnes pour l'adresse {} : {}", entry.getKey(), entry.getValue());
+	    }
+
+	    logger.info("Fin de la méthode floodFromFirestation. Nombre total de résultats : {}", result.size());
+	    
+	    return result;
+	}
+
+	
+
+
+
+
+
+
+
 
 }

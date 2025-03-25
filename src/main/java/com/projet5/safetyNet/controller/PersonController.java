@@ -105,7 +105,7 @@ public class PersonController {
 		logger.debug("Entrée dans la méthode updatePerson() de la classe PersonController.");
 		logger.debug("Appel de la méthode personService.updatePerson()");
 		personService.updatePerson(person);
-		return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Personne mise à jour avec succès !");
+		return ResponseEntity.status(HttpStatus.OK).body("Personne mise à jour avec succès !");
 
 	}
 
@@ -126,7 +126,7 @@ public class PersonController {
 		personService.deletePerson(person.getFirstName(), person.getLastName(), person.getPhone());
 		logger.info("Suppression de la nouvelle personne réussi.");
 		logger.debug("Suppression avec succès de la personne : {}", person);
-		return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Personne supprimée avec succès.");
+		return ResponseEntity.status(HttpStatus.OK).body("Personne supprimée avec succès.");
 	}
 
 	/**

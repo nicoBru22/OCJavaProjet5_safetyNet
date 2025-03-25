@@ -1,6 +1,7 @@
 package com.projet5.safetyNet.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +72,7 @@ public class FirestationController {
 	 * @return une réponse HTTP avec un statut 201 CREATED et un message de
 	 *         confirmation
 	 */
-	@PostMapping("/firestation")
+	@PostMapping("/firestations")
 	public ResponseEntity<String> addFirestation(@RequestBody Firestation newFirestation) {
 		logger.debug("Ajout d'une nouvelle caserne : {}", newFirestation);
 		firestationService.addFirestation(newFirestation);
@@ -91,13 +92,13 @@ public class FirestationController {
 	 * @return une réponse HTTP avec un statut 204 NO_CONTENT et un message de
 	 *         confirmation
 	 */
-	@DeleteMapping("/firestation")
+	@DeleteMapping("/firestations")
 	public ResponseEntity<String> deleteFirestation(@RequestBody Firestation deletedFirestation) {
 		logger.debug("Suppression de la caserne : {}", deletedFirestation);
 		firestationService.deleteFirestation(deletedFirestation);
 		logger.info("La caserne a été supprimé avec succès.");
 		logger.debug("La caserne : {} a été supprimée avec succès.", deletedFirestation);
-		return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Caserne supprimée avec succès.");
+		return ResponseEntity.status(HttpStatus.OK).body("Caserne supprimée avec succès.");
 	}
 
 	/**
@@ -111,12 +112,12 @@ public class FirestationController {
 	 * @return une réponse HTTP avec un statut 204 NO_CONTENT et un message de
 	 *         confirmation
 	 */
-	@PutMapping("/firestation")
+	@PutMapping("/firestations")
 	public ResponseEntity<String> updateFirestation(@RequestBody Firestation updatedFirestation) {
 		logger.debug("Début de mise à jour de la caserne : {}", updatedFirestation);
 		firestationService.updateFirestation(updatedFirestation);
 		logger.info("Caserne mise à jour avec succès.");
-		return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Caserne modifiée avec succès.");
+		return ResponseEntity.status(HttpStatus.OK).body("Caserne modifiée avec succès.");
 	}
 
 	/**
@@ -132,7 +133,7 @@ public class FirestationController {
 	 * @return une réponse HTTP contenant la liste des personnes associées à la
 	 *         caserne
 	 */
-	@GetMapping("/firestation")
+	@GetMapping("/firestation/person")
 	public ResponseEntity<List<String>> personFromFirestation(@RequestParam String stationNumber) {
 		logger.debug("Recherche des personnes associées à la caserne : {}", stationNumber);
 		List<String> persons = firestationService.personFromStationNumber(stationNumber);
@@ -163,5 +164,52 @@ public class FirestationController {
 		logger.debug("Liste des numéros de téléphone associés à la caserne {} : {}", station, phoneListAlert);
 		return ResponseEntity.ok(phoneListAlert);
 	}
+	
+	/**
+	 * Recherche des personnes et des informations sur la caserne associée à une adresse donnée.
+	 * 
+	 * Cette méthode permet de récupérer la liste des personnes et les informations relatives à leur caserne 
+	 * (médicaments, allergies, etc.) pour une adresse spécifiée dans la requête. 
+	 * Les personnes sont regroupées par adresse, avec leur nom, numéro de téléphone, âge et antécédents médicaux.
+	 * 
+	 * @param address L'adresse de la caserne et des personnes à rechercher.
+	 * @return Une réponse HTTP contenant une liste de maps, où chaque map représente une personne avec 
+	 *         des détails comme leur nom, téléphone, âge, médicaments, allergies et la caserne associée.
+	 *         La réponse est renvoyée avec un statut HTTP 200 (OK).
+	 */
+	@GetMapping("/fire")
+	public ResponseEntity<List<Map<String, Object>>> personAndFirestationFromAddress(@RequestParam String address) {
+	    logger.debug("Recherche de personnes et de la caserne selon l'adresse donnée.");
+	    List<Map<String, Object>> info = firestationService.personAndFirestationFromAddress(address);
+		logger.info("La liste a été récupérée avec succès.");
+	    return ResponseEntity.ok(info);
+	}
+
+	
+	/**
+	 * Récupère la liste des casernes associées à un numéro de station donné.
+	 * 
+	 * Cette méthode permet de récupérer les casernes d'un certain numéro de station. Le paramètre `station`
+	 * permet de filtrer les casernes et de récupérer uniquement celles qui correspondent à ce numéro.
+	 * 
+	 * @param station Le numéro de la station de caserne à rechercher.
+	 * @return Une réponse HTTP contenant la liste des casernes correspondant à ce numéro de station. 
+	 *         La réponse est renvoyée avec un statut HTTP 200 (OK).
+	 */
+	@GetMapping("/firestation")
+	public ResponseEntity<List<Firestation>> firestationFromStationNumber(@RequestParam String station) {
+	    logger.debug("Récupération de la liste des casernes à numéro de station donné.");
+	    List<Firestation> firestations = firestationService.getFirestation(station);
+	    logger.info("La liste des casernes à ce numéro a été récupérée avec succès.");
+	    return ResponseEntity.ok(firestations);
+	}	
+	
+	@GetMapping("/flood/station")
+	public ResponseEntity<List<Map<String, Object>>> floodFromFirestation(@RequestParam String stationNumber) {
+		logger.debug("Recherche des foyer selon l'adresse donnée.");
+		List<Map<String, Object>> result = firestationService.floodFromFirestation(stationNumber);
+		
+		return ResponseEntity.ok(result);
+		}
 
 }
