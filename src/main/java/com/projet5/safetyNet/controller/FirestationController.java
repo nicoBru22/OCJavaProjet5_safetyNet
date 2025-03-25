@@ -204,12 +204,28 @@ public class FirestationController {
 	    return ResponseEntity.ok(firestations);
 	}	
 	
+	/**
+	 * Recherche les foyers (personnes) associés à une caserne de pompiers donnée, en fonction du numéro de station.
+	 * La méthode récupère toutes les personnes associées aux adresses des casernes pour le numéro de station spécifié,
+	 * puis retourne les détails de ces personnes.
+	 * 
+	 * @param stationNumber Le numéro de la caserne de pompiers pour laquelle les foyers doivent être récupérés.
+	 *                      Ce paramètre est passé via l'URL de la requête HTTP en tant que paramètre de type chaîne de caractères.
+	 * @return Une réponse HTTP contenant une liste de cartes représentant les informations des foyers (personnes)
+	 *         associées à la caserne. Chaque carte contient des informations telles que le prénom, le nom, l'adresse,
+	 *         le téléphone et la caserne associée à chaque personne.
+	 * 
+	 * @throws InvalidRequestException Si le numéro de station est invalide ou si des erreurs surviennent lors du traitement.
+	 * 
+	 * @see FirestationService#floodFromFirestation(String)
+	 */
 	@GetMapping("/flood/station")
 	public ResponseEntity<List<Map<String, Object>>> floodFromFirestation(@RequestParam String stationNumber) {
-		logger.debug("Recherche des foyer selon l'adresse donnée.");
-		List<Map<String, Object>> result = firestationService.floodFromFirestation(stationNumber);
-		
-		return ResponseEntity.ok(result);
-		}
+	    logger.debug("Recherche des foyers selon l'adresse donnée.");
+	    List<Map<String, Object>> result = firestationService.floodFromFirestation(stationNumber);
+	    
+	    return ResponseEntity.ok(result);
+	}
+
 
 }

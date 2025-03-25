@@ -68,7 +68,7 @@ public class FirestationControllerUnitTest {
         ObjectMapper objectMapper = new ObjectMapper();
         String firestationJson = objectMapper.writeValueAsString(firestation1);
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/firestation")
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/firestations")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(firestationJson))
                 .andExpect(status().isCreated())
@@ -88,10 +88,10 @@ public class FirestationControllerUnitTest {
         
         String firestationJson = objectMapper.writeValueAsString(firestation1);
         
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.delete("/firestation")
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.delete("/firestations")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(firestationJson))
-                .andExpect(status().isNoContent())
+                .andExpect(status().isOk())
                 .andReturn();
         
         String expectedResponse = "Caserne supprimée avec succès.";
@@ -107,10 +107,10 @@ public class FirestationControllerUnitTest {
         
         String firestationJson = objectMapper.writeValueAsString(firestation1);
         
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.put("/firestation")
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.put("/firestations")
         		.contentType(MediaType.APPLICATION_JSON)
         		.content(firestationJson))
-        		.andExpect(status().isNoContent())
+        		.andExpect(status().isOk())
         		.andReturn();
         
         String expectedResponse = "Caserne modifiée avec succès.";
@@ -144,7 +144,7 @@ public class FirestationControllerUnitTest {
         
         when(firestationService.personFromStationNumber(stationNumberTest)).thenReturn(personFromFirestation1);
         
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/firestation")
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/firestation/person")
                 .param("stationNumber", stationNumberTest))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -154,6 +154,36 @@ public class FirestationControllerUnitTest {
         assertTrue(actualResponse.contains("Nicolas"));
         assertTrue(actualResponse.contains("Sarah"));
         assertTrue(actualResponse.contains("Oceane"));
+    }
+    
+    @Test 
+    void testFloodPerson() throws Exception {
+    	String stationNumberTest = "2";
+    	
+    	mockMvc.perform(MockMvcRequestBuilders.get("/flood/station")
+    			.param("stationNumber", stationNumberTest))
+    			.andExpect(status().isOk())
+    			.andReturn();
+    }
+    
+    @Test
+    void testFire() throws Exception {
+    	String addressTest = "test";
+    	
+    	mockMvc.perform(MockMvcRequestBuilders.get("/fire")
+    			.param("address", addressTest))
+    			.andExpect(status().isOk())
+    			.andReturn();
+    }
+    
+    @Test
+    void testFirestation() throws Exception {
+    	String stationTest = "1";
+    	
+    	mockMvc.perform(MockMvcRequestBuilders.get("/firestation")
+    			.param("station", stationTest))
+    			.andExpect(status().isOk())
+    			.andReturn();
     }
 
 

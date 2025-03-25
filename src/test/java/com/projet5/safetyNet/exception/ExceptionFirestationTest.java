@@ -29,11 +29,11 @@ public class ExceptionFirestationTest {
 
     @Test
     void AddFirestationExistingExceptionTest() throws Exception {
-        Firestation firestationTest = new Firestation("adresse test", "5");
+        Firestation firestationTest = new Firestation("29 15th St", "2");
         
         String firestationJson = objectMapper.writeValueAsString(firestationTest);
         
-        mockMvc.perform(MockMvcRequestBuilders.post("/firestation")
+        mockMvc.perform(MockMvcRequestBuilders.post("/firestations")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(firestationJson))
                 .andExpect(status().isConflict())
@@ -46,7 +46,7 @@ public class ExceptionFirestationTest {
         
         String firestationJson = objectMapper.writeValueAsString(firestationTest);
         
-        mockMvc.perform(MockMvcRequestBuilders.post("/firestation")
+        mockMvc.perform(MockMvcRequestBuilders.post("/firestations")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(firestationJson))
                 .andExpect(status().isBadRequest())
@@ -59,7 +59,7 @@ public class ExceptionFirestationTest {
         
         String firestationJson = objectMapper.writeValueAsString(firestationTest);
         
-        mockMvc.perform(MockMvcRequestBuilders.delete("/firestation")
+        mockMvc.perform(MockMvcRequestBuilders.delete("/firestations")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(firestationJson))
                 .andExpect(status().isBadRequest())
@@ -72,7 +72,7 @@ public class ExceptionFirestationTest {
         
         String firestationJson = objectMapper.writeValueAsString(firestationTest);
         
-        mockMvc.perform(MockMvcRequestBuilders.delete("/firestation")
+        mockMvc.perform(MockMvcRequestBuilders.delete("/firestations")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(firestationJson))
                 .andExpect(status().isNotFound())
@@ -85,7 +85,7 @@ public class ExceptionFirestationTest {
         
         String firestationJson = objectMapper.writeValueAsString(firestationTest);
         
-        mockMvc.perform(MockMvcRequestBuilders.put("/firestation")
+        mockMvc.perform(MockMvcRequestBuilders.put("/firestations")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(firestationJson))
                 .andExpect(status().isBadRequest())
@@ -98,7 +98,7 @@ public class ExceptionFirestationTest {
         
         String firestationJson = objectMapper.writeValueAsString(firestationTest);
         
-        mockMvc.perform(MockMvcRequestBuilders.put("/firestation")
+        mockMvc.perform(MockMvcRequestBuilders.put("/firestations")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(firestationJson))
                 .andExpect(status().isNotFound())
@@ -109,7 +109,7 @@ public class ExceptionFirestationTest {
     void PersonFromFirestationInvalidRequestTest() throws Exception {
         String stationNumberTest = "";
         
-        mockMvc.perform(MockMvcRequestBuilders.get("/firestation")
+        mockMvc.perform(MockMvcRequestBuilders.get("/firestation/person")
                 .param("stationNumber", stationNumberTest))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(containsString("Le numéro de station ne peut pas être vide.")));
@@ -120,7 +120,7 @@ public class ExceptionFirestationTest {
     void PersonFromFirestationNotFoundTest() throws Exception {
         String stationNumberTest = "50";
         
-        mockMvc.perform(MockMvcRequestBuilders.get("/firestation")
+        mockMvc.perform(MockMvcRequestBuilders.get("/firestation/person")
                 .param("stationNumber", stationNumberTest))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("Il n'existe pas de firestation avec ce numéro.")));

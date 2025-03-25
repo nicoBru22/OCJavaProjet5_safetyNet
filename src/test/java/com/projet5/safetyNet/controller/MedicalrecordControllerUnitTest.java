@@ -89,7 +89,7 @@ public class MedicalrecordControllerUnitTest {
 		String medicalrecord1Json = new ObjectMapper().writeValueAsString(medicalrecord1);
 
 		MvcResult result = mockMvc.perform(MockMvcRequestBuilders.delete("/medicalrecords")
-				.contentType(MediaType.APPLICATION_JSON).content(medicalrecord1Json)).andExpect(status().isNoContent())
+				.contentType(MediaType.APPLICATION_JSON).content(medicalrecord1Json)).andExpect(status().isOk())
 				.andReturn();
 
 		String expectedResult = "Le dossier médical a été supprimé avec succès.";
@@ -109,7 +109,7 @@ public class MedicalrecordControllerUnitTest {
 		String medicalrecord1Json = new ObjectMapper().writeValueAsString(medicalrecord1);
 
 		MvcResult result = mockMvc.perform(MockMvcRequestBuilders.put("/medicalrecords")
-				.contentType(MediaType.APPLICATION_JSON).content(medicalrecord1Json)).andExpect(status().isNoContent())
+				.contentType(MediaType.APPLICATION_JSON).content(medicalrecord1Json)).andExpect(status().isOk())
 				.andReturn();
 
 		String expectedResult = "Le dossier médical a été modifié avec succès.";

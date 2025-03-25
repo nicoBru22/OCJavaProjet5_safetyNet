@@ -473,7 +473,6 @@ public class FirestationService {
 	    logger.debug("Début de la méthode floodFromFirestation avec le numéro de station : {}", stationNumber);
 
 	    List<Firestation> firestationList = getFirestation(stationNumber);
-	    List<Person> personsList = personRepository.getAllPerson();
 	    
 	    List<Map<String, Object>> result = new ArrayList<>();
 
