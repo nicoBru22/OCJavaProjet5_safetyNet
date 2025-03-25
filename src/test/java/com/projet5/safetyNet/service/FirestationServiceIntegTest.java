@@ -1,18 +1,15 @@
 package com.projet5.safetyNet.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.projet5.safetyNet.model.Firestation;
-import com.projet5.safetyNet.model.Person;
 import com.projet5.safetyNet.repository.FirestationRepository;
 import com.projet5.safetyNet.repository.PersonRepository;
 

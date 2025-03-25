@@ -127,4 +127,37 @@ public class ExceptionFirestationTest {
     	
     }
     
+    @Test
+    void floodFromFirestationInvalidRequestException() throws Exception {
+        String stationNumberTest = "";
+        
+        mockMvc.perform(MockMvcRequestBuilders.get("/flood/station")
+                .param("stationNumber", stationNumberTest))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("le numéro de station de peut pas être null ou vide.")));
+    	
+    }
+    
+    @Test
+    void fireInvalidRequestException() throws Exception {
+        String addressTest = "";
+        
+        mockMvc.perform(MockMvcRequestBuilders.get("/fire")
+                .param("address", addressTest))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("Le champ address est obligatoire.")));
+    	
+    }
+    
+    @Test
+    void floodFromFirestation() throws Exception {
+        String stationNumberTest = "1";
+        
+        mockMvc.perform(MockMvcRequestBuilders.get("/flood/station")
+                .param("stationNumber", stationNumberTest))
+                .andExpect(status().isOk());
+    }
+    
+    
+    
 }

@@ -469,32 +469,48 @@ public class FirestationService {
 	    return result;
 	}
 	
+	/**
+	 * Cette méthode récupère les informations des personnes associées à une station de pompiers,
+	 * en regroupant les personnes par adresse de caserne. Elle retourne une liste de cartes où chaque 
+	 * carte contient l'adresse de la caserne et les personnes associées à cette adresse.
+	 * 
+	 * Si le numéro de station est null ou vide, une exception `InvalidRequestException` est lancée.
+	 * 
+	 * @param stationNumber Le numéro de la station de pompiers pour laquelle on souhaite récupérer les informations.
+	 *                      Ce paramètre ne peut pas être null ou vide.
+	 * 
+	 * @return Une liste de cartes où chaque carte contient deux clés :
+	 *         - "address" : l'adresse de la caserne,
+	 *         - "people" : une liste des personnes associées à cette adresse (chaque personne étant représentée sous forme de carte avec des informations telles que le prénom, le nom et le téléphone).
+	 * 
+	 * @throws InvalidRequestException Si le numéro de station est null ou vide.
+	 */
 	public List<Map<String, Object>> floodFromFirestation(String stationNumber) {
 	    logger.debug("Début de la méthode floodFromFirestation avec le numéro de station : {}", stationNumber);
+	    
+	    if(stationNumber == null || stationNumber.isBlank()) {
+	    	logger.error("le numéro de station de peut pas être null ou vide.");
+	    	throw new InvalidRequestException("le numéro de station de peut pas être null ou vide.");
+	    }
 
 	    List<Firestation> firestationList = getFirestation(stationNumber);
 	    
 	    List<Map<String, Object>> result = new ArrayList<>();
 
-	    // Récupérer les adresses des casernes
 	    List<String> allFirestationAddresses = firestationList.stream()
 	            .map(Firestation::getAddress)
 	            .collect(Collectors.toList());
 	    logger.debug("La liste des adresses des casernes : {}", allFirestationAddresses);
 	    
-	    // Créer un Map pour regrouper les personnes par adresse
 	    Map<String, List<Map<String, Object>>> groupedByAddress = new HashMap<>();
 
-	    // Parcourir chaque adresse de caserne et récupérer les personnes associées
 	    for (String address : allFirestationAddresses) {
 	        List<Map<String, Object>> personsAtAddress = personAndFirestationFromAddress(address);
 	        
-	        // Regrouper les personnes par adresse
 	        groupedByAddress.put(address, personsAtAddress);
 	        logger.debug("Ajouté les personnes de l'adresse : {}", address);
 	    }
 
-	    // Ajouter les informations regroupées dans le résultat final
 	    for (Map.Entry<String, List<Map<String, Object>>> entry : groupedByAddress.entrySet()) {
 	        Map<String, Object> addressInfo = new HashMap<>();
 	        addressInfo.put("address", entry.getKey());
